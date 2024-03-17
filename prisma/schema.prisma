@@ -20,3 +20,9 @@ model Song {
   created_on DateTime @default(now())
   extra      Json
 }
+
+model User {
+  username      String @id
+  salt          String
+  password_hash String
+}

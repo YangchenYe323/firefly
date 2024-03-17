@@ -129,6 +129,12 @@ exports.Prisma.SongScalarFieldEnum = {
   extra: 'extra'
 };
 
+exports.Prisma.UserScalarFieldEnum = {
+  username: 'username',
+  salt: 'salt',
+  password_hash: 'password_hash'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -151,7 +157,8 @@ exports.Prisma.JsonNullValueFilter = {
 
 
 exports.Prisma.ModelName = {
-  Song: 'Song'
+  Song: 'Song',
+  User: 'User'
 };
 
 /**
