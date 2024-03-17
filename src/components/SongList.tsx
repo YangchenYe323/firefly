@@ -24,7 +24,9 @@ const songFull = Prisma.validator<Prisma.SongDefaultArgs>()({
 type SongFullType = Prisma.SongGetPayload<typeof songFull>;
 
 async function getAllSongs(): Promise<SongFullType[]> {
-  return await prisma.song.findMany();
+  return await prisma.song.findMany({
+    orderBy: [{ id: "asc" }],
+  });
 }
 
 export default async function SongList() {
@@ -37,7 +39,8 @@ export default async function SongList() {
           <TableHead className="w-[100px]">歌名</TableHead>
           <TableHead>歌手</TableHead>
           <TableHead>类别</TableHead>
-          <TableHead className="text-right">备注</TableHead>
+          <TableHead>备注</TableHead>
+          <TableHead className="text-right">反应</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
