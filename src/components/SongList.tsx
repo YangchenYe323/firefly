@@ -1,4 +1,4 @@
-import { Prisma } from "@/generated/client";
+import { Song } from "@/generated/client";
 import {
   Table,
   TableBody,
@@ -9,21 +9,7 @@ import {
 import prisma from "../db";
 import SongTableRow from "./SongTableRow";
 
-const songFull = Prisma.validator<Prisma.SongDefaultArgs>()({
-  select: {
-    id: true,
-    title: true,
-    artist: true,
-    genre: true,
-    remark: true,
-    created_on: true,
-    extra: true,
-  },
-});
-
-type SongFullType = Prisma.SongGetPayload<typeof songFull>;
-
-async function getAllSongs(): Promise<SongFullType[]> {
+async function getAllSongs(): Promise<Song[]> {
   return await prisma.song.findMany({
     orderBy: [{ id: "asc" }],
   });
