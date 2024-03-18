@@ -9,14 +9,10 @@ import {
 import prisma from "../db";
 import SongTableRow from "./SongTableRow";
 
-async function getAllSongs(): Promise<Song[]> {
-  return await prisma.song.findMany({
+export default async function SongList() {
+  const songs = await prisma.song.findMany({
     orderBy: [{ id: "asc" }],
   });
-}
-
-export default async function SongList() {
-  const songs = await getAllSongs();
 
   return (
     <Table className="w-fit m-auto">

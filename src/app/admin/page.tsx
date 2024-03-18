@@ -1,7 +1,10 @@
+import EditableSongTable from "@/components/EditableSongTable";
+import prisma from "@/db";
+
 export default async function Admin() {
-  return (
-    <div>
-      <h1>Admin</h1>
-    </div>
-  );
+  const songs = await prisma.song.findMany({
+    orderBy: [{ id: "asc" }],
+  });
+
+  return <EditableSongTable songs={songs} />;
 }
