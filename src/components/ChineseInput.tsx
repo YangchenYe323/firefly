@@ -3,14 +3,14 @@
 import { ChangeEventHandler, CompositionEventHandler, useState } from "react";
 import { Input, InputProps } from "./ui/input";
 
-interface PropType {
+interface PropType extends InputProps {
   onValueChange: (value: string) => void;
 }
 
 export default function ChineseInput({
   onValueChange,
   ...props
-}: InputProps & PropType) {
+}: PropType) {
   const [isEditingChinese, setIsEditingChinese] = useState(false);
 
   const onCompositionStart: CompositionEventHandler<HTMLInputElement> = (e) => {
