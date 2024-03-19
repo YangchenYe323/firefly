@@ -1,9 +1,9 @@
 "use client";
 
+import { MouseEventHandler, useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Song } from "@prisma/client";
-import { MouseEventHandler, useState } from "react";
 import { onCopyToClipboard } from "@/lib/utils";
 
 type PropType = {

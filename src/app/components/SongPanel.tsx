@@ -1,13 +1,14 @@
 "use client";
 
-import { Song } from "@prisma/client";
-import { useEffect, useState } from "react";
-import SongList from "./SongList";
-import SearchGrid from "./SearchGrid";
-import { Icons } from "../../components/Icons";
-import ChineseInput from "../../components/ChineseInput";
-import { Button } from "../../components/ui/button";
 import { onCopyToClipboard, shuffleArray } from "@/lib/utils";
+import { useEffect, useState } from "react";
+
+import { Button } from "../../components/ui/button";
+import ChineseInput from "../../components/ChineseInput";
+import { Icons } from "../../components/Icons";
+import SearchGrid from "./SearchGrid";
+import { Song } from "@prisma/client";
+import SongTable from "./SongTable";
 
 interface PropType {
   allSongs: Song[];
@@ -154,7 +155,7 @@ export default function SongPanel({ allSongs: originalData }: PropType) {
       </div>
       <div className="h-4"></div>
       <div className="p-0 md:p-1 w-11/12 md:w-8/12 m-auto border-2 rounded-2xl">
-        <SongList songs={finalData}></SongList>
+        <SongTable songs={finalData}></SongTable>
       </div>
     </div>
   );

@@ -7,14 +7,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import SongTableRow from "./SongTableRow";
+
 import { Song } from "@prisma/client";
+import SongTableRow from "./SongTableRow";
 
 interface PropType {
   songs: Song[];
 }
 
-export default function SongList({ songs }: PropType) {
+export default function SongTable({ songs }: PropType) {
   return (
     <Table className="border-collapse">
       <TableHeader className="border-b-2 border-black">

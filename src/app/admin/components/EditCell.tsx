@@ -1,7 +1,8 @@
-import { Song } from "@prisma/client";
 import { Row, Table } from "@tanstack/react-table";
+
 import { Button } from "../../../components/ui/button";
 import { MouseEventHandler } from "react";
+import { Song } from "@prisma/client";
 
 interface PropType {
   row: Row<Song>;

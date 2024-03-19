@@ -1,8 +1,9 @@
-import { Song } from "@prisma/client";
 import { type ClassValue, clsx } from "clsx";
+
+import { Song } from "@prisma/client";
 import copy from "copy-to-clipboard";
-import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

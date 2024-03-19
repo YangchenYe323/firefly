@@ -1,6 +1,14 @@
 "use client";
 
-import { Song } from "@prisma/client";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   PaginationState,
   RowData,
@@ -18,19 +26,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
-import { useState } from "react";
-import EditableTableCell from "./EditableTableCell";
 import EditCell from "./EditCell";
+import EditableTableCell from "./EditableTableCell";
+import { Song } from "@prisma/client";
+import { useState } from "react";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {

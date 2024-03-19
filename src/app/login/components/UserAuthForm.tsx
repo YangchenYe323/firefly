@@ -2,12 +2,12 @@
 
 import * as React from "react";
 
-import { useForm, SubmitHandler } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Icons } from "../../../components/Icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "../../../components/Icons";
+import { cn } from "@/lib/utils";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   onAuthenticate?: (input: InputType) => Promise<boolean>;
