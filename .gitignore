@@ -35,6 +35,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Environment Variable
+# Environment Variables
 .env
 neon.txt
+
+# Vtuber Profile
+vtuber.profile.json
+
+# Profile Image
+public/profile/

@@ -1,4 +1,5 @@
-import { Song } from "@/generated/client";
+"use client";
+
 import {
   Table,
   TableBody,
@@ -6,23 +7,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import prisma from "../db";
 import SongTableRow from "./SongTableRow";
+import { Song } from "@prisma/client";
 
-export default async function SongList() {
-  const songs = await prisma.song.findMany({
-    orderBy: [{ id: "asc" }],
-  });
+interface PropType {
+  songs: Song[];
+}
 
+export default function SongList({ songs }: PropType) {
   return (
-    <Table className="w-fit m-auto">
-      <TableHeader>
+    <Table className="border-collapse">
+      <TableHeader className="border-b-2 border-black">
         <TableRow>
-          <TableHead className="w-[100px]">歌名</TableHead>
-          <TableHead>歌手</TableHead>
-          <TableHead>类别</TableHead>
-          <TableHead>备注</TableHead>
-          <TableHead className="text-right">反应</TableHead>
+          <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-center">
+            歌名
+          </TableHead>
+          <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+            歌手
+          </TableHead>
+          <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+            类别
+          </TableHead>
+          <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+            备注
+          </TableHead>
+          <TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center">
+            反应
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

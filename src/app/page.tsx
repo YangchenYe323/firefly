@@ -1,22 +1,35 @@
-import SongList from "@/components/SongList";
+import SongPanel from "@/components/SongPanel";
 import StickyHeader from "@/components/StickyHeader";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import prisma from "@/db";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import Heading from "@/components/Heading";
 
 export default async function Home() {
+  const songs = await prisma.song.findMany({
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  const songCount = songs.length;
+
   return (
     <div>
       <StickyHeader heading="歌单">
         <Link
-          className={
-            buttonVariants({ variant: "outline", size: "sm" }) + " ml-auto"
-          }
+          className={cn(
+            buttonVariants({ variant: "outline", size: "sm" }),
+            " ml-auto"
+          )}
           href="/login"
         >
           点击进入后台
         </Link>
       </StickyHeader>
-      <SongList />;
+      <Heading songCount={songCount} />
+      <SongPanel allSongs={songs} />
     </div>
   );
 }

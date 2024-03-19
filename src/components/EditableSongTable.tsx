@@ -143,7 +143,7 @@ export default function EditableSongTable({ songs }: PropType) {
   const currentPageIdxOneBased = pagination.pageIndex + 1;
 
   return (
-    <div className="rounded-md border w-1/2 m-auto">
+    <div className="rounded-md border p-1 md:p-4 w-full md:w-1/2 m-auto">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
