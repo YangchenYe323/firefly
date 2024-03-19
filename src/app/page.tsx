@@ -1,12 +1,9 @@
-import SongPanel from "@/components/SongPanel";
 import StickyHeader from "@/components/StickyHeader";
-import { buttonVariants } from "@/components/ui/button";
 import prisma from "@/db";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import Heading from "@/components/Heading";
-import { MainNav } from "@/components/MainNav";
-import { UserNav } from "@/components/UserNav";
+import SongPanel from "./components/SongPanel";
+import Heading from "./components/Heading";
+import MainNav from "./components/MainNav";
+import UserNav from "./components/UserNav";
 
 export default async function Home() {
   const songs = await prisma.song.findMany({

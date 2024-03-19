@@ -4,9 +4,9 @@ import { Song } from "@prisma/client";
 import { useEffect, useState } from "react";
 import SongList from "./SongList";
 import SearchGrid from "./SearchGrid";
-import { Icons } from "./Icons";
-import ChineseInput from "./ChineseInput";
-import { Button } from "./ui/button";
+import { Icons } from "../../components/Icons";
+import ChineseInput from "../../components/ChineseInput";
+import { Button } from "../../components/ui/button";
 import { onCopyToClipboard, shuffleArray } from "@/lib/utils";
 
 interface PropType {

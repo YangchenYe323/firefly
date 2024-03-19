@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "./Icons";
+import { Icons } from "../../../components/Icons";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  onAuthenticate?: (input: Inputs) => Promise<boolean>;
+  onAuthenticate?: (input: InputType) => Promise<boolean>;
 }
 
-export interface Inputs {
+export interface InputType {
   username: string;
   passwd: string;
 }
@@ -29,9 +29,9 @@ export function UserAuthForm({
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<InputType>();
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const onSubmit: SubmitHandler<InputType> = async (data) => {
     setIsLoading(true);
     if (onAuthenticate) {
       const success = await onAuthenticate(data);

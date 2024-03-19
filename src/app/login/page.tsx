@@ -1,12 +1,12 @@
 "use client";
 
-import { Inputs, UserAuthForm } from "@/components/UserAuthForm";
+import { InputType, UserAuthForm } from "./components/UserAuthForm";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const onAuthenticate = async ({ username, passwd }: Inputs) => {
+  const onAuthenticate = async ({ username, passwd }: InputType) => {
     let res = await fetch("/api/login", {
       method: "POST",
       body: JSON.stringify({ username, passwd }),

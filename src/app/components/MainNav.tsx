@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { Icons } from "./Icons";
+import { Icons } from "../../components/Icons";
 import vtuberProfile from "@/profile";
 
-export function MainNav({
+export default function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {

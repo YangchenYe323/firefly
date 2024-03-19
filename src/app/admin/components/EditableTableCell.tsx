@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEventHandler, useEffect, useState } from "react";
-import { Input } from "./ui/input";
+import { Input } from "../../../components/ui/input";
 import { Column, Row, Table } from "@tanstack/react-table";
 import { Song } from "@prisma/client";
 

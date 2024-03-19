@@ -1,4 +1,4 @@
-import EditableSongTable from "@/components/EditableSongTable";
+import EditableSongTable from "./components/EditableSongTable";
 import prisma from "@/db";
 
 export default async function Admin() {

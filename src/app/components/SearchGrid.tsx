@@ -2,7 +2,7 @@
 
 import { Dispatch, ReactNode, SetStateAction } from "react";
 import { Filter, SongFilter } from "./SongPanel";
-import { Button } from "./ui/button";
+import { Button } from "../../components/ui/button";
 
 interface PropType {
   heading?: ReactNode;
