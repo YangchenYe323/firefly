@@ -3,7 +3,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Song } from "@prisma/client";
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 import { onCopyToClipboard } from "@/lib/utils";
 import { Tooltip } from "./ui/tooltip";
 import {
@@ -47,7 +47,8 @@ export default function SongTableRow({ song }: PropType) {
   const [numLikes, setNumLikes] = useState(getNumLikes(song));
   const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
 
-  const onLikeSong = async () => {
+  const onLikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.stopPropagation();
     fetch("/api/songs/like", {
       method: "POST",
       body: JSON.stringify({ id: song.id }),
@@ -57,7 +58,8 @@ export default function SongTableRow({ song }: PropType) {
     setNumLikes((likes) => likes + 1);
   };
 
-  const onDislikeSong = async () => {
+  const onDislikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.stopPropagation();
     fetch("/api/songs/dislike", {
       method: "POST",
       body: JSON.stringify({ id: song.id }),
