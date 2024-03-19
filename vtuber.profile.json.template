@@ -1,3 +1,22 @@
 {
-  "name": "Eikasia"
+  "name": "Eikasia",
+  "bannerImagePath": "path/to/image",
+  "avatarImagePath": "path/to/image",
+  "externalLinks": [
+    {
+      "value": "主页",
+      "icon": "bilibili",
+      "href": "https://space.bilibili.com/12345678"
+    },
+    {
+      "value": "直播间",
+      "icon": "bilibili_live_costly",
+      "href": "https://live.bilibili.com/12345678"
+    },
+    {
+      "value": "TAPE提问箱",
+      "icon": "tapechat",
+      "href": "https://pome.vip/Eikasia30"
+    }
+  ]
 }

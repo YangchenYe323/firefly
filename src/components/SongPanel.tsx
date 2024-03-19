@@ -81,16 +81,15 @@ export default function SongPanel({ allSongs: originalData }: PropType) {
     return song.title.indexOf(text) != -1 || song.artist.indexOf(text) != -1;
   };
 
-  const combinedFilter = (song: Song) => {
-    return (
-      currentFilter.predicate(song) &&
-      containSearchTextInTitleOrArtist(song, searchText)
-    );
-  };
-
   useEffect(() => {
+    const combinedFilter = (song: Song) => {
+      return (
+        currentFilter.predicate(song) &&
+        containSearchTextInTitleOrArtist(song, searchText)
+      );
+    };
     setFinalData(originalData.filter(combinedFilter));
-  }, [currentFilter, searchText]);
+  }, [currentFilter, searchText, originalData]);
 
   const onFilterChange = (selectedFilter: Filter) => {
     // We would like the user to be able to return to the original

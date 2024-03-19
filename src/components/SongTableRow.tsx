@@ -5,13 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Song } from "@prisma/client";
 import { MouseEventHandler, useState } from "react";
 import { onCopyToClipboard } from "@/lib/utils";
-import { Tooltip } from "./ui/tooltip";
-import {
-  TooltipContent,
-  TooltipTrigger,
-  Arrow,
-  Portal,
-} from "@radix-ui/react-tooltip";
 
 type PropType = {
   song: Song;

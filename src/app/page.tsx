@@ -5,6 +5,8 @@ import prisma from "@/db";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Heading from "@/components/Heading";
+import { MainNav } from "@/components/MainNav";
+import { UserNav } from "@/components/UserNav";
 
 export default async function Home() {
   const songs = await prisma.song.findMany({
@@ -17,16 +19,13 @@ export default async function Home() {
 
   return (
     <div>
-      <StickyHeader heading="歌单">
-        <Link
-          className={cn(
-            buttonVariants({ variant: "outline", size: "sm" }),
-            " ml-auto"
-          )}
-          href="/login"
-        >
-          点击进入后台
-        </Link>
+      <StickyHeader>
+        <div className="container flex h-14 items-center">
+          <MainNav className="mx-6" />
+          <div className="ml-auto flex items-center">
+            <UserNav />
+          </div>
+        </div>
       </StickyHeader>
       <Heading songCount={songCount} />
       <SongPanel allSongs={songs} />

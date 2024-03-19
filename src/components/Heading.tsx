@@ -1,22 +1,12 @@
 import Image from "next/image";
-import { promises as fs } from "fs";
-import path from "path";
-
-interface VtuberProfile {
-  name: string;
-  bannerImagePath: string;
-  backgroundImagePath?: string;
-}
+import vtuberProfile from "@/profile";
 
 interface PropType {
   songCount: number;
 }
 
 export default async function Heading({ songCount }: PropType) {
-  const profilePath = path.join(process.cwd(), "vtuber.profile.json");
-  const { name, bannerImagePath, backgroundImagePath }: VtuberProfile = await fs
-    .readFile(profilePath, "utf8")
-    .then((buf) => JSON.parse(buf));
+  const { name, bannerImagePath, backgroundImagePath } = vtuberProfile;
 
   return (
     <div className="w-full text-center my-6">
