@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/db";
+import { signNewJwtToken } from "@/lib/auth";
 
 const USER_HASH = bcrypt.genSaltSync(8);
 
@@ -17,21 +18,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "用户名或密码错误" }, { status: 400 });
   }
 
-  const { username: _, salt, password_hash: expectedPasswdHash } = user;
-
-  const actualPasswdHash = await bcrypt.hash(passwd, salt);
+  const actualPasswdHash = await bcrypt.hash(passwd, user.salt);
+  const expectedPasswdHash = user.password_hash;
 
   if (expectedPasswdHash !== actualPasswdHash) {
     return NextResponse.json({ message: "用户名或密码错误" }, { status: 400 });
   }
 
-  const currentUserHash = await bcrypt.hash(username, USER_HASH);
+  const newUserToken = await signNewJwtToken(user);
 
   const redirectUrl = new URL("/admin", new URL(request.url).origin);
 
   let response = NextResponse.redirect(redirectUrl);
 
-  response.cookies.set("currentUser", currentUserHash);
+  response.cookies.set("currentUser", newUserToken);
 
   return response;
 }
