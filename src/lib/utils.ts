@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 
-import { Song } from "@prisma/client";
+import { Song } from "@/generated/client";
 import copy from "copy-to-clipboard";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";

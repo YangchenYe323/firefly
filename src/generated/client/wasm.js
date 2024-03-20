@@ -123,7 +123,9 @@ exports.Prisma.SongScalarFieldEnum = {
   id: 'id',
   title: 'title',
   artist: 'artist',
-  genre: 'genre',
+  lang: 'lang',
+  tag: 'tag',
+  url: 'url',
   remark: 'remark',
   created_on: 'created_on',
   extra: 'extra'
@@ -133,6 +135,12 @@ exports.Prisma.UserScalarFieldEnum = {
   username: 'username',
   salt: 'salt',
   password_hash: 'password_hash'
+};
+
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  created_on: 'created_on'
 };
 
 exports.Prisma.SortOrder = {
@@ -155,10 +163,16 @@ exports.Prisma.JsonNullValueFilter = {
   AnyNull: Prisma.AnyNull
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
   Song: 'Song',
-  User: 'User'
+  User: 'User',
+  Feedback: 'Feedback'
 };
 
 /**

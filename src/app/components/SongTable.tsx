@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Song } from "@prisma/client";
+import { Song } from "@/generated/client";
 import SongTableRow from "./SongTableRow";
 
 interface PropType {
@@ -27,7 +27,10 @@ export default function SongTable({ songs }: PropType) {
             歌手
           </TableHead>
           <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
-            类别
+            语种
+          </TableHead>
+          <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+            标签
           </TableHead>
           <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
             备注

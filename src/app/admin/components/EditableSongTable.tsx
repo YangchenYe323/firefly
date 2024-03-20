@@ -29,7 +29,7 @@ import {
 
 import EditCell from "./EditCell";
 import EditableTableCell from "./EditableTableCell";
-import { Song } from "@prisma/client";
+import { Song } from "@/generated/client";
 import { useState } from "react";
 
 declare module "@tanstack/react-table" {
@@ -77,7 +77,23 @@ export default function EditableSongTable({ songs }: PropType) {
       },
     }),
 
-    columnHelper.accessor("genre", {
+    columnHelper.accessor("lang", {
+      header: "语种",
+      cell: EditableTableCell,
+      meta: {
+        type: "list",
+      },
+    }),
+
+    columnHelper.accessor("url", {
+      header: "作品链接",
+      cell: EditableTableCell,
+      meta: {
+        type: "text",
+      },
+    }),
+
+    columnHelper.accessor("tag", {
       cell: EditableTableCell,
       meta: {
         type: "list",

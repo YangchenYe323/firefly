@@ -13,11 +13,21 @@ datasource db {
 
 model Song {
   id         Int      @id @default(autoincrement())
+  // 歌名
   title      String
+  // 歌手
   artist     String
-  genre      String[]
+  // 语种
+  lang       String[]
+  // 标签
+  tag        String[]
+  // 作品链接
+  url        String?
+  // 备注
   remark     String
+  // 创建时间
   created_on DateTime @default(now())
+  // 服务器管理的数据（点赞，点踩，etc.)
   extra      Json
 }
 
@@ -25,4 +35,10 @@ model User {
   username      String @id
   salt          String
   password_hash String
+}
+
+model Feedback {
+  id         String   @id @default(uuid())
+  content    String
+  created_on DateTime @default(now())
 }

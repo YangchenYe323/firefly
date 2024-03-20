@@ -3,8 +3,10 @@
 import { MouseEventHandler, useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Song } from "@prisma/client";
+import { Song } from "@/generated/client";
 import { onCopyToClipboard } from "@/lib/utils";
+import { Icons } from "@/components/Icons";
+import Link from "next/link";
 
 type PropType = {
   song: Song;
@@ -70,19 +72,40 @@ export default function SongTableRow({ song }: PropType) {
       className="h-0.5 md:h-1 hover:bg-accent hover:text-accent-foreground"
       onClick={onCopySong}
     >
-      <TableCell className="p-0 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
-        <Button
-          variant="ghost"
-          className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
-        >
-          {song.title}
-        </Button>
+      <TableCell className="p-0 font-mono text-center -0.5 md:h-1 whitespace-nowrap">
+        {song.url ? (
+          <span>
+            <Button
+              variant="ghost"
+              className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
+            >
+              {song.title}
+            </Button>
+            <Link
+              href={song.url}
+              target="_blank"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Icons.paper_plane className="ml-2 inline align-top" />
+            </Link>
+          </span>
+        ) : (
+          <Button
+            variant="ghost"
+            className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
+          >
+            {song.title}
+          </Button>
+        )}
       </TableCell>
       <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         {song.artist}
       </TableCell>
       <TableCell className="p0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
-        {song.genre.join(", ")}
+        {song.lang.join(", ")}
+      </TableCell>
+      <TableCell className="p0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
+        {song.tag.join(", ")}
       </TableCell>
       <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         {song.remark}

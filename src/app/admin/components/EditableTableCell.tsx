@@ -4,7 +4,7 @@ import { ChangeEventHandler, useEffect, useState } from "react";
 import { Column, Row, Table } from "@tanstack/react-table";
 
 import { Input } from "../../../components/ui/input";
-import { Song } from "@prisma/client";
+import { Song } from "@/generated/client";
 
 interface PropType {
   getValue: () => any;

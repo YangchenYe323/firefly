@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/button";
 import ChineseInput from "../../components/ChineseInput";
 import { Icons } from "../../components/Icons";
 import SearchGrid from "./SearchGrid";
-import { Song } from "@prisma/client";
+import { Song } from "@/generated/client";
 import SongTable from "./SongTable";
 
 interface PropType {
@@ -22,8 +22,12 @@ export interface Filter {
   predicate: SongFilter;
 }
 
-const filterOnGenre: SongFilterBuilder<string> = (tag) => (song) => {
-  return song.genre.indexOf(tag) != -1;
+const filterForeignLang: SongFilter = (song) => {
+  return song.lang.length > 1 || song.lang[0] != "国语";
+};
+
+const filterOnTag: SongFilterBuilder<string> = (tag) => (song) => {
+  return song.tag.indexOf(tag) != -1;
 };
 
 const filterOnCaptain: SongFilter = (song) =>
@@ -34,7 +38,7 @@ const filterOnOriginal: SongFilter = (song) =>
 
 const filterOnPaid: SongFilter = (song) => song.remark.indexOf("SC点歌") != -1;
 
-//TODO(yangchen): 其他语种
+const filterOnUrlAvailable: SongFilter = (song) => song.url != null;
 
 const filterAll = {
   value: "全部",
@@ -45,15 +49,19 @@ const filters: Filter[] = [
   filterAll,
   {
     value: "流行",
-    predicate: filterOnGenre("流行"),
+    predicate: filterOnTag("流行"),
   },
   {
     value: "古风",
-    predicate: filterOnGenre("古风"),
+    predicate: filterOnTag("古风"),
   },
   {
     value: "民谣",
-    predicate: filterOnGenre("民谣"),
+    predicate: filterOnTag("民谣"),
+  },
+  {
+    value: "其他语种",
+    predicate: filterForeignLang,
   },
   {
     value: "上船当日限定",
@@ -66,6 +74,10 @@ const filters: Filter[] = [
   {
     value: "付费",
     predicate: filterOnPaid,
+  },
+  {
+    value: "歌切链接",
+    predicate: filterOnUrlAvailable,
   },
 ];
 

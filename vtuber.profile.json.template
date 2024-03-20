@@ -2,6 +2,8 @@
   "name": "Eikasia",
   "bannerImagePath": "path/to/image",
   "avatarImagePath": "path/to/image",
+  "metaTitle": "Playlist for Eikasia",
+  "metaDescription": "Playlist for Eikasia",
   "externalLinks": [
     {
       "value": "主页",
