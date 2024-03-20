@@ -9,6 +9,8 @@ export interface VtuberExternalLink {
 
 export interface VtuberProfile {
   name: string;
+  metaTitle?: string;
+  metaDescription?: string;
   bannerImagePath: string;
   avatarImagePath: string;
   backgroundImagePath?: string;

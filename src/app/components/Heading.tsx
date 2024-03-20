@@ -17,6 +17,7 @@ export default async function Heading({ songCount }: PropType) {
           width={240}
           height={240}
           className="rounded-full border border-black"
+          priority={true}
         />
       </span>
       <h1 className="text-center text-4xl md:text-5xl lg:text-6xl text-black font-light">

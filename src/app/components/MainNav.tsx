@@ -27,6 +27,7 @@ export default function MainNav({
               {IconNode && <IconNode className="inline align-top" />}
               <Link
                 href={href}
+                target="_blank"
                 className="font-medium text-muted-foreground transition-colors hover:text-primary"
               >
                 {title}
