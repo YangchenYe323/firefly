@@ -70,38 +70,38 @@ export default function SongTableRow({ song }: PropType) {
       className="h-0.5 md:h-1 hover:bg-accent hover:text-accent-foreground"
       onClick={onCopySong}
     >
-      <TableCell className="p-0 font-mono text-center h-0.5 md:h-1 text-xs md:text-sm whitespace-nowrap">
+      <TableCell className="p-0 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         <Button
           variant="ghost"
-          className="p-0 m-0 border-0 h-0.5 md:h-1 text-center"
+          className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
         >
           {song.title}
         </Button>
       </TableCell>
-      <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 text-xs md:text-sm whitespace-nowrap">
+      <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         {song.artist}
       </TableCell>
-      <TableCell className="p0 md:p-0.5 font-mono text-center h-0.5 md:h-1 text-xs md:text-sm whitespace-nowrap">
+      <TableCell className="p0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         {song.genre.join(", ")}
       </TableCell>
-      <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 text-xs md:text-sm whitespace-nowrap">
+      <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         {song.remark}
       </TableCell>
-      <TableCell className="p-0 md:p-0.5 font-serif h-0.5 md:h-1 whitespace-nowrap">
+      <TableCell className="p-0 md:p-0.5 h-0.5 md:h-1 whitespace-nowrap">
         <div className="min-w-10 h-full grid grid-flow-col-dense justify-start items-center auto-cols-min">
           <Button
             variant="outline"
             className="mr-1 w-fit rounded-full p-1"
             onClick={onLikeSong}
           >
-            <span className="text-xs md:text-sm">️❤️ {numLikes}</span>
+            <span>️❤️ {numLikes}</span>
           </Button>
           <Button
             variant="outline"
             className="w-fit rounded-full p-1"
             onClick={onDislikeSong}
           >
-            <span className="text-xs md:text-sm">😅 {numDislikes}</span>
+            <span>😅 {numDislikes}</span>
           </Button>
         </div>
       </TableCell>

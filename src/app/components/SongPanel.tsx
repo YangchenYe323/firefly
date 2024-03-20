@@ -114,7 +114,7 @@ export default function SongPanel({ allSongs: originalData }: PropType) {
 
   return (
     <div>
-      <div className="p-0 md:p-2 w-11/12 md:w-8/12 m-auto border-2 border-black rounded-2xl">
+      <div className="p-0 md:p-2 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_blue/20">
         <div className="w-full">
           <SearchGrid
             heading={
@@ -135,26 +135,26 @@ export default function SongPanel({ allSongs: originalData }: PropType) {
       <div className="p-0 w-11/12 md:w-8/12 m-auto flex flex-row flex-wrap">
         <ChineseInput
           placeholder="搜索"
-          className="flex-[0_0_auto] w-full md:w-2/3 border-2 rounded-3xl pl-2 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:border-2 text-base"
+          className="flex-[0_0_auto] w-full md:w-2/3 border rounded-3xl pl-2 text-base bg-white/80"
           onValueChange={onSearchTextChange}
         />
         <Button
           variant="outline"
-          className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border-2"
+          className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border bg-white/80"
           onClick={onShuffle}
         >
           打乱顺序👻
         </Button>
         <Button
           variant="outline"
-          className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border-2"
+          className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border bg-white/80"
           onClick={onCopyRandom}
         >
           随便听听
         </Button>
       </div>
       <div className="h-4"></div>
-      <div className="p-0 md:p-1 w-11/12 md:w-8/12 m-auto border-2 rounded-2xl">
+      <div className="p-0 md:p-1 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_lavender_lighter/80">
         <SongTable songs={finalData}></SongTable>
       </div>
     </div>
