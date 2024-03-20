@@ -27,7 +27,7 @@ export default function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              主包管理后台，钱不够演员未定剧本暂无，敬请期待...
+              更多功能，钱不够演员未定剧本暂无，敬请期待
             </p>
           </div>
         </DropdownMenuLabel>

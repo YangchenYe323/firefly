@@ -1,43 +1,67 @@
-import { Row, Table } from "@tanstack/react-table";
+"use client";
+
+import { Cell, Row, Table } from "@tanstack/react-table";
+import { MouseEventHandler, useState } from "react";
 
 import { Button } from "../../../components/ui/button";
-import { MouseEventHandler } from "react";
-import { Song } from "@/generated/client";
+import { EditableSong } from "../page";
+import { Icons } from "@/components/Icons";
 
 interface PropType {
-  row: Row<Song>;
-  table: Table<Song>;
+  row: Row<EditableSong>;
+  table: Table<EditableSong>;
 }
 
 export default function EditCell({ row, table }: PropType) {
+  const [isLoading, setIsLoading] = useState(false);
   const meta = table.options.meta;
 
-  const setEditedRows: MouseEventHandler = (e) => {
-    const elementName = (e.currentTarget as HTMLButtonElement).name;
-
-    // Revert edited rows state.
-    meta?.setEditedRows((old: any) => ({
-      ...old,
-      [row.id]: !old[row.id],
-    }));
-
-    // Set data
-    if (elementName !== "edit") {
-      meta?.revertData(row.index, elementName === "cancel");
-    }
+  const onEdit: MouseEventHandler<HTMLButtonElement> = (e) => {
+    const originalCellValues = row.getAllCells().map((cell) => cell.getValue());
+    meta?.setEditedRows((old) => old.set(row.id, originalCellValues));
   };
 
-  return meta?.editedRows[row.id] ? (
+  const onSubmit: MouseEventHandler<HTMLButtonElement> = async (e) => {
+    setIsLoading(true);
+    const success = await meta?.persistdata(row.index, row.id);
+    setIsLoading(false);
+    meta?.setEditedRows((old) => old.delete(row.id));
+    meta?.revertData(row.index, !success);
+  };
+
+  const onCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
+    meta?.setEditedRows((old) => old.delete(row.id));
+    meta?.revertData(row.index, true);
+  };
+
+  const isEditing = meta?.editedRows.has(row.id);
+
+  return isEditing ? (
     <>
-      <Button onClick={setEditedRows} name="cancel" variant="outline" size="sm">
+      <Button
+        onClick={onCancel}
+        disabled={isLoading}
+        variant="outline"
+        size="sm"
+        className="whitespace-nowrap"
+      >
         X
-      </Button>{" "}
-      <Button onClick={setEditedRows} name="finish" variant="outline" size="sm">
-        ✔
+      </Button>
+      <Button
+        onClick={onSubmit}
+        disabled={isLoading}
+        variant="outline"
+        size="sm"
+        className="whitespace-nowrap"
+      >
+        ✔{" "}
+        {isLoading && (
+          <Icons.spinner className="inline, h-4, w-4, animate-spin" />
+        )}
       </Button>
     </>
   ) : (
-    <Button onClick={setEditedRows} name="edit" variant="outline" size="sm">
+    <Button onClick={onEdit} variant="outline" size="sm">
       ✐
     </Button>
   );

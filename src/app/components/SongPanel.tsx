@@ -1,6 +1,6 @@
 "use client";
 
-import { onCopyToClipboard, shuffleArray } from "@/lib/utils";
+import { onCopyToClipboard, orderNewSongsFirst, shuffleArray } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { Button } from "../../components/ui/button";
@@ -81,10 +81,15 @@ const filters: Filter[] = [
   },
 ];
 
-export default function SongPanel({ allSongs: originalData }: PropType) {
+export default function SongPanel({ allSongs }: PropType) {
+  const [originalData, setOriginalData] = useState(orderNewSongsFirst(allSongs));
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([...originalData]);
+
+  useEffect(() => {
+    setOriginalData(orderNewSongsFirst(allSongs))
+  }, [allSongs]);
 
   const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
     if (text.length === 0) {

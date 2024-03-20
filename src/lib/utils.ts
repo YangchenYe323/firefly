@@ -19,6 +19,22 @@ export function shuffleArray<T>(arr: T[]) {
   return res;
 }
 
+export function isNewlyAdded(song: Song) {
+  const creationDate = song.created_on;
+  const today = new Date();
+  const lastTwoMonth = new Date(today);
+  lastTwoMonth.setDate(0);
+  lastTwoMonth.setDate(0);
+  lastTwoMonth.setDate(1);
+  return creationDate <= today && creationDate >= lastTwoMonth;
+}
+
+export function orderNewSongsFirst(allSongs: Song[]) {
+  const newSongs = allSongs.filter(isNewlyAdded);
+  const oldSongs = allSongs.filter(song => !isNewlyAdded(song));
+  return [...newSongs, ...oldSongs];
+}
+
 export function onCopyToClipboard(song: Song) {
   copy(song.title, {
     format: "text/plain",

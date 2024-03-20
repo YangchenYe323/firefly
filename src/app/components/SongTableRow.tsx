@@ -2,11 +2,13 @@
 
 import { MouseEventHandler, useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { isNewlyAdded, onCopyToClipboard } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
-import { Song } from "@/generated/client";
-import { onCopyToClipboard } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
+import Image from "next/image";
 import Link from "next/link";
+import { Song } from "@/generated/client";
 
 type PropType = {
   song: Song;
@@ -72,7 +74,18 @@ export default function SongTableRow({ song }: PropType) {
       className="h-0.5 md:h-1 hover:bg-accent hover:text-accent-foreground"
       onClick={onCopySong}
     >
-      <TableCell className="p-0 font-mono text-center -0.5 md:h-1 whitespace-nowrap">
+      <TableCell className="p-0 md:p-0.5 font-mono text-end h-0.5 md:h-1 whitespace-nowrap">
+        {isNewlyAdded(song) && (
+          <Image
+            src="/new.png"
+            alt="new"
+            className="align-top"
+            width={50}
+            height={50}
+          />
+        )}
+      </TableCell>
+      <TableCell className="p-0 text-start h-0.5 md:h-1 whitespace-nowrap">
         {song.url ? (
           <span>
             <Button

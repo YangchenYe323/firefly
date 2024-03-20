@@ -20,7 +20,8 @@ export default function SongTable({ songs }: PropType) {
     <Table className="border-collapse">
       <TableHeader className="border-b-2 border-black">
         <TableRow>
-          <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-center">
+          <TableHead className="w-1/6"></TableHead>
+          <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-start">
             歌名
           </TableHead>
           <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
