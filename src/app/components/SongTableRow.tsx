@@ -12,6 +12,8 @@ import { Song } from "@/generated/client";
 
 type PropType = {
   song: Song;
+  onLikeSong: (id: number) => Promise<void>;
+  onDislikeSong: (id: number) => Promise<void>;
 };
 
 const getNumLikes = (song: Song) => {
@@ -40,40 +42,11 @@ const getNumDislikes = (song: Song) => {
   return 0;
 };
 
-export default function SongTableRow({ song }: PropType) {
-  const [numLikes, setNumLikes] = useState(getNumLikes(song));
-  const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
-
-  useEffect(() => {
-    setNumLikes(getNumDislikes(song));
-  }, [song]);
-
-  useEffect(() => {
-    setNumDislikes(getNumDislikes(song));
-  }, [song]);
-
-  const onLikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
-    e.stopPropagation();
-    fetch("/api/songs/like", {
-      method: "POST",
-      body: JSON.stringify({ id: song.id }),
-    }).catch((e) => {
-      console.log(`Error liking song ${e}`);
-    });
-    setNumLikes((likes) => likes + 1);
-  };
-
-  const onDislikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
-    e.stopPropagation();
-    fetch("/api/songs/dislike", {
-      method: "POST",
-      body: JSON.stringify({ id: song.id }),
-    }).catch((e) => {
-      console.log(`Error disliking song ${e}`);
-    });
-    setNumDislikes((dislikes) => dislikes + 1);
-  };
-
+export default function SongTableRow({
+  song,
+  onLikeSong,
+  onDislikeSong,
+}: PropType) {
   const onCopySong = () => onCopyToClipboard(song);
 
   return (
@@ -136,16 +109,22 @@ export default function SongTableRow({ song }: PropType) {
           <Button
             variant="ghost"
             className="mr-1 w-fit rounded-full p-1"
-            onClick={onLikeSong}
+            onClick={async (e) => {
+              e.stopPropagation();
+              await onLikeSong(song.id);
+            }}
           >
-            <span>️❤️ {numLikes}</span>
+            <span>️❤️ {getNumLikes(song)}</span>
           </Button>
           <Button
             variant="ghost"
             className="w-fit rounded-full p-1"
-            onClick={onDislikeSong}
+            onClick={async (e) => {
+              e.stopPropagation();
+              await onDislikeSong(song.id);
+            }}
           >
-            <span>😅 {numDislikes}</span>
+            <span>😅 {getNumDislikes(song)}</span>
           </Button>
         </div>
       </TableCell>

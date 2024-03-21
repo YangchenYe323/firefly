@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   cn,
   onCopyToClipboard,
   orderNewSongsFirst,
@@ -14,7 +21,7 @@ import { Icons } from "../../components/Icons";
 import { Map } from "immutable";
 import SearchGrid from "./SearchGrid";
 import { Song } from "@/generated/client";
-import SongTable from "./SongTable";
+import SongTableRow from "./SongTableRow";
 
 interface PropType {
   allSongs: Song[];
@@ -94,6 +101,58 @@ export default function SongPanel({ allSongs }: PropType) {
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([]);
+
+  const onLikeSong = async (id: number) => {
+    fetch("/api/songs/like", {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    }).catch((e) => {
+      console.log(`Error liking song ${e}`);
+    });
+    setOriginalData((oldData) =>
+      oldData.map((song) => {
+        if (song.id === id) {
+          const newExtra: any = song.extra;
+          if (newExtra.numLikes) {
+            newExtra.numLikes += 1;
+          } else {
+            newExtra.numLikes = 1;
+          }
+          return {
+            ...song,
+            extra: newExtra,
+          };
+        }
+        return song;
+      })
+    );
+  };
+
+  const onDislikeSong = async (id: number) => {
+    fetch("/api/songs/dislike", {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    }).catch((e) => {
+      console.log(`Error disliking song ${e}`);
+    });
+    setOriginalData((oldData) =>
+      oldData.map((song) => {
+        if (song.id === id) {
+          const newExtra: any = song.extra;
+          if (newExtra.numLikes) {
+            newExtra.numDislikes += 1;
+          } else {
+            newExtra.numDislikes = 1;
+          }
+          return {
+            ...song,
+            extra: newExtra,
+          };
+        }
+        return song;
+      })
+    );
+  };
 
   useEffect(() => {
     fetch("/api/songs/extra/read", { cache: "no-store" })
@@ -215,7 +274,43 @@ export default function SongPanel({ allSongs }: PropType) {
       </div>
       <div className="h-4"></div>
       <div className="p-0 md:p-1 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_lavender_lighter/80">
-        <SongTable songs={finalData}></SongTable>
+        <Table className="border-collapse">
+          <TableHeader className="border-b-2 border-black">
+            <TableRow>
+              <TableHead className="w-1/6"></TableHead>
+              <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-start">
+                歌名
+              </TableHead>
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+                歌手
+              </TableHead>
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+                语种
+              </TableHead>
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+                标签
+              </TableHead>
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+                备注
+              </TableHead>
+              <TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center">
+                反应
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {finalData.map((song) => {
+              return (
+                <SongTableRow
+                  song={song}
+                  key={song.id}
+                  onLikeSong={onLikeSong}
+                  onDislikeSong={onDislikeSong}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
       <div className="py-4 px-10 w-11/12 md:w-8/12 m-auto mt-4 text-center border-t border-b border-t-black border-b-black">
         <span className="font-alex font-thin text-3xl">
