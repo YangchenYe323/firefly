@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
   const redirectUrl = new URL("/admin", new URL(request.url).origin);
 
-  let response = NextResponse.redirect(redirectUrl);
+  let response = NextResponse.json({}, { status: 200 });
 
   response.cookies.set("currentUser", newUserToken);
 
