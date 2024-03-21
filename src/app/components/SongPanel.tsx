@@ -163,8 +163,14 @@ export default function SongPanel({ allSongs }: PropType) {
     onCopyToClipboard(finalData[randomIdx]);
   };
 
-  console.log(originalData.filter((d) => d.title === "大鱼"));
-  console.log(finalData.filter((d) => d.title === "大鱼"));
+  console.log(
+    "Panel original",
+    originalData.filter((d) => d.title === "大鱼")
+  );
+  console.log(
+    "Panel final",
+    finalData.filter((d) => d.title === "大鱼")
+  );
 
   return (
     <div>

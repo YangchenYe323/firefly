@@ -16,6 +16,7 @@ interface PropType {
 }
 
 export default function SongTable({ songs }: PropType) {
+  console.log("Table ", songs.filter(song => song.title == "大鱼"));
   return (
     <Table className="border-collapse">
       <TableHeader className="border-b-2 border-black">
