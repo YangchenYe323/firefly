@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyJwtToken } from "./lib/auth";
 
-const ADMIN_API_PATH = ["/apis/songs/update"];
+const ADMIN_API_PATH = ["/api/songs/update", "/api/songs/create"];
 
 const ADMIN_PATH = ["/admin"];
 
