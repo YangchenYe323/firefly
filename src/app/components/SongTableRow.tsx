@@ -45,7 +45,7 @@ export default function SongTableRow({ song }: PropType) {
   const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
 
   if (song.title == "大鱼") {
-    console.log(numLikes, numDislikes);
+    console.log(song, numLikes, numDislikes);
   }
 
   const onLikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
