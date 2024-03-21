@@ -100,17 +100,28 @@ export default function SongPanel({ allSongs }: PropType) {
       .then((res) => res.json())
       .then((body) => {
         const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
-        const newData = orderNewSongsFirst(
-          allSongs.map((oldData) => {
-            const newExtra = m.get(oldData.id);
-            return {
-              ...oldData,
-              extra: newExtra,
-            };
-          })
-        );
-        setOriginalData(newData);
-        setFinalData(newData);
+        setOriginalData((oldData) => {
+          return orderNewSongsFirst(
+            oldData.map((song) => {
+              const newExtra = m.get(song.id);
+              return {
+                ...song,
+                extra: newExtra,
+              };
+            })
+          );
+        });
+        setOriginalData((oldData) => {
+          return orderNewSongsFirst(
+            oldData.map((song) => {
+              const newExtra = m.get(song.id);
+              return {
+                ...song,
+                extra: newExtra,
+              };
+            })
+          );
+        });
       });
   }, [allSongs]);
 
