@@ -164,6 +164,18 @@ const config = {
         "fromEnvVar": null,
         "value": "darwin",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-3.0.x"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-arm64-openssl-1.1.x"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-1.0.x"
       }
     ],
     "previewFeatures": [],
@@ -189,8 +201,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"POSTGRES_PRISMA_URL\") // uses connection pooling\n  directUrl = env(\"POSTGRES_URL_NON_POOLING\") // uses a direct connection\n}\n\nmodel Song {\n  id         Int      @id @default(autoincrement())\n  // 歌名\n  title      String\n  // 歌手\n  artist     String\n  // 语种\n  lang       String[]\n  // 标签\n  tag        String[]\n  // 作品链接\n  url        String?\n  // 备注\n  remark     String\n  // 创建时间\n  created_on DateTime @default(now())\n  // 服务器管理的数据（点赞，点踩，etc.)\n  extra      Json\n}\n\nmodel User {\n  username      String @id\n  salt          String\n  password_hash String\n}\n\nmodel Feedback {\n  id         String   @id @default(uuid())\n  content    String\n  created_on DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "7f507483ed1178452f34b43157a70bc1a8a8c4400030364e46cbd859b918c457",
+  "inlineSchema": "// schema.prisma\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/client\"\n  // Workaround for prisma build issues in vercel preview deployment\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\", \"linux-arm64-openssl-1.1.x\", \"rhel-openssl-1.0.x\"]\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"POSTGRES_PRISMA_URL\") // uses connection pooling\n  directUrl = env(\"POSTGRES_URL_NON_POOLING\") // uses a direct connection\n}\n\nmodel Song {\n  id         Int      @id @default(autoincrement())\n  // 歌名\n  title      String\n  // 歌手\n  artist     String\n  // 语种\n  lang       String[]\n  // 标签\n  tag        String[]\n  // 作品链接\n  url        String?\n  // 备注\n  remark     String\n  // 创建时间\n  created_on DateTime @default(now())\n  // 服务器管理的数据（点赞，点踩，etc.)\n  extra      Json\n}\n\nmodel User {\n  username      String @id\n  salt          String\n  password_hash String\n}\n\nmodel Feedback {\n  id         String   @id @default(uuid())\n  content    String\n  created_on DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "d44fb9ea8674fc505d577152fdc9a6f77935dc6e443ef27e41440a00d146de5b",
   "copyEngine": true
 }
 config.dirname = '/'
