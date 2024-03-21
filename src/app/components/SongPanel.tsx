@@ -100,7 +100,7 @@ export default function SongPanel({ allSongs }: PropType) {
   }, [allSongs]);
 
   useEffect(() => {
-    fetch("/api/songs/extra/read", { cache: "no-cache" })
+    fetch("/api/songs/extra/read", { cache: "no-store" })
       .then((res) => res.json())
       .then((body) => {
         const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
