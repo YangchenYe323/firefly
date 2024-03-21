@@ -31,12 +31,12 @@ export function isNewlyAdded(song: Song) {
 
 export function orderNewSongsFirst(allSongs: Song[]) {
   const newSongs = allSongs.filter(isNewlyAdded);
-  const oldSongs = allSongs.filter(song => !isNewlyAdded(song));
+  const oldSongs = allSongs.filter((song) => !isNewlyAdded(song));
   return [...newSongs, ...oldSongs];
 }
 
 export function onCopyToClipboard(song: Song) {
-  copy(song.title, {
+  copy(`点歌 ${song.title}`, {
     format: "text/plain",
   });
   toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
