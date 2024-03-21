@@ -1,0 +1,25 @@
+{
+  "name": "蝶蝶Hikari",
+  "metaTitle": "蝶蝶Hikari的歌单",
+  "metaDescription": "蝶蝶Hikari的歌单",
+  "bannerImagePath": "/img/banner.jpg",
+  "avatarImagePath": "/img/banner.jpg",
+  "backgroundImagePath": "/img/background.png",
+  "externalLinks": [
+    {
+      "value": "主页",
+      "icon": "bilibili",
+      "href": "https://space.bilibili.com/697737710"
+    },
+    {
+      "value": "直播间",
+      "icon": "bilibili_live_costly",
+      "href": "https://live.bilibili.com/23369901"
+    },
+    {
+      "value": "TAPE提问箱",
+      "icon": "tapechat",
+      "href": "https://pome.vip/GtmHOkm4"
+    }
+  ]
+}

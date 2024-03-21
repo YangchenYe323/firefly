@@ -1,11 +1,16 @@
 import "./globals.css";
 
-import { Inter } from "next/font/google";
+import { Alex_Brush } from "next/font/google";
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import vtuberProfile from "@/profile";
 
-const inter = Inter({ subsets: ["latin"] });
+const alexBrush = Alex_Brush({
+  display: "swap",
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-alex-brush",
+});
 
 export const metadata: Metadata = {
   title: vtuberProfile.metaTitle,
@@ -19,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning={true}>
-      <body className={inter.className}>
+      <body className={`${alexBrush.variable} font-chinese`}>
         {children}
         <Toaster position="top-right" expand={true} richColors />
       </body>

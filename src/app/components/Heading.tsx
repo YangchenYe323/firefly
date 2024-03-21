@@ -20,7 +20,7 @@ export default async function Heading({ songCount }: PropType) {
           priority={true}
         />
       </span>
-      <h1 className="text-center text-4xl md:text-5xl lg:text-6xl text-black font-light">
+      <h1 className="text-center text-4xl md:text-5xl lg:text-6xl text-black font-light font-alex_chinese">
         {name}
       </h1>
       <h1 className="pt-4 text-center text-3xl md:text-4xl lg:text-5xl text-black font-light">

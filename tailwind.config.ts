@@ -29,6 +29,18 @@ const config = {
         "微软雅黑",
         "sans-serif",
       ],
+      alex: ["var(--font-alex-brush)"],
+      alex_chinese: [
+        "var(--font-alex-brush)",
+        "Helvetica",
+        "Tahoma",
+        "Arial",
+        "STXihei",
+        "华文细黑",
+        "Microsoft YaHei",
+        "微软雅黑",
+        "sans-serif",
+      ],
     },
     extend: {
       colors: {

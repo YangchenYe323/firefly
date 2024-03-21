@@ -16,12 +16,13 @@ export default async function Home() {
 
   const songCount = songs.length;
 
+  // TODO: why template string doesn't work here?
   const backgroundClassName = vtuberProfile.backgroundImagePath
-    ? `bg-gradient-to-r from-[#c6b1f0]/50 to-white/50 md:bg-none md:before:absolute md:before:-z-10 md:before:bg-[url('/profile/background.png')] md:before:bg-cover md:before:bg-fixed md:before:opacity-45 md:before:inset-0`
+    ? `bg-gradient-to-r from-[#c6b1f0]/50 to-white/50 md:bg-none md:before:absolute md:before:-z-10 md:before:bg-[url('/img/background.png')] md:before:bg-cover md:before:bg-fixed md:before:opacity-45 md:before:inset-0`
     : "bg-gradeint-to-r from-[#c6b1f0]";
 
   return (
-    <div className="relative bg-opacity-50, font-chinese">
+    <div className="relative font-chinese bg-opacity-50">
       <div className={cn(backgroundClassName)}>
         <StickyHeader>
           <div className="container flex h-14 items-center">
@@ -33,6 +34,9 @@ export default async function Home() {
         </StickyHeader>
         <Heading songCount={songCount} />
         <SongPanel allSongs={songs} />
+        <div className="mt-2 p-4 text-center text-thin text-black">
+          Copyright © 2024 梦中杀蝶人协会 & 他们的朋友
+        </div>
       </div>
     </div>
   );

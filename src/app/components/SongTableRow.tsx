@@ -77,7 +77,7 @@ export default function SongTableRow({ song }: PropType) {
       <TableCell className="p-0 md:p-0.5 font-mono text-end h-0.5 md:h-1 whitespace-nowrap">
         {isNewlyAdded(song) && (
           <Image
-            src="/new.png"
+            src="/icons/new.png"
             alt="new"
             className="align-top"
             width={50}

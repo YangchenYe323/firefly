@@ -38,9 +38,3 @@ next-env.d.ts
 # Environment Variables
 .env
 neon.txt
-
-# Vtuber Profile
-vtuber.profile.json
-
-# Profile Image
-public/profile/

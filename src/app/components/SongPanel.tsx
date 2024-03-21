@@ -1,6 +1,11 @@
 "use client";
 
-import { onCopyToClipboard, orderNewSongsFirst, shuffleArray } from "@/lib/utils";
+import {
+  cn,
+  onCopyToClipboard,
+  orderNewSongsFirst,
+  shuffleArray,
+} from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { Button } from "../../components/ui/button";
@@ -82,13 +87,15 @@ const filters: Filter[] = [
 ];
 
 export default function SongPanel({ allSongs }: PropType) {
-  const [originalData, setOriginalData] = useState(orderNewSongsFirst(allSongs));
+  const [originalData, setOriginalData] = useState(
+    orderNewSongsFirst(allSongs)
+  );
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([...originalData]);
 
   useEffect(() => {
-    setOriginalData(orderNewSongsFirst(allSongs))
+    setOriginalData(orderNewSongsFirst(allSongs));
   }, [allSongs]);
 
   const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
@@ -173,6 +180,12 @@ export default function SongPanel({ allSongs }: PropType) {
       <div className="h-4"></div>
       <div className="p-0 md:p-1 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_lavender_lighter/80">
         <SongTable songs={finalData}></SongTable>
+      </div>
+      <div className="py-4 px-10 w-11/12 md:w-8/12 m-auto mt-4 text-center border-t border-b border-t-black border-b-black">
+        <span className="font-alex font-thin text-3xl">
+          And in case I don’t see you, good afternoon, good evening and good
+          night!
+        </span>
       </div>
     </div>
   );
