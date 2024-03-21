@@ -222,15 +222,6 @@ export default function SongPanel({ allSongs }: PropType) {
     onCopyToClipboard(finalData[randomIdx]);
   };
 
-  console.log(
-    "Panel original",
-    originalData.filter((d) => d.title === "大鱼")
-  );
-  console.log(
-    "Panel final",
-    finalData.filter((d) => d.title === "大鱼")
-  );
-
   return (
     <div>
       <div className="p-0 md:p-2 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_blue/20">

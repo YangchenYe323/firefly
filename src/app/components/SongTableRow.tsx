@@ -1,6 +1,5 @@
 "use client";
 
-import { MouseEventHandler, useEffect, useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { isNewlyAdded, onCopyToClipboard } from "@/lib/utils";
 
