@@ -96,7 +96,24 @@ export default function SongPanel({ allSongs }: PropType) {
   const [finalData, setFinalData] = useState<Song[]>([...originalData]);
 
   useEffect(() => {
-    setOriginalData(orderNewSongsFirst(allSongs));
+    fetch("/api/songs/extra/read", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((body) => {
+        const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
+        setOriginalData((oldData) => {
+          return orderNewSongsFirst(
+            oldData.map((data) => {
+              const newExtra = m.get(data.id);
+              console.log(data);
+              console.log({ l: newExtra.numLikes, d: newExtra.numDislikes });
+              return {
+                ...data,
+                extra: newExtra,
+              };
+            })
+          );
+        });
+      });
   }, [allSongs]);
 
   useEffect(() => {
