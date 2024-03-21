@@ -1,0 +1,16 @@
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/db";
+
+export async function GET(request: NextRequest) {
+  const songs = await prisma.song.findMany({
+    orderBy: {
+      id: "asc",
+    },
+    select: {
+      id: true,
+      extra: true,
+    },
+  });
+
+  return NextResponse.json({ songs }, { status: 200 });
+}

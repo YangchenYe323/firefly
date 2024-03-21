@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import ChineseInput from "../../components/ChineseInput";
 import { Icons } from "../../components/Icons";
+import { Map } from "immutable";
 import SearchGrid from "./SearchGrid";
 import { Song } from "@/generated/client";
 import SongTable from "./SongTable";
@@ -97,6 +98,21 @@ export default function SongPanel({ allSongs }: PropType) {
   useEffect(() => {
     setOriginalData(orderNewSongsFirst(allSongs));
   }, [allSongs]);
+
+  useEffect(() => {
+    fetch("/api/songs/extra/read", { next: { revalidate: 60 } })
+      .then((res) => res.json())
+      .then((body) => {
+        const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
+        const newSongs = originalData.map((data) => {
+          const newExtra = m.get(data.id);
+          return {
+            ...data,
+            extra: newExtra,
+          };
+        });
+      });
+  }, [originalData]);
 
   const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
     if (text.length === 0) {
