@@ -139,7 +139,7 @@ export default function SongPanel({ allSongs }: PropType) {
       oldData.map((song) => {
         if (song.id === id) {
           const newExtra: any = song.extra;
-          if (newExtra.numLikes) {
+          if (newExtra.numDislikes) {
             newExtra.numDislikes += 1;
           } else {
             newExtra.numDislikes = 1;
