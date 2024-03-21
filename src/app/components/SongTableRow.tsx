@@ -44,6 +44,10 @@ export default function SongTableRow({ song }: PropType) {
   const [numLikes, setNumLikes] = useState(getNumLikes(song));
   const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
 
+  if (song.title == "大鱼") {
+    console.log(numLikes, numDislikes);
+  }
+
   const onLikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.stopPropagation();
     fetch("/api/songs/like", {
