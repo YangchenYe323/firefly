@@ -269,22 +269,22 @@ export default function SongPanel({ allSongs }: PropType) {
           <TableHeader className="border-b-2 border-black">
             <TableRow>
               <TableHead className="w-1/6"></TableHead>
-              <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-start">
+              <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-start whitespace-nowrap">
                 歌名
               </TableHead>
-              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 歌手
               </TableHead>
-              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 语种
               </TableHead>
-              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 标签
               </TableHead>
-              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center">
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 备注
               </TableHead>
-              <TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center">
+              <TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 反应
               </TableHead>
             </TableRow>
