@@ -107,6 +107,8 @@ export default function SongPanel({ allSongs }: PropType) {
         setOriginalData((oldData) => {
           return oldData.map((data) => {
             const newExtra = m.get(data.id);
+            console.log(data);
+            console.log({ l: newExtra.numLikes, d: newExtra.numDislikes });
             return {
               ...data,
               extra: newExtra,
