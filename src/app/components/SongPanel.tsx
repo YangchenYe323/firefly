@@ -93,7 +93,7 @@ export default function SongPanel({ allSongs }: PropType) {
   );
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
-  const [finalData, setFinalData] = useState<Song[]>([...originalData]);
+  const [finalData, setFinalData] = useState<Song[]>([]);
 
   useEffect(() => {
     fetch("/api/songs/extra/read", { cache: "no-store" })
@@ -152,8 +152,8 @@ export default function SongPanel({ allSongs }: PropType) {
     onCopyToClipboard(finalData[randomIdx]);
   };
 
-  console.log(originalData.filter(d => d.title === "大鱼"));
-  console.log(finalData.filter(d => d.title === "大鱼"));
+  console.log(originalData.filter((d) => d.title === "大鱼"));
+  console.log(finalData.filter((d) => d.title === "大鱼"));
 
   return (
     <div>
