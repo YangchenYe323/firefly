@@ -18,5 +18,5 @@ export async function GET(request: NextRequest) {
 }
 
 export const fetchCache = "force-no-store";
-export const dynamic = "force-dynammic";
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
