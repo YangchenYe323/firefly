@@ -126,14 +126,14 @@ export default function SongTableRow({ song }: PropType) {
       <TableCell className="p-0 md:p-0.5 h-0.5 md:h-1 whitespace-nowrap">
         <div className="min-w-10 h-full grid grid-flow-col-dense justify-start items-center auto-cols-min">
           <Button
-            variant="outline"
+            variant="ghost"
             className="mr-1 w-fit rounded-full p-1"
             onClick={onLikeSong}
           >
             <span>️❤️ {numLikes}</span>
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             className="w-fit rounded-full p-1"
             onClick={onDislikeSong}
           >
