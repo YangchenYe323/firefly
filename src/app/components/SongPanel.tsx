@@ -111,7 +111,7 @@ export default function SongPanel({ allSongs }: PropType) {
             })
           );
         });
-        setOriginalData((oldData) => {
+        setFinalData((oldData) => {
           return orderNewSongsFirst(
             oldData.map((song) => {
               const newExtra = m.get(song.id);
