@@ -11,3 +11,5 @@ export default async function Admin() {
 
   return <EditableSongTable songs={songs} />;
 }
+
+export const fetchCache = "force-no-store";
