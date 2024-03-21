@@ -100,40 +100,19 @@ export default function SongPanel({ allSongs }: PropType) {
       .then((res) => res.json())
       .then((body) => {
         const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
-        setOriginalData((oldData) => {
-          return orderNewSongsFirst(
-            oldData.map((data) => {
-              const newExtra = m.get(data.id);
-              console.log(data);
-              console.log({ l: newExtra.numLikes, d: newExtra.numDislikes });
-              return {
-                ...data,
-                extra: newExtra,
-              };
-            })
-          );
-        });
-      });
-  }, [allSongs]);
-
-  useEffect(() => {
-    fetch("/api/songs/extra/read", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((body) => {
-        const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
-        setOriginalData((oldData) => {
-          return oldData.map((data) => {
-            const newExtra = m.get(data.id);
-            console.log(data);
-            console.log({ l: newExtra.numLikes, d: newExtra.numDislikes });
+        const newData = orderNewSongsFirst(
+          allSongs.map((oldData) => {
+            const newExtra = m.get(oldData.id);
             return {
-              ...data,
+              ...oldData,
               extra: newExtra,
             };
-          });
-        });
+          })
+        );
+        setOriginalData(newData);
+        setFinalData(newData);
       });
-  }, [setOriginalData]);
+  }, [allSongs]);
 
   const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
     if (text.length === 0) {
