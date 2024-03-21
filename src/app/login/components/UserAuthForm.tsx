@@ -8,10 +8,10 @@ import { Icons } from "@/components/Icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import login from "@/app/actions/login";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import userLogin from "@/app/actions/userLogin";
 
 const SubmitButton = () => {
   const status = useFormStatus();
@@ -29,7 +29,7 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const router = useRouter();
-  const [state, formAction] = useFormState(login, {
+  const [state, formAction] = useFormState(userLogin, {
     success: false,
   });
 

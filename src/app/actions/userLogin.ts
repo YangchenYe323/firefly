@@ -20,7 +20,7 @@ const schema = z.object({
   passwd: z.string(),
 });
 
-export default async function login(
+export default async function userLogin(
   prevState: any,
   formData: FormData
 ): Promise<LoginReturnType> {
