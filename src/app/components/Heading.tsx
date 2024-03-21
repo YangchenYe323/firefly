@@ -20,12 +20,12 @@ export default async function Heading({ songCount }: PropType) {
           priority={true}
         />
       </span>
-      <h1 className="text-center text-4xl md:text-5xl lg:text-6xl text-black font-light font-alex_chinese">
+      <h1 className="text-center text-3xl md:text-4xl lg:text-5xl text-black font-light font-alex_chinese">
         {name}
       </h1>
       <h1 className="pt-4 text-center text-3xl md:text-4xl lg:text-5xl text-black font-light">
         和她<del>不一定</del>拿手的
-        <span className="italic font-light mx-1">{songCount}</span>
+        {songCount}
         首歌
       </h1>
       <p className="pt-6 pb-4 text-center text-black font-light">

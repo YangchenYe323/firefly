@@ -74,7 +74,7 @@ export default function SongTableRow({ song }: PropType) {
       className="h-0.5 md:h-1 hover:bg-accent hover:text-accent-foreground"
       onClick={onCopySong}
     >
-      <TableCell className="p-0 md:p-0.5 font-mono text-end h-0.5 md:h-1 whitespace-nowrap">
+      <TableCell className="p-0 md:p-0.5 text-end h-0.5 md:h-1 whitespace-nowrap">
         {isNewlyAdded(song) && (
           <Image
             src="/icons/new.png"

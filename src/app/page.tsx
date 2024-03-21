@@ -34,7 +34,7 @@ export default async function Home() {
         </StickyHeader>
         <Heading songCount={songCount} />
         <SongPanel allSongs={songs} />
-        <div className="mt-2 p-4 text-center text-thin text-black">
+        <div className="mt-2 p-4 text-center text-sm text-thin text-black">
           Copyright © 2024 梦中杀蝶人协会 & 他们的朋友
         </div>
       </div>
