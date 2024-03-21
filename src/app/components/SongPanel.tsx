@@ -22,6 +22,8 @@ import { Map } from "immutable";
 import SearchGrid from "./SearchGrid";
 import { Song } from "@/generated/client";
 import SongTableRow from "./SongTableRow";
+import { dislikeSong, likeSong } from "../actions/reaction";
+import { toast } from "sonner";
 
 interface PropType {
   allSongs: Song[];
@@ -103,11 +105,8 @@ export default function SongPanel({ allSongs }: PropType) {
   const [finalData, setFinalData] = useState<Song[]>([]);
 
   const onLikeSong = async (id: number) => {
-    fetch("/api/songs/like", {
-      method: "POST",
-      body: JSON.stringify({ id }),
-    }).catch((e) => {
-      console.log(`Error liking song ${e}`);
+    likeSong(id).catch((err) => {
+      toast.error(`点️❤️失败: ${err}`);
     });
     setOriginalData((oldData) =>
       oldData.map((song) => {
@@ -129,11 +128,8 @@ export default function SongPanel({ allSongs }: PropType) {
   };
 
   const onDislikeSong = async (id: number) => {
-    fetch("/api/songs/dislike", {
-      method: "POST",
-      body: JSON.stringify({ id }),
-    }).catch((e) => {
-      console.log(`Error disliking song ${e}`);
+    dislikeSong(id).catch((err) => {
+      toast.error(`点😅失败: ${err}`);
     });
     setOriginalData((oldData) =>
       oldData.map((song) => {
@@ -153,36 +149,6 @@ export default function SongPanel({ allSongs }: PropType) {
       })
     );
   };
-
-  useEffect(() => {
-    fetch("/api/songs/extra/read", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((body) => {
-        const m = Map(body.songs.map((song: any) => [song.id, song.extra]));
-        setOriginalData((oldData) => {
-          return orderNewSongsFirst(
-            oldData.map((song) => {
-              const newExtra = m.get(song.id);
-              return {
-                ...song,
-                extra: newExtra,
-              };
-            })
-          );
-        });
-        setFinalData((oldData) => {
-          return orderNewSongsFirst(
-            oldData.map((song) => {
-              const newExtra = m.get(song.id);
-              return {
-                ...song,
-                extra: newExtra,
-              };
-            })
-          );
-        });
-      });
-  }, [allSongs]);
 
   const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
     if (text.length === 0) {
