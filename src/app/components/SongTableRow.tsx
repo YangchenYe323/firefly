@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { isNewlyAdded, onCopyToClipboard } from "@/lib/utils";
 
@@ -44,9 +44,13 @@ export default function SongTableRow({ song }: PropType) {
   const [numLikes, setNumLikes] = useState(getNumLikes(song));
   const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
 
-  if (song.title == "大鱼") {
-    console.log(song, numLikes, numDislikes);
-  }
+  useEffect(() => {
+    setNumLikes(getNumDislikes(song));
+  }, [song]);
+
+  useEffect(() => {
+    setNumDislikes(getNumDislikes(song));
+  }, [song]);
 
   const onLikeSong: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.stopPropagation();
