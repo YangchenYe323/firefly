@@ -2,46 +2,49 @@
 
 import * as React from "react";
 
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { Icons } from "../../../components/Icons";
+import { Icons } from "@/components/Icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import login from "@/app/actions/login";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  onAuthenticate?: (input: InputType) => Promise<boolean>;
-}
+const SubmitButton = () => {
+  const status = useFormStatus();
+  return (
+    <Button type="submit">
+      {status.pending && (
+        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+      )}
+      登录
+    </Button>
+  );
+};
 
-export interface InputType {
-  username: string;
-  passwd: string;
-}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function UserAuthForm({
-  className,
-  onAuthenticate,
-  ...props
-}: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<InputType>();
+export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const router = useRouter();
+  const [state, formAction] = useFormState(login, {
+    success: false,
+  });
 
-  const onSubmit: SubmitHandler<InputType> = async (data) => {
-    setIsLoading(true);
-    if (onAuthenticate) {
-      const success = await onAuthenticate(data);
+  useEffect(() => {
+    if (state.success) {
+      router.replace("/admin");
+    } else {
+      const message = state.message || state.errors || "";
+      toast.error(`登录失败: ${message}`);
     }
-    setIsLoading(false);
-  };
+  }, [state, router]);
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form action={formAction}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="username">
@@ -49,12 +52,11 @@ export function UserAuthForm({
             </Label>
             <Input
               id="username"
+              name="username"
               placeholder="username"
               type="username"
               autoCapitalize="none"
               autoCorrect="off"
-              disabled={isLoading}
-              {...register("username", { required: true })}
             />
           </div>
           <div className="grid gap-1">
@@ -63,21 +65,15 @@ export function UserAuthForm({
             </Label>
             <Input
               id="password"
+              name="passwd"
               type="password"
               placeholder="password"
               autoCapitalize="none"
               autoComplete="off"
               autoCorrect="off"
-              disabled={isLoading}
-              {...register("passwd", { required: true })}
             />
           </div>
-          <Button disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            登录
-          </Button>
+          <SubmitButton />
         </div>
       </form>
     </div>
