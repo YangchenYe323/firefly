@@ -14,3 +14,5 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ songs }, { status: 200 });
 }
+
+export const fetchCache = "force-no-store";
