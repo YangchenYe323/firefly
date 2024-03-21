@@ -38,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { createSong, updateSong } from "@/app/actions/crud";
 
 import AddHeaderCell from "./AddHeaderCell";
 import EditCell from "./EditCell";
@@ -200,11 +201,9 @@ export default function EditableSongTable({ songs }: PropType) {
           remark: updatedValues[5] as string,
         };
 
-        const res = await fetch("/api/songs/update", {
-          method: "POST",
-          body: JSON.stringify(updatedSong),
-        });
-        if (res.status === 200) {
+        const res = await updateSong(updatedSong);
+
+        if (res.success) {
           toast.success(`歌曲 ${updatedSong.title} 已成功更新`);
           setData((oldData) =>
             oldData.map((song) => {
@@ -216,32 +215,35 @@ export default function EditableSongTable({ songs }: PropType) {
           );
           return true;
         }
-        const body = await res.json();
-        toast.error(`歌曲 ${updatedSong.title} 更新失败: ${body}`);
+
+        toast.error(
+          `歌曲 ${updatedSong.title} 更新失败: ${
+            res.message || "原因异常, 请报bug"
+          }`
+        );
         return false;
       },
 
       insertData: async (newSong) => {
-        const res = await fetch("/api/songs/create", {
-          method: "POST",
-          body: JSON.stringify(newSong),
-        });
-        if (res.status === 200) {
-          const body = await res.json();
-          const newSongId = body.res.id;
-          const newSongEntry = {
-            ...newSong,
-            id: newSongId,
-          };
-          setData((oldData) => [newSongEntry, ...oldData]);
-          toast.success(`歌曲 ${newSong.title} 添加成功`);
-          return true;
+        const res = await createSong(newSong);
+        if (res.success) {
+          const newSongEntry = res.song;
+          if (newSongEntry) {
+            toast.success(`歌曲 ${newSong.title} 添加成功`);
+            setData((oldData) => [newSongEntry, ...oldData]);
+            return true;
+          }
+          // unreachable
         }
 
-        const body = await res.json();
-        toast.error(`歌曲 ${newSong.title} 添加失败: ${body}`);
+        toast.error(
+          `歌曲 ${newSong.title} 添加失败: ${
+            res.message || "原因异常, 请报bug"
+          }`
+        );
         return false;
       },
+
       editedRows,
       setEditedRows,
     },

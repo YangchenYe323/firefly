@@ -1,28 +1,8 @@
 "use client";
 
-import { InputType, UserAuthForm } from "./components/UserAuthForm";
-import { useRouter } from "next/navigation";
+import { UserAuthForm } from "./components/UserAuthForm";
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  const onAuthenticate = async ({ username, passwd }: InputType) => {
-    let res = await fetch("/api/login", {
-      method: "POST",
-      body: JSON.stringify({ username, passwd }),
-    });
-
-    if (res.status === 200) {
-      router.replace("/admin");
-      return true;
-    }
-
-    let body = await res.text();
-    alert(`登录失败: ${body}`);
-
-    return false;
-  };
-
   return (
     <div className="h-[800px] flex-col items-center justify-center">
       <div className="h-[100px]"></div>
@@ -31,7 +11,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight">登录</h1>
           <p className="text-sm text-muted-foreground">请输入用户名密码登录</p>
         </div>
-        <UserAuthForm onAuthenticate={onAuthenticate} />
+        <UserAuthForm />
       </div>
     </div>
   );

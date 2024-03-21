@@ -4,16 +4,11 @@ import SongPanel from "./components/SongPanel";
 import StickyHeader from "@/components/StickyHeader";
 import UserNav from "./components/UserNav";
 import { cn } from "@/lib/utils";
-import prisma from "@/db";
+import { readSongAllNoCache } from "./actions/crud";
 import vtuberProfile from "@/profile";
 
 export default async function Home() {
-  const songs = await prisma.song.findMany({
-    orderBy: {
-      id: "asc",
-    },
-  });
-
+  const { songs } = await readSongAllNoCache();
   const songCount = songs.length;
 
   // TODO: why template string doesn't work here?
