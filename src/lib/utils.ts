@@ -31,6 +31,13 @@ export function isNewlyAdded(song: Song) {
 
 export function orderNewSongsFirst(allSongs: Song[]) {
   const newSongs = allSongs.filter(isNewlyAdded);
+  newSongs.sort((s1, s2) => {
+    return s1.created_on.getTime() > s2.created_on.getTime()
+      ? -1
+      : s1.created_on.getTime() == s2.created_on.getTime()
+        ? 0
+        : 1;
+  });
   const oldSongs = allSongs.filter((song) => !isNewlyAdded(song));
   return [...newSongs, ...oldSongs];
 }
