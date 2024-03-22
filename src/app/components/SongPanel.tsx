@@ -94,59 +94,38 @@ const filters: Filter[] = [
   },
 ];
 
+
+export const getNumLikes = (song: Song) => {
+  if (
+    song.extra &&
+    typeof song.extra == "object" &&
+    "numLikes" in song.extra &&
+    typeof song.extra.numLikes == "number"
+  ) {
+    return song.extra.numLikes;
+  }
+
+  return 0;
+};
+
+export const getNumDislikes = (song: Song) => {
+  if (
+    song.extra &&
+    typeof song.extra == "object" &&
+    "numDislikes" in song.extra &&
+    typeof song.extra.numDislikes == "number"
+  ) {
+    return song.extra.numDislikes;
+  }
+
+  return 0;
+};
+
 export default function SongPanel({ allSongs }: PropType) {
-  const [originalData, setOriginalData] = useState(
-    orderNewSongsFirst(allSongs)
-  );
+  const [originalData, setOriginalData] = useState(orderNewSongsFirst(allSongs));
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([]);
-
-  const onLikeSong = async (id: number) => {
-    likeSong(id).catch((err) => {
-      toast.error(`点️❤️失败: ${err}`);
-    });
-    setOriginalData((oldData) =>
-      oldData.map((song) => {
-        if (song.id === id) {
-          const newExtra: any = song.extra;
-          if (newExtra.numLikes) {
-            newExtra.numLikes += 1;
-          } else {
-            newExtra.numLikes = 1;
-          }
-          return {
-            ...song,
-            extra: newExtra,
-          };
-        }
-        return song;
-      })
-    );
-  };
-
-  const onDislikeSong = async (id: number) => {
-    dislikeSong(id).catch((err) => {
-      toast.error(`点😅失败: ${err}`);
-    });
-    setOriginalData((oldData) =>
-      oldData.map((song) => {
-        if (song.id === id) {
-          const newExtra: any = song.extra;
-          if (newExtra.numDislikes) {
-            newExtra.numDislikes += 1;
-          } else {
-            newExtra.numDislikes = 1;
-          }
-          return {
-            ...song,
-            extra: newExtra,
-          };
-        }
-        return song;
-      })
-    );
-  };
 
   const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
     if (text.length === 0) {
@@ -163,7 +142,9 @@ export default function SongPanel({ allSongs }: PropType) {
         containSearchTextInTitleOrArtist(song, searchText)
       );
     };
-    setFinalData(originalData.filter(combinedFilter));
+
+    const filteredData = originalData.filter(combinedFilter);
+    setFinalData(filteredData);
   }, [currentFilter, searchText, originalData]);
 
   const onFilterChange = (selectedFilter: Filter) => {
@@ -178,7 +159,8 @@ export default function SongPanel({ allSongs }: PropType) {
   };
 
   const onShuffle = () => {
-    setFinalData((data) => shuffleArray(data));
+    // Create a random seed string
+    setFinalData(data => shuffleArray(data));
   };
 
   const onCopyRandom = () => {
@@ -217,7 +199,7 @@ export default function SongPanel({ allSongs }: PropType) {
           className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border bg-white/80"
           onClick={onShuffle}
         >
-          打乱顺序👻
+          换个顺序👻
         </Button>
         <Button
           variant="outline"
@@ -259,8 +241,6 @@ export default function SongPanel({ allSongs }: PropType) {
                 <SongTableRow
                   song={song}
                   key={song.id}
-                  onLikeSong={onLikeSong}
-                  onDislikeSong={onDislikeSong}
                 />
               );
             })}
