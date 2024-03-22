@@ -1,6 +1,8 @@
 "use client";
 
 import { TableCell, TableRow } from "@/components/ui/table";
+import { dislikeSong, likeSong } from "../actions/reaction";
+import { getNumDislikes, getNumLikes } from "./SongPanel";
 import { isNewlyAdded, onCopyToClipboard } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -8,44 +10,31 @@ import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import Link from "next/link";
 import { Song } from "@/generated/client";
+import { toast } from "sonner";
+import { useState } from "react";
 
 type PropType = {
   song: Song;
-  onLikeSong: (id: number) => Promise<void>;
-  onDislikeSong: (id: number) => Promise<void>;
 };
 
-const getNumLikes = (song: Song) => {
-  if (
-    song.extra &&
-    typeof song.extra == "object" &&
-    "numLikes" in song.extra &&
-    typeof song.extra.numLikes == "number"
-  ) {
-    return song.extra.numLikes;
-  }
+export default function SongTableRow({ song }: PropType) {
+  const [numLikes, setNumLikes] = useState(getNumLikes(song));
+  const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
 
-  return 0;
-};
+  const onLikeSong = (id: number) => {
+    likeSong(id).catch((err) => {
+      toast.error(`点️❤️失败: ${err}`);
+    });
+    setNumLikes((likes) => likes + 1);
+  };
 
-const getNumDislikes = (song: Song) => {
-  if (
-    song.extra &&
-    typeof song.extra == "object" &&
-    "numDislikes" in song.extra &&
-    typeof song.extra.numDislikes == "number"
-  ) {
-    return song.extra.numDislikes;
-  }
+  const onDislikeSong = (id: number) => {
+    dislikeSong(id).catch((err) => {
+      toast.error(`点😅失败: ${err}`);
+    });
+    setNumDislikes((dislikes) => dislikes + 1);
+  };
 
-  return 0;
-};
-
-export default function SongTableRow({
-  song,
-  onLikeSong,
-  onDislikeSong,
-}: PropType) {
   const onCopySong = () => onCopyToClipboard(song);
 
   return (
@@ -108,22 +97,22 @@ export default function SongTableRow({
           <Button
             variant="ghost"
             className="mr-1 w-fit rounded-full p-1"
-            onClick={async (e) => {
+            onClick={(e) => {
               e.stopPropagation();
-              await onLikeSong(song.id);
+              onLikeSong(song.id);
             }}
           >
-            <span>️❤️ {getNumLikes(song)}</span>
+            <span>️❤️ {numLikes}</span>
           </Button>
           <Button
             variant="ghost"
             className="w-fit rounded-full p-1"
             onClick={async (e) => {
               e.stopPropagation();
-              await onDislikeSong(song.id);
+              onDislikeSong(song.id);
             }}
           >
-            <span>😅 {getNumDislikes(song)}</span>
+            <span>😅 {numDislikes}</span>
           </Button>
         </div>
       </TableCell>
