@@ -17,25 +17,22 @@ type PropType = {
   song: Song;
 };
 
-export default function SongTableRow({
-  song,
-}: PropType) {
+export default function SongTableRow({ song }: PropType) {
   const [numLikes, setNumLikes] = useState(getNumLikes(song));
   const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
-
 
   const onLikeSong = (id: number) => {
     likeSong(id).catch((err) => {
       toast.error(`点️❤️失败: ${err}`);
     });
-    setNumLikes(likes => likes + 1);
+    setNumLikes((likes) => likes + 1);
   };
 
   const onDislikeSong = (id: number) => {
     dislikeSong(id).catch((err) => {
       toast.error(`点😅失败: ${err}`);
     });
-    setNumDislikes(dislikes => dislikes + 1);
+    setNumDislikes((dislikes) => dislikes + 1);
   };
 
   const onCopySong = () => onCopyToClipboard(song);
