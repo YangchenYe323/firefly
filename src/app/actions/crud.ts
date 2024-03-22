@@ -90,8 +90,11 @@ export async function updateSong(
       lang: song.lang,
       tag: song.tag,
       remark: song.remark,
+      url: song.url,
     },
   });
+
+  console.log(updatedSong);
 
   return { success: true, song: updatedSong };
 }

@@ -190,8 +190,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// schema.prisma\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"POSTGRES_PRISMA_URL\") // uses connection pooling\n  directUrl = env(\"POSTGRES_URL_NON_POOLING\") // uses a direct connection\n}\n\nmodel Song {\n  id         Int      @id @default(autoincrement())\n  // 歌名\n  title      String\n  // 歌手\n  artist     String\n  // 语种\n  lang       String[]\n  // 标签\n  tag        String[]\n  // 作品链接\n  url        String?\n  // 备注\n  remark     String\n  // 创建时间\n  created_on DateTime @default(now())\n  // 服务器管理的数据（点赞，点踩，etc.)\n  extra      Json\n}\n\nmodel User {\n  username      String @id\n  salt          String\n  password_hash String\n}\n\nmodel Feedback {\n  id         String   @id @default(uuid())\n  content    String\n  created_on DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "eb4579261f800f0fda1f5cfc54497870d9c5499745b6f96bcf6ed0f108d7b9df",
+  "inlineSchema": "// schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"POSTGRES_PRISMA_URL\") // uses connection pooling\n  directUrl = env(\"POSTGRES_URL_NON_POOLING\") // uses a direct connection\n}\n\nmodel Song {\n  id         Int      @id @default(autoincrement())\n  // 歌名\n  title      String\n  // 歌手\n  artist     String\n  // 语种\n  lang       String[]\n  // 标签\n  tag        String[]\n  // 作品链接\n  url        String?\n  // 备注\n  remark     String\n  // 创建时间\n  created_on DateTime @default(now())\n  // 服务器管理的数据（点赞，点踩，etc.)\n  extra      Json\n}\n\nmodel User {\n  username      String @id\n  salt          String\n  password_hash String\n}\n\nmodel Feedback {\n  id         String   @id @default(uuid())\n  content    String\n  created_on DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "7f507483ed1178452f34b43157a70bc1a8a8c4400030364e46cbd859b918c457",
   "copyEngine": true
 }
 
