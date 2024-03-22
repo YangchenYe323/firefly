@@ -94,7 +94,6 @@ const filters: Filter[] = [
   },
 ];
 
-
 export const getNumLikes = (song: Song) => {
   if (
     song.extra &&
@@ -122,7 +121,9 @@ export const getNumDislikes = (song: Song) => {
 };
 
 export default function SongPanel({ allSongs }: PropType) {
-  const [originalData, setOriginalData] = useState(orderNewSongsFirst(allSongs));
+  const [originalData, setOriginalData] = useState(
+    orderNewSongsFirst(allSongs)
+  );
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([]);
@@ -160,7 +161,7 @@ export default function SongPanel({ allSongs }: PropType) {
 
   const onShuffle = () => {
     // Create a random seed string
-    setFinalData(data => shuffleArray(data));
+    setFinalData((data) => shuffleArray(data));
   };
 
   const onCopyRandom = () => {
@@ -237,12 +238,7 @@ export default function SongPanel({ allSongs }: PropType) {
           </TableHeader>
           <TableBody>
             {finalData.map((song) => {
-              return (
-                <SongTableRow
-                  song={song}
-                  key={song.id}
-                />
-              );
+              return <SongTableRow song={song} key={song.id} />;
             })}
           </TableBody>
         </Table>
