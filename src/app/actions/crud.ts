@@ -33,6 +33,7 @@ export async function createSong(
       lang: song.lang,
       tag: song.tag,
       remark: song.remark,
+      url: song.url,
       extra: {},
     },
   });
