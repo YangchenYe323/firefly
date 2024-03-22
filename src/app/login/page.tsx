@@ -1,6 +1,12 @@
 import { UserAuthForm } from "./components/UserAuthForm";
+import { cookies } from "next/headers";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  async function dummyAction() {
+    const _cookies = cookies();
+  }
+
+  await dummyAction();
   return (
     <div className="h-[800px] flex-col items-center justify-center">
       <div className="h-[100px]"></div>
