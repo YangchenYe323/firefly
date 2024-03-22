@@ -1,5 +1,3 @@
-"use client";
-
 import { UserAuthForm } from "./components/UserAuthForm";
 
 export default function LoginPage() {
