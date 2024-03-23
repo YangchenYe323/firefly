@@ -56,7 +56,7 @@ export default function SongTableRow({ song }: PropType) {
       <TableCell className="p-0 md:p-0.5 text-end h-0.5 md:h-1 whitespace-nowrap">
         <div className="relative p-0 w-fit h-full flex justify-start items-center overflow-hidden">
           {isNewSong && (
-            <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-red-800 text-center text-white font-thin text-xs">
+            <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-gradient-to-r from-red-800 to-red-400 text-center text-white font-thin text-xs">
               new
             </div>
           )}
