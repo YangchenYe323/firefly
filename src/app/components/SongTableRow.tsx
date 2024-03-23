@@ -5,6 +5,7 @@ import {
   getLimitedFor,
   isNewlyAdded,
   onCopyToClipboard,
+  wontSing,
 } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { dislikeSong, likeSong } from "../actions/reaction";
@@ -44,6 +45,7 @@ export default function SongTableRow({ song }: PropType) {
 
   const isNewSong = isNewlyAdded(song);
   const limitedFor = getLimitedFor(song);
+  const no = wontSing(song);
 
   return (
     <TableRow
@@ -73,6 +75,11 @@ export default function SongTableRow({ song }: PropType) {
           {limitedFor == LimitedFor.Governor && (
             <div className="relative h-[24px] w-[24px]">
               <Image src="/icons/总-66.png" alt="captain" fill />
+            </div>
+          )}
+          {no && (
+            <div className="relative h-[24px] w-[24px]">
+              <Image src="/icons/icons8-no-66.png" alt="no" fill />
             </div>
           )}
         </div>

@@ -29,6 +29,10 @@ export function isNewlyAdded(song: Song) {
   return creationDate <= today && creationDate >= lastTwoMonth;
 }
 
+export function wontSing(song: Song) {
+  return song.tag.indexOf("NO") != -1;
+}
+
 export enum LimitedFor {
   Captain,
   Admiral,
