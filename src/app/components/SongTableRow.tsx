@@ -1,9 +1,14 @@
 "use client";
 
+import {
+  LimitedFor,
+  getLimitedFor,
+  isNewlyAdded,
+  onCopyToClipboard,
+} from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { dislikeSong, likeSong } from "../actions/reaction";
 import { getNumDislikes, getNumLikes } from "./SongPanel";
-import { isNewlyAdded, onCopyToClipboard } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
@@ -37,6 +42,9 @@ export default function SongTableRow({ song }: PropType) {
 
   const onCopySong = () => onCopyToClipboard(song);
 
+  const isNewSong = isNewlyAdded(song);
+  const limitedFor = getLimitedFor(song);
+
   return (
     <TableRow
       key={song.id}
@@ -44,15 +52,30 @@ export default function SongTableRow({ song }: PropType) {
       onClick={onCopySong}
     >
       <TableCell className="p-0 md:p-0.5 text-end h-0.5 md:h-1 whitespace-nowrap">
-        {isNewlyAdded(song) && (
-          <Image
-            src="/icons/new.png"
-            alt="new"
-            className="align-top"
-            width={50}
-            height={50}
-          />
-        )}
+        <div className="relative p-0 w-fit h-full flex justify-start items-center overflow-hidden">
+          {isNewSong && (
+            <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-red-800 text-center text-white font-thin text-xs">
+              new
+            </div>
+          )}
+          {/* Create an invisible div here so that subsequent elements won't overlap with the ribbon when the screen is narrow */}
+          <div className="w-[30px]"></div>
+          {limitedFor == LimitedFor.Captain && (
+            <div className="relative h-[24px] w-[24px]">
+              <Image src="/icons/舰-66.png" alt="captain" fill />
+            </div>
+          )}
+          {limitedFor == LimitedFor.Admiral && (
+            <div className="relative h-[24px] w-[24px]">
+              <Image src="/icons/提-66.png" alt="captain" fill />
+            </div>
+          )}
+          {limitedFor == LimitedFor.Governor && (
+            <div className="relative h-[24px] w-[24px]">
+              <Image src="/icons/总-66.png" alt="captain" fill />
+            </div>
+          )}
+        </div>
       </TableCell>
       <TableCell className="p-0 text-start h-0.5 md:h-1 whitespace-nowrap">
         {song.url ? (

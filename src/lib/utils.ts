@@ -29,6 +29,28 @@ export function isNewlyAdded(song: Song) {
   return creationDate <= today && creationDate >= lastTwoMonth;
 }
 
+export enum LimitedFor {
+  Captain,
+  Admiral,
+  Governor,
+}
+
+export function getLimitedFor(song: Song) {
+  if (song.remark.indexOf("上总") != -1 || song.remark.indexOf("总督") != -1) {
+    return LimitedFor.Governor;
+  }
+
+  if (song.remark.indexOf("上提") != -1 || song.remark.indexOf("提督") != -1) {
+    return LimitedFor.Admiral;
+  }
+
+  if (song.remark.indexOf("上舰") != -1 || song.remark.indexOf("舰长") != -1) {
+    return LimitedFor.Captain;
+  }
+
+  return null;
+}
+
 export function orderNewSongsFirst(allSongs: Song[]) {
   const newSongs = allSongs.filter(isNewlyAdded);
   newSongs.sort((s1, s2) => {
