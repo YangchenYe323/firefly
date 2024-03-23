@@ -105,11 +105,16 @@ const config = {
           "0%": { opacity: "0", transform: "translateY(-10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "slide-right": {
+          "0%": { opacity: "0", transform: "translateX(-10px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "slide-down": "slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-right": "slide-right 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },

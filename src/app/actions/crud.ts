@@ -26,6 +26,14 @@ export async function createSong(
     return { success: false, message: "Unaothorized" };
   }
 
+  const validation = validateSong(song);
+  if (!validation.success) {
+    return {
+      success: false,
+      message: validation.message,
+    };
+  }
+
   const newSong = await prisma.song.create({
     data: {
       title: song.title,
@@ -81,6 +89,14 @@ export async function updateSong(
     return { success: false, message: "Unauthorized" };
   }
 
+  const validation = validateSong(song);
+  if (!validation.success) {
+    return {
+      success: false,
+      message: validation.message,
+    };
+  }
+
   const updatedSong = await prisma.song.update({
     where: {
       id: song.id,
@@ -96,4 +112,32 @@ export async function updateSong(
   });
 
   return { success: true, song: updatedSong };
+}
+
+function validateSong(song: EditableSong) {
+  if (!song.title) {
+    return {
+      success: false,
+      message: "歌曲名不能为空",
+    };
+  }
+
+  if (song.url !== null && !isValidHttpUrl(song.url)) {
+    return {
+      success: false,
+      message: "歌曲链接不合法",
+    };
+  }
+
+  return { success: true };
+}
+
+function isValidHttpUrl(urlString: string) {
+  let url: URL;
+  try {
+    url = new URL(urlString);
+  } catch (_) {
+    return false;
+  }
+  return url.protocol === "http:" || url.protocol === "https:";
 }

@@ -31,9 +31,8 @@ export default function EditableListCell({
   column,
   table,
 }: PropType) {
-  const initialValue = getValue();
   const [currentState, setCurrentState] = useState<State>({
-    currentValues: initialValue,
+    currentValues: getValue(),
     inputValue: "",
   });
   const inputElRef = useRef<HTMLInputElement | null>(null);
@@ -41,9 +40,9 @@ export default function EditableListCell({
   useEffect(() => {
     setCurrentState((oldState) => ({
       ...oldState,
-      currentValues: initialValue,
+      currentValues: getValue(),
     }));
-  }, [initialValue]);
+  }, [getValue]);
 
   const removeEntry = (i: number) => {
     const newEntries = [...currentState.currentValues];
@@ -60,10 +59,10 @@ export default function EditableListCell({
 
       setCurrentState((oldState) => {
         const newValues = oldState.currentValues.find(
-          (val) => val.toLowerCase() === currentState.inputValue.toLowerCase()
+          (val) => val.toLowerCase() === oldState.inputValue.toLowerCase()
         )
           ? [...oldState.currentValues]
-          : [...oldState.currentValues, currentState.inputValue];
+          : [...oldState.currentValues, oldState.inputValue];
 
         return {
           currentValues: newValues,
@@ -95,7 +94,7 @@ export default function EditableListCell({
             {currentState.currentValues.map((val, idx) => (
               <li
                 key={val}
-                className="flex items-center rounded bg-white text-black border mr-2"
+                className="flex items-center rounded bg-white text-black border mr-2 p-1"
               >
                 {val}
                 <Button
