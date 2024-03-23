@@ -27,7 +27,6 @@ export default function UserNav() {
         className="w-56"
         align="end"
         forceMount
-        onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
