@@ -62,7 +62,8 @@ export default async function userLogin(
   }
 
   const newUserToken = await signNewJwtToken(user);
-  cookies().set("currentUser", newUserToken);
+  const thirtyDays = 24 * 60 * 60;
+  cookies().set("currentUser", newUserToken, { expires: thirtyDays });
 
   return {
     success: true,
