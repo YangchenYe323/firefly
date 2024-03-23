@@ -1,13 +1,23 @@
 "use client";
 
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuPortal,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { dislikeSong, likeSong } from "../actions/reaction";
 import {
   onCopyToClipboard,
   orderNewSongsFirst,
@@ -21,7 +31,6 @@ import { Icons } from "../../components/Icons";
 import SearchGrid from "./SearchGrid";
 import { Song } from "@/generated/client";
 import SongTableRow from "./SongTableRow";
-import { toast } from "sonner";
 
 interface PropType {
   allSongs: Song[];
@@ -164,6 +173,30 @@ export default function SongPanel({ allSongs }: PropType) {
     setFinalData((data) => shuffleArray(data));
   };
 
+  const onSortByLikes = () => {
+    setFinalData((data) => {
+      const newData = [...data];
+      newData.sort((s1, s2) => {
+        const s1Likes = getNumLikes(s1);
+        const s2Likes = getNumLikes(s2);
+        return s1Likes > s2Likes ? -1 : s1Likes === s2Likes ? 0 : 1;
+      });
+      return newData;
+    });
+  };
+
+  const onSortByDislikes = () => {
+    setFinalData((data) => {
+      const newData = [...data];
+      newData.sort((s1, s2) => {
+        const s1Dislikes = getNumDislikes(s1);
+        const s2Dislikes = getNumDislikes(s2);
+        return s1Dislikes > s2Dislikes ? -1 : s1Dislikes === s2Dislikes ? 0 : 1;
+      });
+      return newData;
+    });
+  };
+
   const onCopyRandom = () => {
     const randomIdx = Math.floor(Math.random() * finalData.length);
     onCopyToClipboard(finalData[randomIdx]);
@@ -232,7 +265,50 @@ export default function SongPanel({ allSongs }: PropType) {
                 备注
               </TableHead>
               <TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
-                反应
+                <div className="h-full flex items-center justify-center">
+                  反应
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="p-0">
+                        <Icons.three_dots_vertical className="inline align-text-top" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuContent
+                        className="w-36 border p-1 border-black bg-hikari_lavender_lighter/90 animate-slide-down"
+                        align="start"
+                        onCloseAutoFocus={(e) => {
+                          e.preventDefault();
+                        }}
+                      >
+                        <DropdownMenuRadioGroup
+                          className="rounded-3xl"
+                          onValueChange={(value) => {
+                            if (value === "sortLike") {
+                              onSortByLikes();
+                            } else {
+                              onSortByDislikes();
+                            }
+                          }}
+                        >
+                          <DropdownMenuRadioItem
+                            className="rounded-3xl"
+                            value="sortLike"
+                          >
+                            ️❤️ 最多 ️
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuRadioItem
+                            className="rounded-3xl"
+                            value="sortDislike"
+                          >
+                            😅 最多
+                          </DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenu>
+                </div>
               </TableHead>
             </TableRow>
           </TableHeader>
