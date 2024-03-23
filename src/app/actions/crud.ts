@@ -95,7 +95,5 @@ export async function updateSong(
     },
   });
 
-  console.log(updatedSong);
-
   return { success: true, song: updatedSong };
 }
