@@ -258,13 +258,13 @@ export default function SongPanel({ allSongs }: PropType) {
               <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 语种
               </TableHead>
-              <TableHead className="w-1/5 text-sm md:text-base text-black text-center whitespace-nowrap">
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 标签
               </TableHead>
-              <TableHead className="w-1/5 text-sm md:text-base text-black text-center whitespace-nowrap">
+              <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 备注
               </TableHead>
-              <TableHead className="w-1/3 text-sm md:text-base text-black text-center whitespace-nowrap">
+              <TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 <div className="h-full flex items-center justify-center">
                   反应
                   <DropdownMenu>
