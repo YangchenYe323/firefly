@@ -204,7 +204,9 @@ export default function EditableSongTable({ songs }: PropType) {
         const res = await updateSong(updatedSong);
 
         if (res.success) {
-          toast.success(`歌曲 ${updatedSong.title} 已成功更新`);
+          toast.success(`歌曲 ${updatedSong.title} 已成功更新`, {
+            position: "bottom-left",
+          });
           setData((oldData) =>
             oldData.map((song) => {
               if (song.id === updatedSong.id) {
@@ -219,7 +221,10 @@ export default function EditableSongTable({ songs }: PropType) {
         toast.error(
           `歌曲 ${updatedSong.title} 更新失败: ${
             res.message || "原因异常, 请报bug"
-          }`
+          }`,
+          {
+            position: "bottom-left",
+          }
         );
         return false;
       },
@@ -229,7 +234,9 @@ export default function EditableSongTable({ songs }: PropType) {
         if (res.success) {
           const newSongEntry = res.song;
           if (newSongEntry) {
-            toast.success(`歌曲 ${newSong.title} 添加成功`);
+            toast.success(`歌曲 ${newSong.title} 添加成功`, {
+              position: "bottom-left",
+            });
             setData((oldData) => [newSongEntry, ...oldData]);
             return true;
           }
@@ -239,7 +246,10 @@ export default function EditableSongTable({ songs }: PropType) {
         toast.error(
           `歌曲 ${newSong.title} 添加失败: ${
             res.message || "原因异常, 请报bug"
-          }`
+          }`,
+          {
+            position: "bottom-left",
+          }
         );
         return false;
       },
