@@ -1,10 +1,17 @@
 "use client";
 
-import { ChangeEventHandler, useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  KeyboardEventHandler,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Column, Row, Table } from "@tanstack/react-table";
 
+import { Button } from "@/components/ui/button";
+import ChineseInput from "@/components/ChineseInput";
 import { EditableSong } from "../page";
-import { Input } from "../../../components/ui/input";
 
 interface PropType {
   getValue: () => string[];
@@ -13,7 +20,11 @@ interface PropType {
   table: Table<EditableSong>;
 }
 
-// TODO: Refactor list cell for better interactivity
+interface State {
+  currentValues: string[];
+  inputValue: string;
+}
+
 export default function EditableListCell({
   getValue,
   row,
@@ -21,23 +32,57 @@ export default function EditableListCell({
   table,
 }: PropType) {
   const initialValue = getValue();
-  const [currentValue, setCurrentValue] = useState(initialValue);
+  const [currentState, setCurrentState] = useState<State>({
+    currentValues: initialValue,
+    inputValue: "",
+  });
+  const inputElRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    setCurrentValue(initialValue);
+    setCurrentState((oldState) => ({
+      ...oldState,
+      currentValues: initialValue,
+    }));
   }, [initialValue]);
+
+  const removeEntry = (i: number) => {
+    const newEntries = [...currentState.currentValues];
+    newEntries.splice(i, 1);
+    setCurrentState((oldState) => ({ ...oldState, currentValues: newEntries }));
+    table.options.meta?.updateEditedData(row.id, column.getIndex(), newEntries);
+  };
+
+  const onInputKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === "Enter" && currentState.inputValue) {
+      if (inputElRef.current) {
+        inputElRef.current.value = "";
+      }
+
+      setCurrentState((oldState) => {
+        const newValues = oldState.currentValues.find(
+          (val) => val.toLowerCase() === currentState.inputValue.toLowerCase()
+        )
+          ? [...oldState.currentValues]
+          : [...oldState.currentValues, currentState.inputValue];
+
+        return {
+          currentValues: newValues,
+          inputValue: "",
+        };
+      });
+    }
+  };
+
+  const onValueChange = (newVal: string) => {
+    setCurrentState((oldState) => ({ ...oldState, inputValue: newVal }));
+  };
 
   const onBlur = () => {
     table.options.meta?.updateEditedData(
       row.id,
       column.getIndex(),
-      currentValue
+      currentState.currentValues
     );
-  };
-
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = e.target.value;
-    setCurrentValue(value.split(","));
   };
 
   const isEditing = table.options.meta?.editedRows.has(row.id);
@@ -45,14 +90,33 @@ export default function EditableListCell({
   return (
     <div>
       {isEditing ? (
-        <Input
-          value={currentValue}
-          onChange={handleChange}
-          onBlur={onBlur}
-          type={"text"}
-        />
+        <div>
+          <ul className="inline-flex flex-wrap m-0 p-0 w-full" onBlur={onBlur}>
+            {currentState.currentValues.map((val, idx) => (
+              <li
+                key={val}
+                className="flex items-center rounded bg-white text-black border mr-2"
+              >
+                {val}
+                <Button
+                  variant="outline"
+                  className="inline-flex justify-center items-center w-[15px] h-[15px] rounded-full p-0"
+                  onClick={() => removeEntry(idx)}
+                >
+                  ×
+                </Button>
+              </li>
+            ))}
+            <ChineseInput
+              placeholder="回车完成编辑"
+              onValueChange={onValueChange}
+              onKeyDown={onInputKeyDown}
+              ref={inputElRef}
+            />
+          </ul>
+        </div>
       ) : (
-        currentValue.join(", ")
+        currentState.currentValues.join(", ")
       )}
     </div>
   );

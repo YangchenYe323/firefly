@@ -201,6 +201,8 @@ export default function EditableSongTable({ songs }: PropType) {
           remark: updatedValues[5] as string,
         };
 
+        console.log(updatedSong);
+
         const res = await updateSong(updatedSong);
 
         if (res.success) {
