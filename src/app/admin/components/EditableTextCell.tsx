@@ -20,12 +20,11 @@ export default function EditableTextCell({
   column,
   table,
 }: PropType) {
-  const initialValue = getValue();
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(getValue());
 
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(getValue());
+  }, [getValue]);
 
   const onBlur = () => {
     table.options.meta?.updateEditedData(row.id, column.getIndex(), value);

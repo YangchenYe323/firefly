@@ -25,7 +25,9 @@ export default function EditCell({ row, table }: PropType) {
     setIsLoading(true);
     const success = await meta?.persistdata(row.index, row.id);
     setIsLoading(false);
-    meta?.setEditedRows((old) => old.delete(row.id));
+    if (success) {
+      meta?.setEditedRows((old) => old.delete(row.id));
+    }
     meta?.revertData(row.index, !success);
   };
 
