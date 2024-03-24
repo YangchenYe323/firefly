@@ -1,38 +1,72 @@
 # firefly
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+交互式歌单网站，希望dd和主包们玩得开心~
+
+本仓库部署的是B站虚拟主播 *蝶蝶Hikari* 的个人歌单(您可以在 https://www.diehikari.top/ 访问)。
+
+This project is heavily based on the work of [@贝格耶喽](https://github.com/BigYellowhcy) and inspired by sites like https://shulisuki.top/ and https://www.taojiovo.com/
+
+# Features
+
+- [x] 复制歌曲到剪贴板
+- [x] 根据标签选择歌曲
+- [x] 搜索歌曲
+- [x] 随机点歌
+- [x] 乱序歌曲
+- [x] 点❤️/😅
+- [x] 歌曲管理后台
+
 
 ## Getting Started
 
-First, run the development server:
+#### Clone the repo
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/YangchenYe323/firefly.git && cd firefly
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This project is developed with [pnpm](https://pnpm.io/) and is not tested on other package managers.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+pnpm install
+```
 
-## Learn More
+#### Set up database
 
-To learn more about Next.js, take a look at the following resources:
+This project uses [PostgreSQL](https://www.postgresql.org/) as the database. It needs a running Postgres server to run. There are two ways you could set the server up:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. [30 Minutes and some headache] Set up a local Postgres instance: https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+2. [10 Minutes] Use a free managed Postgres service like [Neon Database](https://neon.tech/). **This is the recommended approach as setting up Postgres locally is still tedious.** The author develops and deploys the project using Neon.
 
-## Deploy on Vercel
+After the database is up, add a `.env` file in the project root directory containing the database URL and a secret key of your choice:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- If you are using a local Postgres instance:
+```
+# firefly/.env
+POSTGRES_PRISMA_URL="postgresql://postgres:<your password>@localhost:<your postgres port (default 5432)>/postgres"
+NEXT_PUBLIC_JWT_SECRET_KEY=<Choose your secret>
+```
+- If you are using Neon:
+```
+# firefly/.env
+POSTGRES_PRISMA_URL="<copy the URL from your neon console>"
+NEXT_PUBLIC_JWT_SECRET_KEY=<Choose your secret>
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+#### Configure database
+
+This project uses [Prisma-ORM](https://www.prisma.io/), and after the database is up, the configuration is as easy as running
+```Bash
+pnpm prisma db push
+```
+
+#### Start development server
+```Bash
+pnpm dev
+```
+
+Now you're good to go!
+
