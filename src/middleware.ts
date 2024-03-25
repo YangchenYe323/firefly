@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   if (
     jwtVerified &&
     request.nextUrl.pathname.startsWith("/login") &&
-    request.method == "GET"
+    request.method === "GET"
   ) {
     return Response.redirect(new URL("/admin", request.url));
   }

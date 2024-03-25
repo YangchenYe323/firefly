@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className={`${alexBrush.variable} font-chinese`}>
         {children}
         {/*Toastify and Toaster are both used as I don't feel like changing the admin page when I switch toast library for the main page*/}
-        <ToastContainer />
+        <ToastContainer autoClose={1000} />
         <Toaster />
       </body>
     </html>

@@ -78,7 +78,7 @@ interface PropType {
 
 const filterSubstrInArr: FilterFn<any> = (row, columnId, value, addMeta) => {
   const arr = row.getValue(columnId) as string[];
-  return arr.some((s) => s.indexOf(value) != -1);
+  return arr.some((s) => s.indexOf(value) !== -1);
 };
 
 const columnHelper = createColumnHelper<EditableSong>();
