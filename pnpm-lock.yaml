@@ -32,6 +32,7 @@ specifiers:
   react: ^18
   react-dom: ^18
   react-hook-form: ^7.51.1
+  react-toastify: ^10.0.5
   sharp: ^0.33.2
   sonner: ^1.4.3
   tailwind-merge: ^2.2.1
@@ -65,6 +66,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.51.1_react@18.2.0
+  react-toastify: 10.0.5_biqbaboplfbrettd7655fr4n2y
   sharp: 0.33.2
   sonner: 1.4.3_biqbaboplfbrettd7655fr4n2y
   tailwind-merge: 2.2.1
@@ -3846,6 +3848,17 @@ packages:
       invariant: 2.2.4
       react: 18.2.0
       tslib: 2.6.2
+    dev: false
+
+  /react-toastify/10.0.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-mNKt2jBXJg4O7pSdbNUfDdTsK9FIdikfsIE/yUCxbAEXl4HMyJaivrVFcn3Elvt5xvCQYhUZm+hqTIu1UXM3Pw==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    dependencies:
+      clsx: 2.1.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react/18.2.0:

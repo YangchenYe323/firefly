@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 
 import { Song } from "@/generated/client";
 import copy from "copy-to-clipboard";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -61,8 +61,8 @@ export function orderNewSongsFirst(allSongs: Song[]) {
     return s1.created_on.getTime() > s2.created_on.getTime()
       ? -1
       : s1.created_on.getTime() == s2.created_on.getTime()
-        ? 0
-        : 1;
+      ? 0
+      : 1;
   });
   const oldSongs = allSongs.filter((song) => !isNewlyAdded(song));
   return [...newSongs, ...oldSongs];

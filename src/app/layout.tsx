@@ -1,8 +1,11 @@
 import "./globals.css";
 
+import "react-toastify/dist/ReactToastify.css";
+
 import { Alex_Brush } from "next/font/google";
 import type { Metadata } from "next";
-import { Toaster } from "@/components/ui/sonner";
+import { ToastContainer } from "react-toastify";
+import { Toaster } from "sonner";
 import vtuberProfile from "@/profile";
 
 const alexBrush = Alex_Brush({
@@ -26,7 +29,9 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning={true}>
       <body className={`${alexBrush.variable} font-chinese`}>
         {children}
-        <Toaster position="top-right" expand={true} richColors />
+        {/*Toastify and Toaster are both used as I don't feel like changing the admin page when I switch toast library for the main page*/}
+        <ToastContainer />
+        <Toaster />
       </body>
     </html>
   );
