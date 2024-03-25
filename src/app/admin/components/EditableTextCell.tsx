@@ -49,7 +49,7 @@ export default function EditableTextCell({
           onBlur={onBlur}
           type={columnType || "text"}
         />
-      ) : columnType == "link" && value ? (
+      ) : columnType === "link" && value ? (
         <Link href={value} className="underline">
           {value}
         </Link>

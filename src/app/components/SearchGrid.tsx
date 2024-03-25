@@ -26,7 +26,7 @@ export default function SearchGrid({
             key={filter.value}
             variant="outline"
             className={
-              selectedFilter.value == filter.value
+              selectedFilter.value === filter.value
                 ? "rounded-2xl text-center w-[30%] md:w-[23%] border-0 bg-hikari_white_darker/80"
                 : "rounded-2xl text-center w-[30%] md:w-[23%] border-0 bg-hikari_white/80"
             }

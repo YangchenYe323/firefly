@@ -23,6 +23,22 @@ type PropType = {
   song: Song;
 };
 
+function songScImg(song: Song) {
+  if (song.remark.indexOf("30元SC") !== -1) {
+    return "/icons/30.png";
+  }
+  if (song.remark.indexOf("100元SC") !== -1) {
+    return "/icons/100.png";
+  }
+  if (song.remark.indexOf("1000元SC") !== -1) {
+    return "/icons/1000.png";
+  }
+  if (song.remark.indexOf("10000元SC") !== -1) {
+    return "/icons/10000.png";
+  }
+  return null;
+}
+
 export default function SongTableRow({ song }: PropType) {
   const [numLikes, setNumLikes] = useState(getNumLikes(song));
   const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
@@ -46,6 +62,7 @@ export default function SongTableRow({ song }: PropType) {
   const isNewSong = isNewlyAdded(song);
   const limitedFor = getLimitedFor(song);
   const no = wontSing(song);
+  const scImg = songScImg(song);
 
   return (
     <TableRow
@@ -62,23 +79,28 @@ export default function SongTableRow({ song }: PropType) {
           )}
           {/* Create an invisible div here so that subsequent elements won't overlap with the ribbon when the screen is narrow */}
           <div className="w-[30px]"></div>
-          {limitedFor == LimitedFor.Captain && (
+          {limitedFor === LimitedFor.Captain && (
             <div className="relative h-[24px] w-[24px]">
               <Image src="/icons/舰-66.png" alt="captain" fill />
             </div>
           )}
-          {limitedFor == LimitedFor.Admiral && (
+          {limitedFor === LimitedFor.Admiral && (
             <div className="relative h-[24px] w-[24px]">
               <Image src="/icons/提-66.png" alt="captain" fill />
             </div>
           )}
-          {limitedFor == LimitedFor.Governor && (
+          {limitedFor === LimitedFor.Governor && (
             <div className="relative h-[24px] w-[24px]">
               <Image src="/icons/总-66.png" alt="captain" fill />
             </div>
           )}
+          {scImg && (
+            <div className="relative h-[36px] w-[36px]">
+              <Image src={scImg} alt="sc" fill />
+            </div>
+          )}
           {no && (
-            <div className="relative h-[24px] w-[24px]">
+            <div className="relative h-[30px] w-[30px]">
               <Image src="/icons/icons8-no-66.png" alt="no" fill />
             </div>
           )}

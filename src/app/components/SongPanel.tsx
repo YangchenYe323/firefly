@@ -45,22 +45,22 @@ export interface Filter {
 }
 
 const filterForeignLang: SongFilter = (song) => {
-  return song.lang.length > 1 || song.lang[0] != "国语";
+  return song.lang.length > 1 || song.lang[0] !== "国语";
 };
 
 const filterOnTag: SongFilterBuilder<string> = (tag) => (song) => {
-  return song.tag.indexOf(tag) != -1;
+  return song.tag.indexOf(tag) !== -1;
 };
 
 const filterOnCaptain: SongFilter = (song) =>
-  song.remark.indexOf("当日限定") != -1;
+  song.remark.indexOf("当日限定") !== -1;
 
 const filterOnOriginal: SongFilter = (song) =>
-  song.remark.indexOf("原创") != -1;
+  song.remark.indexOf("原创") !== -1;
 
-const filterOnPaid: SongFilter = (song) => song.remark.indexOf("SC点歌") != -1;
+const filterOnPaid: SongFilter = (song) => song.remark.indexOf("SC点歌") !== -1;
 
-const filterOnUrlAvailable: SongFilter = (song) => song.url != null;
+const filterOnUrlAvailable: SongFilter = (song) => song.url !== null;
 
 const filterAll = {
   value: "全部",
@@ -106,9 +106,9 @@ const filters: Filter[] = [
 export const getNumLikes = (song: Song) => {
   if (
     song.extra &&
-    typeof song.extra == "object" &&
+    typeof song.extra === "object" &&
     "numLikes" in song.extra &&
-    typeof song.extra.numLikes == "number"
+    typeof song.extra.numLikes === "number"
   ) {
     return song.extra.numLikes;
   }
@@ -119,9 +119,9 @@ export const getNumLikes = (song: Song) => {
 export const getNumDislikes = (song: Song) => {
   if (
     song.extra &&
-    typeof song.extra == "object" &&
+    typeof song.extra === "object" &&
     "numDislikes" in song.extra &&
-    typeof song.extra.numDislikes == "number"
+    typeof song.extra.numDislikes === "number"
   ) {
     return song.extra.numDislikes;
   }
@@ -142,7 +142,7 @@ export default function SongPanel({ allSongs }: PropType) {
       return true;
     }
 
-    return song.title.indexOf(text) != -1 || song.artist.indexOf(text) != -1;
+    return song.title.indexOf(text) !== -1 || song.artist.indexOf(text) !== -1;
   };
 
   useEffect(() => {

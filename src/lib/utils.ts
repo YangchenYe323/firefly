@@ -30,7 +30,7 @@ export function isNewlyAdded(song: Song) {
 }
 
 export function wontSing(song: Song) {
-  return song.tag.indexOf("NO") != -1;
+  return song.tag.indexOf("NO") !== -1;
 }
 
 export enum LimitedFor {
@@ -40,15 +40,15 @@ export enum LimitedFor {
 }
 
 export function getLimitedFor(song: Song) {
-  if (song.remark.indexOf("上总") != -1 || song.remark.indexOf("总督") != -1) {
+  if (song.remark.indexOf("上总") !== -1 || song.remark.indexOf("总督") !== -1) {
     return LimitedFor.Governor;
   }
 
-  if (song.remark.indexOf("上提") != -1 || song.remark.indexOf("提督") != -1) {
+  if (song.remark.indexOf("上提") !== -1 || song.remark.indexOf("提督") !== -1) {
     return LimitedFor.Admiral;
   }
 
-  if (song.remark.indexOf("上舰") != -1 || song.remark.indexOf("舰长") != -1) {
+  if (song.remark.indexOf("上舰") !== -1 || song.remark.indexOf("舰长") !== -1) {
     return LimitedFor.Captain;
   }
 
@@ -60,7 +60,7 @@ export function orderNewSongsFirst(allSongs: Song[]) {
   newSongs.sort((s1, s2) => {
     return s1.created_on.getTime() > s2.created_on.getTime()
       ? -1
-      : s1.created_on.getTime() == s2.created_on.getTime()
+      : s1.created_on.getTime() === s2.created_on.getTime()
       ? 0
       : 1;
   });

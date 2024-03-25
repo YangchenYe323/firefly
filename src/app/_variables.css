@@ -1,5 +1,5 @@
 :root {
-  --toastify-color-success: linear-gradient(to right, #92c0dd 50%, #fffaff 50%);
+  --toastify-color-success: rgba(146, 192, 221, 0.5);
 
   --toastify-icon-color-success: #92c0dd;
 
