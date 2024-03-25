@@ -33,6 +33,14 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --toastify-color-success: linear-gradient(
+      to right,
+      #92c0dd 50%,
+      #fffaff 50%
+    );
+
+    --toastify-icon-color-success: #92c0dd;
   }
 
   .dark {
