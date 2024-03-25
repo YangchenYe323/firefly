@@ -1,6 +1,6 @@
-import "./globals.css";
-
 import "react-toastify/dist/ReactToastify.css";
+import "./_variables.css";
+import "./globals.css";
 
 import { Alex_Brush } from "next/font/google";
 import type { Metadata } from "next";
