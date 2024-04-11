@@ -107,31 +107,27 @@ export default function SongTableRow({ song }: PropType) {
         </div>
       </TableCell>
       <TableCell className="p-0 text-start h-0.5 md:h-1 whitespace-nowrap">
-        {song.url ? (
-          <span>
-            <Button
-              variant="ghost"
-              className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
-            >
-              {song.title}
-            </Button>
-            <Link
-              href={song.url}
-              target="_blank"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Icons.paper_plane className="ml-2 inline align-top" />
-            </Link>
-          </span>
-        ) : (
-          <Button
-            variant="ghost"
-            className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
-          >
-            {song.title}
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          className="p-0 m-0 border-0 h-0.5 md:h-1 text-center font-semibold"
+        >
+          {song.title}
+        </Button>
       </TableCell>
+      {song.url ? (
+        <TableCell>
+          {" "}
+          <Link
+            href={song.url}
+            target="_blank"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Icons.play_button className="ml-2 inline" />
+          </Link>
+        </TableCell>
+      ) : (
+        <TableCell></TableCell>
+      )}
       <TableCell className="p-0 md:p-0.5 font-mono text-center h-0.5 md:h-1 whitespace-nowrap">
         {song.artist}
       </TableCell>

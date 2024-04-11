@@ -252,6 +252,7 @@ export default function SongPanel({ allSongs }: PropType) {
               <TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-start whitespace-nowrap">
                 歌名
               </TableHead>
+              <TableHead />
               <TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
                 歌手
               </TableHead>
