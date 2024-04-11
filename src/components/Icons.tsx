@@ -236,8 +236,8 @@ export const Icons = {
   paper_plane: (props: IconProps) => (
     <svg
       fill="#000000"
-      height="24px"
-      width="24px"
+      height="16px"
+      width="16px"
       version="1.1"
       id="Layer_1"
       xmlns="http://www.w3.org/2000/svg"
@@ -286,6 +286,36 @@ export const Icons = {
       <g id="SVGRepo_iconCarrier">
         {" "}
         <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"></path>{" "}
+      </g>
+    </svg>
+  ),
+  play_button: (props: IconProps) => (
+    <svg
+      fill="#fb7299"
+      height="24px"
+      width="24px"
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 472.615 472.615"
+      stroke="#fb7299"
+      {...props}
+    >
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        {" "}
+        <g>
+          {" "}
+          <g>
+            {" "}
+            <path d="M236.308,0C105.799,0,0,105.798,0,236.308c0,130.507,105.799,236.308,236.308,236.308s236.308-105.801,236.308-236.308 C472.615,105.798,366.816,0,236.308,0z M139.346,347.733V124.88l229.37,111.428L139.346,347.733z"></path>{" "}
+          </g>{" "}
+        </g>{" "}
       </g>
     </svg>
   ),
