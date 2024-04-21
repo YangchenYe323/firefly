@@ -37,9 +37,9 @@ pnpm install
 
 This project uses [PostgreSQL](https://www.postgresql.org/) as the database. It needs a running Postgres server to run. There are two ways you could set the server up:
 
-1. [30 Minutes and some headache] Set up a local Postgres instance: https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database
+1. [15 Minutes and some headache] Set up a local Postgres instance: https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database
 
-2. [10 Minutes] Use a free managed Postgres service like [Neon Database](https://neon.tech/). **This is the recommended approach as setting up Postgres locally is still tedious.** The author develops and deploys the project using Neon.
+2. [2 Minutes] Use a free managed Postgres service like [Neon Database](https://neon.tech/). **This is the recommended approach as setting up Postgres locally is still tedious.** The author develops and deploys the project using Neon.
 
 After the database is up, add a `.env` file in the project root directory containing the database URL and a secret key of your choice:
 
