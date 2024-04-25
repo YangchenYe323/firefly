@@ -19,6 +19,7 @@ specifiers:
   copy-to-clipboard: ^3.3.3
   eslint: ^8.57.0
   eslint-config-next: 14.2.1
+  framer-motion: ^11.1.7
   immutable: 5.0.0-beta.5
   jose: ^5.2.3
   lucide-react: ^0.358.0
@@ -52,6 +53,7 @@ dependencies:
   class-variance-authority: 0.7.0
   clsx: 2.1.0
   copy-to-clipboard: 3.3.3
+  framer-motion: 11.1.7_biqbaboplfbrettd7655fr4n2y
   immutable: 5.0.0-beta.5
   jose: 5.2.3
   lucide-react: 0.358.0_react@18.2.0
@@ -2628,6 +2630,25 @@ packages:
   /fraction.js/4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
     dev: true
+
+  /framer-motion/11.1.7_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-cW11Pu53eDAXUEhv5hEiWuIXWhfkbV32PlgVISn7jRdcAiVrJ1S03YQQ0/DzoswGYYwKi4qYmHHjCzAH52eSdQ==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      tslib: 2.6.2
+    dev: false
 
   /fs-minipass/2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
