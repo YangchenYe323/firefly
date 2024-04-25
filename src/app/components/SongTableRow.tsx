@@ -16,6 +16,7 @@ import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import Link from "next/link";
 import { Song } from "@/generated/client";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -144,23 +145,29 @@ export default function SongTableRow({ song }: PropType) {
         <div className="min-w-10 h-full grid grid-flow-col-dense justify-start items-center auto-cols-min">
           <Button
             variant="ghost"
-            className="mr-1 w-fit rounded-full p-1"
+            className="space-x-1 mr-1 w-fit rounded-full p-1"
             onClick={(e) => {
               e.stopPropagation();
               onLikeSong(song.id);
             }}
           >
-            <span>️❤️ {numLikes}</span>
+            <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.8 }}>
+              ️❤️
+            </motion.div>
+            <div>{numLikes}</div>
           </Button>
           <Button
             variant="ghost"
-            className="w-fit rounded-full p-1"
+            className="space-x-1 w-fit rounded-full p-1"
             onClick={async (e) => {
               e.stopPropagation();
               onDislikeSong(song.id);
             }}
           >
-            <span>😅 {numDislikes}</span>
+            <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.8 }}>
+              😅️️
+            </motion.div>
+            <div>{numDislikes}</div>
           </Button>
         </div>
       </TableCell>
