@@ -31,6 +31,9 @@ function songScImg(song: Song) {
   if (song.remark.indexOf("100元SC") !== -1) {
     return "/icons/100.png";
   }
+  if (song.remark.indexOf("200元SC") !== -1) {
+    return "/icons/200.png";
+  }
   if (song.remark.indexOf("1000元SC") !== -1) {
     return "/icons/1000.png";
   }
