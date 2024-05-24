@@ -8,7 +8,6 @@ import {
   wontSing,
 } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { dislikeSong, likeSong } from "../actions/reaction";
 import { getNumDislikes, getNumLikes } from "./SongPanel";
 
 import { Button } from "@/components/ui/button";
@@ -17,11 +16,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Song } from "@/generated/client";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
-import { useState } from "react";
 
 type PropType = {
   song: Song;
+  onLikeSong: (id: number) => void;
+  onDislikeSong: (id: number) => void;
 };
 
 function songScImg(song: Song) {
@@ -43,24 +42,11 @@ function songScImg(song: Song) {
   return null;
 }
 
-export default function SongTableRow({ song }: PropType) {
-  const [numLikes, setNumLikes] = useState(getNumLikes(song));
-  const [numDislikes, setNumDislikes] = useState(getNumDislikes(song));
-
-  const onLikeSong = (id: number) => {
-    likeSong(id).catch((err) => {
-      toast.error(`点️❤️失败: ${err}`);
-    });
-    setNumLikes((likes) => likes + 1);
-  };
-
-  const onDislikeSong = (id: number) => {
-    dislikeSong(id).catch((err) => {
-      toast.error(`点😅失败: ${err}`);
-    });
-    setNumDislikes((dislikes) => dislikes + 1);
-  };
-
+export default function SongTableRow({
+  song,
+  onLikeSong,
+  onDislikeSong,
+}: PropType) {
   const onCopySong = () => onCopyToClipboard(song);
 
   const isNewSong = isNewlyAdded(song);
@@ -157,7 +143,7 @@ export default function SongTableRow({ song }: PropType) {
             <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.8 }}>
               ️❤️
             </motion.div>
-            <div>{numLikes}</div>
+            <div>{getNumLikes(song)}</div>
           </Button>
           <Button
             variant="ghost"
@@ -170,7 +156,7 @@ export default function SongTableRow({ song }: PropType) {
             <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.8 }}>
               😅️️
             </motion.div>
-            <div>{numDislikes}</div>
+            <div>{getNumDislikes(song)}</div>
           </Button>
         </div>
       </TableCell>

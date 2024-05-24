@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { dislikeSong, likeSong } from "../actions/reaction";
 import {
   onCopyToClipboard,
   orderNewSongsFirst,
@@ -31,6 +32,7 @@ import { Icons } from "../../components/Icons";
 import SearchGrid from "./SearchGrid";
 import { Song } from "@/generated/client";
 import SongTableRow from "./SongTableRow";
+import { toast } from "react-toastify";
 
 interface PropType {
   allSongs: Song[];
@@ -166,6 +168,46 @@ export default function SongPanel({ allSongs }: PropType) {
 
   const onSearchTextChange = (text: string) => {
     setSearchText(text);
+  };
+
+  const onLikeSong = (id: number) => {
+    likeSong(id).catch((err) => {
+      toast.error(`点️❤️失败: ${err}`);
+    });
+    setOriginalData((data) =>
+      data.map((song) => {
+        if (song.id === id) {
+          return {
+            ...song,
+            extra: {
+              ...(song.extra as object),
+              numLikes: getNumLikes(song) + 1,
+            },
+          };
+        }
+        return song;
+      })
+    );
+  };
+
+  const onDislikeSong = (id: number) => {
+    dislikeSong(id).catch((err) => {
+      toast.error(`点️❤️失败: ${err}`);
+    });
+    setOriginalData((data) =>
+      data.map((song) => {
+        if (song.id === id) {
+          return {
+            ...song,
+            extra: {
+              ...(song.extra as object),
+              numDislikes: getNumDislikes(song) + 1,
+            },
+          };
+        }
+        return song;
+      })
+    );
   };
 
   const onShuffle = () => {
@@ -315,7 +357,14 @@ export default function SongPanel({ allSongs }: PropType) {
           </TableHeader>
           <TableBody>
             {finalData.map((song) => {
-              return <SongTableRow song={song} key={song.id} />;
+              return (
+                <SongTableRow
+                  song={song}
+                  key={song.id}
+                  onLikeSong={onLikeSong}
+                  onDislikeSong={onDislikeSong}
+                />
+              );
             })}
           </TableBody>
         </Table>
