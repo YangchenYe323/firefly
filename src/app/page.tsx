@@ -5,11 +5,11 @@ import SongPanel from "./components/SongPanel";
 import StickyHeader from "@/components/StickyHeader";
 import UserNav from "./components/UserNav";
 import { cn } from "@/lib/utils";
-import { readSongAllNoCache } from "./actions/crud";
+import { readSongAllNoCacheLatest } from "./actions/crud";
 import vtuberProfile from "@/profile";
 
 export default async function Home() {
-  const { songs } = await readSongAllNoCache();
+  const { songs } = await readSongAllNoCacheLatest();
   const songCount = songs.length;
 
   // TODO: why template string doesn't work here?
