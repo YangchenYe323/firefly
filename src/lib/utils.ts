@@ -27,6 +27,7 @@ export function isNewlyAdded(song: Song) {
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(1);
   console.log(creationDate, today, lastTwoMonth);
+  console.log(song.title, creationDate <= today, creationDate >= lastTwoMonth);
   return creationDate <= today && creationDate >= lastTwoMonth;
 }
 
