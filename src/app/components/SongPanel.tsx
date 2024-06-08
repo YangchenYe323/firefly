@@ -132,9 +132,7 @@ export const getNumDislikes = (song: Song) => {
 };
 
 export default function SongPanel({ allSongs }: PropType) {
-  const [originalData, setOriginalData] = useState(
-    orderNewSongsFirst(allSongs)
-  );
+  const [originalData, setOriginalData] = useState(allSongs);
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([]);

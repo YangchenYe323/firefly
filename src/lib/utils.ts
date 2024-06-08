@@ -21,12 +21,11 @@ export function shuffleArray<T>(arr: T[]) {
 
 export function isNewlyAdded(song: Song) {
   const creationDate = song.created_on;
-  const today = new Date();
-  const lastTwoMonth = new Date(today);
+  const lastTwoMonth = new Date();
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(1);
-  return creationDate <= today && creationDate >= lastTwoMonth;
+  return creationDate >= lastTwoMonth;
 }
 
 export function wontSing(song: Song) {
@@ -40,15 +39,24 @@ export enum LimitedFor {
 }
 
 export function getLimitedFor(song: Song) {
-  if (song.remark.indexOf("上总") !== -1 || song.remark.indexOf("总督") !== -1) {
+  if (
+    song.remark.indexOf("上总") !== -1 ||
+    song.remark.indexOf("总督") !== -1
+  ) {
     return LimitedFor.Governor;
   }
 
-  if (song.remark.indexOf("上提") !== -1 || song.remark.indexOf("提督") !== -1) {
+  if (
+    song.remark.indexOf("上提") !== -1 ||
+    song.remark.indexOf("提督") !== -1
+  ) {
     return LimitedFor.Admiral;
   }
 
-  if (song.remark.indexOf("上舰") !== -1 || song.remark.indexOf("舰长") !== -1) {
+  if (
+    song.remark.indexOf("上舰") !== -1 ||
+    song.remark.indexOf("舰长") !== -1
+  ) {
     return LimitedFor.Captain;
   }
 
@@ -57,6 +65,7 @@ export function getLimitedFor(song: Song) {
 
 export function orderNewSongsFirst(allSongs: Song[]) {
   const newSongs = allSongs.filter(isNewlyAdded);
+  console.log(newSongs);
   newSongs.sort((s1, s2) => {
     return s1.created_on.getTime() > s2.created_on.getTime()
       ? -1
