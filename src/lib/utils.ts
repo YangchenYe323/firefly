@@ -21,14 +21,11 @@ export function shuffleArray<T>(arr: T[]) {
 
 export function isNewlyAdded(song: Song) {
   const creationDate = song.created_on;
-  const today = new Date();
-  const lastTwoMonth = new Date(today);
+  const lastTwoMonth = new Date();
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(1);
-  console.log(creationDate, today, lastTwoMonth);
-  console.log(song.title, creationDate <= today, creationDate >= lastTwoMonth);
-  return creationDate <= today && creationDate >= lastTwoMonth;
+  return creationDate >= lastTwoMonth;
 }
 
 export function wontSing(song: Song) {
