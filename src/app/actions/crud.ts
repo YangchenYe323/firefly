@@ -5,6 +5,7 @@ import { EditableSong } from "../admin/page";
 import { Song } from "@/generated/client";
 import { cookies } from "next/headers";
 import prisma from "@/db";
+import { queryVedioCreationTimestampFromUrl } from "@/lib/utils";
 import { verifyJwtToken } from "@/lib/auth";
 
 const auth = async () => {
@@ -97,19 +98,55 @@ export async function updateSong(
     };
   }
 
-  const updatedSong = await prisma.song.update({
-    where: {
-      id: song.id,
-    },
-    data: {
-      title: song.title,
-      artist: song.artist,
-      lang: song.lang,
-      tag: song.tag,
-      remark: song.remark,
-      url: song.url,
-    },
-  });
+  let vedio_created_on = null;
+  if (song.url) {
+    vedio_created_on = await queryVedioCreationTimestampFromUrl(song.url);
+  }
+
+  let updatedSong;
+
+  if (vedio_created_on === null) {
+    updatedSong = await prisma.song.update({
+      where: {
+        id: song.id,
+      },
+      data: {
+        title: song.title,
+        artist: song.artist,
+        lang: song.lang,
+        tag: song.tag,
+        remark: song.remark,
+        url: song.url,
+      },
+    });
+  } else {
+    // Unfortunately, we have to read the JSON first and then update the extra field
+    const oldSong = await prisma.song.findUnique({
+      where: {
+        id: song.id,
+      },
+    });
+
+    if (oldSong === null) {
+      return {
+        success: false,
+        message: "神奇bug，请马上联系星辰Hikari",
+      };
+    }
+
+    updatedSong = await prisma.song.update({
+      where: {
+        id: song.id,
+      },
+      data: {
+        ...song,
+        extra: {
+          ...(oldSong!.extra as object),
+          vedio_created_on,
+        },
+      },
+    });
+  }
 
   return { success: true, song: updatedSong };
 }

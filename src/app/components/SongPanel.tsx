@@ -21,7 +21,7 @@ import {
 import { dislikeSong, likeSong } from "../actions/reaction";
 import {
   onCopyToClipboard,
-  orderNewSongsFirst,
+  orderSongsWithNewVideoFirst,
   shuffleArray,
 } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -132,7 +132,9 @@ export const getNumDislikes = (song: Song) => {
 };
 
 export default function SongPanel({ allSongs }: PropType) {
-  const [originalData, setOriginalData] = useState(allSongs);
+  const [originalData, setOriginalData] = useState(
+    orderSongsWithNewVideoFirst(allSongs)
+  );
   const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
   const [searchText, setSearchText] = useState<string>("");
   const [finalData, setFinalData] = useState<Song[]>([]);

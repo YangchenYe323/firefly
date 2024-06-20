@@ -4,9 +4,9 @@ Create a `credential.json` file under this same directory following the example 
 in `credential.json.template` to supply bootstrap username and password which can later
 be used to access the admin page.
 */
-import { readFile } from "fs/promises";
-import prisma from "@/db";
 import bcrypt from "bcrypt";
+import prisma from "@/db";
+import { readFile } from "fs/promises";
 
 async function main() {
   const { username, password } = await readFile("scripts/credential.json").then(

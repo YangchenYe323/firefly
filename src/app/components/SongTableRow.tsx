@@ -4,6 +4,7 @@ import {
   LimitedFor,
   getLimitedFor,
   isNewlyAdded,
+  isVideoNewlyCreated,
   onCopyToClipboard,
   wontSing,
 } from "@/lib/utils";
@@ -50,6 +51,7 @@ export default function SongTableRow({
   const onCopySong = () => onCopyToClipboard(song);
 
   const isNewSong = isNewlyAdded(song);
+  const isNewVideo = isVideoNewlyCreated(song);
   const limitedFor = getLimitedFor(song);
   const no = wontSing(song);
   const scImg = songScImg(song);
@@ -62,9 +64,15 @@ export default function SongTableRow({
     >
       <TableCell className="p-0 md:p-0.5 text-end h-0.5 md:h-1 whitespace-nowrap">
         <div className="relative p-0 w-fit h-full flex justify-start items-center overflow-hidden">
-          {isNewSong && (
-            <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-gradient-to-r from-red-800 to-red-400 text-center text-white font-thin text-xs">
-              new
+          {(isNewSong || isNewVideo) && (
+            <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-gradient-to-r from-red-800 to-red-400 text-center">
+              {isNewVideo ? (
+                <span className="text-thin text-[0.5rem] text-white">
+                  新投稿
+                </span>
+              ) : (
+                <span className="text-thin text-xs text-white">new</span>
+              )}
             </div>
           )}
           {/* Create an invisible div here so that subsequent elements won't overlap with the ribbon when the screen is narrow */}
