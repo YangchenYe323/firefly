@@ -122,6 +122,12 @@ function validateSong(song: EditableSong) {
     };
   }
 
+  // When user tries to remove URL in the admin page, it passes empty string.
+  // Sanitize it here.
+  if (!song.url) {
+    song.url = null;
+  }
+
   if (song.url !== null && !isValidHttpUrl(song.url)) {
     return {
       success: false,
