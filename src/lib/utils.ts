@@ -94,6 +94,11 @@ export function orderNewSongsFirst(allSongs: Song[]) {
 
 export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
   const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
+  songsWithNewVideo.sort((s1, s2) => {
+    const s1Time = Date.parse((s1.extra as any).vedio_created_on);
+    const s2Time = Date.parse((s2.extra as any).vedio_created_on);
+    return s1Time > s2Time ? -1 : s1Time === s2Time ? 0 : 1;
+  });
   const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));
   return [...songsWithNewVideo, ...oldSongs];
 }
