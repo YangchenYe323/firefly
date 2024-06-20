@@ -36,9 +36,12 @@ export function isVideoNewlyCreated(song: Song) {
     return false;
   }
 
-  const lastTwoWeek = new Date(Date.now() - 12096e5);
+  const lastTwoMonth = new Date();
+  lastTwoMonth.setDate(0);
+  lastTwoMonth.setDate(0);
+  lastTwoMonth.setDate(1);
 
-  return new Date(Date.parse(vedio_created)) >= lastTwoWeek;
+  return new Date(Date.parse(vedio_created)) >= lastTwoMonth;
 }
 
 export function wontSing(song: Song) {
