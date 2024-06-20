@@ -36,9 +36,12 @@ export function isVideoNewlyCreated(song: Song) {
     return false;
   }
 
-  const lastTwoWeek = new Date(Date.now() - 12096e5);
+  const lastTwoMonth = new Date();
+  lastTwoMonth.setDate(0);
+  lastTwoMonth.setDate(0);
+  lastTwoMonth.setDate(1);
 
-  return new Date(Date.parse(vedio_created)) >= lastTwoWeek;
+  return new Date(Date.parse(vedio_created)) >= lastTwoMonth;
 }
 
 export function wontSing(song: Song) {
@@ -91,6 +94,11 @@ export function orderNewSongsFirst(allSongs: Song[]) {
 
 export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
   const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
+  songsWithNewVideo.sort((s1, s2) => {
+    const s1Time = Date.parse((s1.extra as any).vedio_created_on);
+    const s2Time = Date.parse((s2.extra as any).vedio_created_on);
+    return s1Time > s2Time ? -1 : s1Time === s2Time ? 0 : 1;
+  });
   const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));
   return [...songsWithNewVideo, ...oldSongs];
 }
