@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 
+import { Credential } from "bilibili-api-ts/models/Credential";
 import { Song } from "@/generated/client";
+import { Video } from "bilibili-api-ts/video";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
@@ -26,6 +28,17 @@ export function isNewlyAdded(song: Song) {
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(1);
   return creationDate >= lastTwoMonth;
+}
+
+export function isVideoNewlyCreated(song: Song) {
+  const vedio_created = (song.extra as any).vedio_created_on;
+  if (!vedio_created) {
+    return false;
+  }
+
+  const lastTwoWeek = new Date(Date.now() - 12096e5);
+
+  return new Date(Date.parse(vedio_created)) >= lastTwoWeek;
 }
 
 export function wontSing(song: Song) {
@@ -76,9 +89,43 @@ export function orderNewSongsFirst(allSongs: Song[]) {
   return [...newSongs, ...oldSongs];
 }
 
+export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
+  const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
+  const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));
+  return [...songsWithNewVideo, ...oldSongs];
+}
+
 export function onCopyToClipboard(song: Song) {
   copy(`点歌 ${song.title}`, {
     format: "text/plain",
   });
   toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
+}
+
+export async function queryVedioCreationTimestampFromUrl(
+  url: string
+): Promise<Date | null> {
+  function _extractBvidFromUrl(url: string): string | null {
+    const re = /www.bilibili.com\/video\/(BV[\w\d]+)$/;
+    const match = url.match(re)!;
+    return match[1];
+  }
+
+  const bvid = _extractBvidFromUrl(url)!;
+
+  const cred = new Credential({
+    sessdata: process.env.BILI_CRED_SESSDATA,
+    bili_jct: process.env.BILI_CRED_BILIJCT,
+    dedeuserid: process.env.BILI_CRED_DEDEUSERID,
+  });
+
+  const v = new Video({ bvid: bvid, credential: cred });
+
+  const info = await v.get_info({}).catch((e) => {
+    console.log(e);
+  });
+
+  const created_on = new Date(info.pubdate * 1000);
+
+  return created_on;
 }
