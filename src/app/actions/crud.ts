@@ -4,8 +4,9 @@ import { ActionReturnTypeBase } from "./types";
 import { EditableSong } from "../admin/page";
 import { Song } from "@/generated/client";
 import { cookies } from "next/headers";
+import { extractBvidFromUrl } from "@/lib/utils";
+import { getVideoInfo } from "@/lib/bilibili";
 import prisma from "@/db";
-import { queryVedioCreationTimestampFromUrl } from "@/lib/utils";
 import { verifyJwtToken } from "@/lib/auth";
 
 const auth = async () => {
@@ -98,14 +99,21 @@ export async function updateSong(
     };
   }
 
-  let vedio_created_on = null;
+  let video_created_on = null;
   if (song.url) {
-    vedio_created_on = await queryVedioCreationTimestampFromUrl(song.url);
+    const bvid = extractBvidFromUrl(song.url);
+    if (bvid !== null) {
+      const response = await getVideoInfo({ bvid });
+      if (response.data) {
+        const pubdate = response.data.pubdate;
+        video_created_on = new Date(pubdate * 1000);
+      }
+    }
   }
 
   let updatedSong;
 
-  if (vedio_created_on === null) {
+  if (video_created_on === null) {
     updatedSong = await prisma.song.update({
       where: {
         id: song.id,
@@ -142,7 +150,7 @@ export async function updateSong(
         ...song,
         extra: {
           ...(oldSong!.extra as object),
-          vedio_created_on,
+          video_created_on,
         },
       },
     });
