@@ -1,8 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 
-import { Credential } from "bilibili-api-ts/models/Credential";
 import { Song } from "@/generated/client";
-import { Video } from "bilibili-api-ts/video";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
@@ -31,8 +29,8 @@ export function isNewlyAdded(song: Song) {
 }
 
 export function isVideoNewlyCreated(song: Song) {
-  const vedio_created = (song.extra as any).vedio_created_on;
-  if (!vedio_created) {
+  const video_created = (song.extra as any).video_created_on;
+  if (!video_created) {
     return false;
   }
 
@@ -41,7 +39,7 @@ export function isVideoNewlyCreated(song: Song) {
   lastTwoMonth.setDate(0);
   lastTwoMonth.setDate(1);
 
-  return new Date(Date.parse(vedio_created)) >= lastTwoMonth;
+  return new Date(Date.parse(video_created)) >= lastTwoMonth;
 }
 
 export function wontSing(song: Song) {
@@ -95,8 +93,8 @@ export function orderNewSongsFirst(allSongs: Song[]) {
 export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
   const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
   songsWithNewVideo.sort((s1, s2) => {
-    const s1Time = Date.parse((s1.extra as any).vedio_created_on);
-    const s2Time = Date.parse((s2.extra as any).vedio_created_on);
+    const s1Time = Date.parse((s1.extra as any).video_created_on);
+    const s2Time = Date.parse((s2.extra as any).video_created_on);
     return s1Time > s2Time ? -1 : s1Time === s2Time ? 0 : 1;
   });
   const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));
@@ -110,30 +108,8 @@ export function onCopyToClipboard(song: Song) {
   toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
 }
 
-export async function queryVedioCreationTimestampFromUrl(
-  url: string
-): Promise<Date | null> {
-  function _extractBvidFromUrl(url: string): string | null {
-    const re = /www.bilibili.com\/video\/(BV[\w\d]+)$/;
-    const match = url.match(re)!;
-    return match[1];
-  }
-
-  const bvid = _extractBvidFromUrl(url)!;
-
-  const cred = new Credential({
-    sessdata: process.env.BILI_CRED_SESSDATA,
-    bili_jct: process.env.BILI_CRED_BILIJCT,
-    dedeuserid: process.env.BILI_CRED_DEDEUSERID,
-  });
-
-  const v = new Video({ bvid: bvid, credential: cred });
-
-  const info = await v.get_info({}).catch((e) => {
-    console.log(e);
-  });
-
-  const created_on = new Date(info.pubdate * 1000);
-
-  return created_on;
+export function extractBvidFromUrl(url: string): string | null {
+  const re = /www.bilibili.com\/video\/(BV[\w\d]+)(\/.*)?$/;
+  const match = url.match(re)!;
+  return match[1];
 }
