@@ -64,15 +64,15 @@ export default function SongTableRow({
     >
       <TableCell className="p-0 md:p-0.5 text-end h-0.5 md:h-1 whitespace-nowrap">
         <div className="relative p-0 w-fit h-full flex justify-start items-center overflow-hidden">
-          {(isNewSong || isNewVideo) && (
+          {(isNewSong || isNewVideo) && isNewVideo ? (
+            <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-gradient-to-r from-sky-800 to-sky-400 text-center">
+              <span className="text-thin text-[0.5rem] text-white">
+                新投稿
+              </span>
+            </div>
+          ) : (
             <div className="absolute mr-4 md:mr-1 left-[-21px] top-[0px] w-[60px] transform -rotate-45 bg-gradient-to-r from-red-800 to-red-400 text-center">
-              {isNewVideo ? (
-                <span className="text-thin text-[0.5rem] text-white">
-                  新投稿
-                </span>
-              ) : (
-                <span className="text-thin text-xs text-white">new</span>
-              )}
+              <span className="text-thin text-xs text-white">New</span>
             </div>
           )}
           {/* Create an invisible div here so that subsequent elements won't overlap with the ribbon when the screen is narrow */}
