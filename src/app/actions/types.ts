@@ -1,3 +1,3 @@
 export interface ActionReturnTypeBase {
-  success: boolean;
+	success: boolean;
 }
