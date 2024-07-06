@@ -18,13 +18,13 @@ function createPlayer() {
   };
 
   const getPlayableTracks = (mode: PlayMode) => {
-    if (mode === PlayMode.Order) {
+    if (mode === PlayMode.Repeat) {
       return state.currentTrack
         ? [state.currentTrack]
         : state.tracks.length > 0
         ? [state.tracks[0]]
         : [];
-    } else if (mode === PlayMode.Repeat) {
+    } else if (mode === PlayMode.Random) {
       return shuffleArray(state.tracks);
     } else {
       return [...state.tracks];
