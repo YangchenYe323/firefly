@@ -113,7 +113,7 @@ export async function updateSong(
 
   let updatedSong;
 
-  if (video_created_on === null) {
+  if (video_created_on === null && !song.bucket_url) {
     updatedSong = await prisma.song.update({
       where: {
         id: song.id,
@@ -147,10 +147,16 @@ export async function updateSong(
         id: song.id,
       },
       data: {
-        ...song,
+        title: song.title,
+        artist: song.artist,
+        lang: song.lang,
+        tag: song.tag,
+        remark: song.remark,
+        url: song.url,
         extra: {
           ...(oldSong!.extra as object),
           video_created_on,
+          bucket_url: song.bucket_url,
         },
       },
     });

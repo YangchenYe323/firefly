@@ -138,6 +138,15 @@ const columns = [
     filterFn: filterFns.includesString,
   }),
 
+  columnHelper.accessor("bucket_url", {
+    header: "源文件链接",
+    cell: EditableTextCell,
+    meta: {
+      type: "link",
+    },
+    filterFn: filterFns.includesString,
+  }),
+
   columnHelper.display({
     id: "edit",
     header: AddHeaderCell,
@@ -196,9 +205,10 @@ export default function EditableSongTable({ songs }: PropType) {
           title: updatedValues[0] as string,
           artist: updatedValues[1] as string,
           lang: updatedValues[2] as string[],
-          url: updatedValues[3] as string | null,
+          url: updatedValues[3] as string,
           tag: updatedValues[4] as string[],
           remark: updatedValues[5] as string,
+          bucket_url: updatedValues[6] as string,
         };
 
         const res = await updateSong(updatedSong);
@@ -237,7 +247,13 @@ export default function EditableSongTable({ songs }: PropType) {
             toast.success(`歌曲 ${newSong.title} 添加成功`, {
               position: "bottom-left",
             });
-            setData((oldData) => [newSongEntry, ...oldData]);
+
+            const newEditableSongEntry: EditableSong = {
+              ...newSongEntry,
+              bucket_url: (newSongEntry.extra as any).bucket_url || "",
+            };
+
+            setData((oldData) => [newEditableSongEntry, ...oldData]);
             return true;
           }
           // unreachable

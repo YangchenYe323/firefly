@@ -42,3 +42,5 @@ next-env.d.ts
 neon.txt
 
 cookies.json
+
+**/scratch/**
