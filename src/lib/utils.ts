@@ -113,3 +113,16 @@ export function extractBvidFromUrl(url: string): string | null {
   const match = url.match(re)!;
   return match[1];
 }
+
+function padTime(value: number) {
+  const str = value.toString();
+
+  return str.length === 1 ? `0${str}` : str;
+}
+
+export function formatMMSS(timeInSecond: number) {
+  const minutes = Math.floor(timeInSecond / 60);
+  const seconds = Math.floor(timeInSecond % 60);
+
+  return `${padTime(minutes)}:${padTime(seconds)}`;
+}

@@ -52,7 +52,6 @@ export default function SongTableRow({
 
   const isNewSong = isNewlyAdded(song);
   const isNewVideo = isVideoNewlyCreated(song);
-  console.log(song, isNewSong, isNewVideo);
   const limitedFor = getLimitedFor(song);
   const no = wontSing(song);
   const scImg = songScImg(song);

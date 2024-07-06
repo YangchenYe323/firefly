@@ -2,15 +2,41 @@ import Heading from "./components/Heading";
 import Image from "next/image";
 import MainNav from "./components/MainNav";
 import SongPanel from "./components/SongPanel";
+
 import StickyHeader from "@/components/StickyHeader";
+import { Track } from "@/lib/player";
 import UserNav from "./components/UserNav";
+
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
 import { readSongAllNoCacheLatest } from "./actions/crud";
 import vtuberProfile from "@/profile";
 
-export default async function Home() {
+type SearchParams = { [key: string]: string | string[] | undefined };
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: SearchParams;
+}) {
   const { songs } = await readSongAllNoCacheLatest();
   const songCount = songs.length;
+
+  const tracks: Track[] = songs
+    .filter((song) => (song.extra as any).bucket_url)
+    .map((song) => ({
+      url: (song.extra as any).bucket_url,
+      title: song.title,
+      artist: song.artist,
+    }));
+
+  const showPlayer = searchParams?.player;
+  // Avoid SSR completely on SongPlayer as the initialization accesses the document API directly
+  const SongPlayer =
+    showPlayer &&
+    dynamic(() => import("./components/SongPlayer"), {
+      ssr: false,
+    });
 
   // TODO: why template string doesn't work here?
   const backgroundClassName = vtuberProfile.backgroundImagePath
@@ -63,6 +89,7 @@ export default async function Home() {
             </a>
           </footer>
         </div>
+        {SongPlayer && <SongPlayer tracks={tracks} />}
       </div>
     </div>
   );
