@@ -71,6 +71,7 @@ export default function AddHeaderCell({ table }: PropType) {
       tag: addSongState.tag.values,
       url: addSongState.url,
       remark: addSongState.remark,
+      bucket_url: "",
     };
 
     const _success = await table.options.meta?.insertData(newSong);
