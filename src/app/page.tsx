@@ -6,5 +6,13 @@ import vtuberProfile from "@/profile";
 export default async function Home() {
   const { songs } = await readSongAllNoCacheLatest();
 
-  return <Root songs={songs} profile={vtuberProfile} />;
+  const tracks = songs
+    .filter((song) => (song.extra as any).bucket_url)
+    .map((song) => ({
+      url: (song.extra as any).bucket_url,
+      title: song.title,
+      artist: song.artist,
+    }));
+
+  return <Root songs={songs} tracks={tracks} profile={vtuberProfile} />;
 }

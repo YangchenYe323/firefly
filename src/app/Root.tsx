@@ -18,26 +18,19 @@ import { useState } from "react";
 
 interface PropType {
   songs: Song[];
+  tracks: Track[];
   profile: VtuberProfile;
 }
 
-export default function Root({ songs, profile }: PropType) {
+// Avoid SSR completely on SongPlayer as the initialization accesses the document API directly
+const SongPlayer = dynamic(() => import("./components/SongPlayer"), {
+  ssr: false,
+});
+
+export default function Root({ songs, tracks, profile }: PropType) {
   const [playerVisible, setPlayerVisible] = useState(false);
 
   const songCount = songs.length;
-
-  const tracks: Track[] = songs
-    .filter((song) => (song.extra as any).bucket_url)
-    .map((song) => ({
-      url: (song.extra as any).bucket_url,
-      title: song.title,
-      artist: song.artist,
-    }));
-
-  // Avoid SSR completely on SongPlayer as the initialization accesses the document API directly
-  const SongPlayer = dynamic(() => import("./components/SongPlayer"), {
-    ssr: false,
-  });
 
   const closePlayer = () => {
     setPlayerVisible(false);
@@ -56,14 +49,13 @@ export default function Root({ songs, profile }: PropType) {
             <MainNav className="mx-6" profile={profile} />
             <div className="ml-auto flex items-center">
               <span className="mr-2">
-                <Link
-                  href=""
-                  className="font-medium text-muted-foreground transition-colors hover:text-primary"
+                <div
+                  className="font-medium text-muted-foreground transition-colors hover:text-primary cursor-pointer"
                   onClick={() => setPlayerVisible((val) => !val)}
                 >
                   <Icons.music_note className="inline align-top" />
                   <span className="hidden md:inline">播放器</span>
-                </Link>
+                </div>
               </span>
               <UserNav profile={profile} />
             </div>
@@ -104,11 +96,7 @@ export default function Root({ songs, profile }: PropType) {
             </a>
           </footer>
         </div>
-        <SongPlayer
-          visible={playerVisible}
-          closePlayer={closePlayer}
-          tracks={tracks}
-        />
+        <SongPlayer visible={playerVisible} closePlayer={closePlayer} tracks={tracks} />
       </div>
     </div>
   );
