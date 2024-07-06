@@ -3,26 +3,26 @@ import { useEffect, useState } from "react";
 import player from "./player";
 
 export const usePlayerState = () => {
-  const [state, setState] = useState(player().getState());
+	const [state, setState] = useState(player().getState());
 
-  // Subscribe to player's state change and propagate to hook state
-  useEffect(() => {
-    const unsubscribe = player().subscribe(setState);
+	// Subscribe to player's state change and propagate to hook state
+	useEffect(() => {
+		const unsubscribe = player().subscribe(setState);
 
-    return unsubscribe;
-  }, []);
+		return unsubscribe;
+	}, []);
 
-  return state;
+	return state;
 };
 
 export const useCurrentTime = () => {
-  const [currentTime, setCurrentTime] = useState(player().getCurrentTime());
+	const [currentTime, setCurrentTime] = useState(player().getCurrentTime());
 
-  useEffect(() => {
-    const unsubscribe = player().onChangeCurrentTime(setCurrentTime);
+	useEffect(() => {
+		const unsubscribe = player().onChangeCurrentTime(setCurrentTime);
 
-    return unsubscribe;
-  }, []);
+		return unsubscribe;
+	}, []);
 
-  return currentTime;
+	return currentTime;
 };
