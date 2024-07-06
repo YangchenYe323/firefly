@@ -33,7 +33,6 @@ import SearchGrid from "./SearchGrid";
 import { Song } from "@/generated/client";
 import SongTableRow from "./SongTableRow";
 
-import player from "@/lib/player";
 import { toast } from "react-toastify";
 
 interface PropType {

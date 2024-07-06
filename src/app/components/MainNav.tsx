@@ -1,13 +1,17 @@
+"use client";
+
 import { Icons } from "../../components/Icons";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import vtuberProfile from "@/profile";
+import { type VtuberProfile } from "@/profile";
 
-export default function MainNav({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
-  const { externalLinks } = vtuberProfile;
+import { cn } from "@/lib/utils";
+
+interface PropType extends React.HTMLAttributes<HTMLElement> {
+  profile: VtuberProfile;
+}
+
+export default function MainNav({ className, profile, ...props }: PropType) {
+  const { externalLinks } = profile;
 
   return (
     <nav
@@ -24,13 +28,13 @@ export default function MainNav({
           const href = link.href;
           return (
             <span key={idx}>
-              {IconNode && <IconNode className="inline align-top" />}
               <Link
                 href={href}
                 target="_blank"
                 className="font-medium text-muted-foreground transition-colors hover:text-primary"
               >
-                {title}
+                {IconNode && <IconNode className="inline align-top" />}
+                <span className="hidden md:inline">{title}</span>
               </Link>
             </span>
           );

@@ -1,12 +1,15 @@
+"use client";
+
 import Image from "next/image";
-import vtuberProfile from "@/profile";
+import { type VtuberProfile } from "@/profile";
 
 interface PropType {
   songCount: number;
+  profile: VtuberProfile;
 }
 
-export default async function Heading({ songCount }: PropType) {
-  const { name, bannerImagePath, backgroundImagePath } = vtuberProfile;
+export default function Heading({ songCount, profile }: PropType) {
+  const { name, bannerImagePath, backgroundImagePath } = profile;
 
   return (
     <div className="w-full text-center my-6">
