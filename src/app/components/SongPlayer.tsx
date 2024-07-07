@@ -65,8 +65,9 @@ export default function SongPlayer({ visible, tracks, closePlayer }: PropType) {
 
 	return (
 		<motion.div
-			className="fixed bottom-0 left-0 w-full"
+			className="fixed bottom-0 left-0 w-full duration-300"
 			animate={{ y: visible ? 0 : 100 }}
+			transition={{ type: "just", duration: 0 }}
 		>
 			<div className="w-full shadow-lg p-0 border border-hikari_blue/20 bg-background/95">
 				<div className="flex items-center justify-between max-w-[500px] md:max-w-[500px] m-auto">
