@@ -15,7 +15,7 @@ This project is heavily based on the work of [@贝格耶喽](https://github.com/
 - [x] 乱序歌曲
 - [x] 点❤️/😅
 - [x] 歌曲管理后台
-
+- [x] 投稿播放器
 
 ## Getting Started
 
