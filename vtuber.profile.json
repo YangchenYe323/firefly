@@ -4,7 +4,7 @@
   "metaDescription": "蝶蝶Hikari的歌单",
   "bannerImagePath": "/img/banner.jpg",
   "avatarImagePath": "/img/banner.jpg",
-  "backgroundImagePath": "/img/background.png",
+  "backgroundImagePath": "/img/background-compressed.webp",
   "externalLinks": [
     {
       "value": "主页",
