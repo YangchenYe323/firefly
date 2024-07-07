@@ -252,7 +252,7 @@ export default function EditableSongTable({ songs }: PropType) {
 
 						const newEditableSongEntry: EditableSong = {
 							...newSongEntry,
-							bucket_url: (newSongEntry.extra as any).bucket_url || "",
+							bucket_url: newSongEntry.extra.bucket_url || "",
 						};
 
 						setData((oldData) => [newEditableSongEntry, ...oldData]);

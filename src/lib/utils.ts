@@ -29,7 +29,7 @@ export function isNewlyAdded(song: Song) {
 }
 
 export function isVideoNewlyCreated(song: Song) {
-	const video_created = (song.extra as any).video_created_on;
+	const video_created = song.extra.video_created_on;
 	if (!video_created) {
 		return false;
 	}
@@ -93,8 +93,8 @@ export function orderNewSongsFirst(allSongs: Song[]) {
 export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
 	const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
 	songsWithNewVideo.sort((s1, s2) => {
-		const s1Time = Date.parse((s1.extra as any).video_created_on);
-		const s2Time = Date.parse((s2.extra as any).video_created_on);
+		const s1Time = Date.parse(s1.extra.video_created_on!);
+		const s2Time = Date.parse(s2.extra.video_created_on!);
 		return s1Time > s2Time ? -1 : s1Time === s2Time ? 0 : 1;
 	});
 	const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));

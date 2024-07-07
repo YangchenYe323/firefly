@@ -106,32 +106,6 @@ const filters: Filter[] = [
 	},
 ];
 
-export const getNumLikes = (song: Song) => {
-	if (
-		song.extra &&
-		typeof song.extra === "object" &&
-		"numLikes" in song.extra &&
-		typeof song.extra.numLikes === "number"
-	) {
-		return song.extra.numLikes;
-	}
-
-	return 0;
-};
-
-export const getNumDislikes = (song: Song) => {
-	if (
-		song.extra &&
-		typeof song.extra === "object" &&
-		"numDislikes" in song.extra &&
-		typeof song.extra.numDislikes === "number"
-	) {
-		return song.extra.numDislikes;
-	}
-
-	return 0;
-};
-
 const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
 	if (text.length === 0) {
 		return true;
@@ -181,8 +155,8 @@ export default function SongPanel({ allSongs }: PropType) {
 					return {
 						...song,
 						extra: {
-							...(song.extra as object),
-							numLikes: getNumLikes(song) + 1,
+							...song.extra,
+							numLikes: (song.extra.numLikes || 0) + 1,
 						},
 					};
 				}
@@ -201,8 +175,8 @@ export default function SongPanel({ allSongs }: PropType) {
 					return {
 						...song,
 						extra: {
-							...(song.extra as object),
-							numDislikes: getNumDislikes(song) + 1,
+							...song.extra,
+							numDislikes: (song.extra.numDislikes || 0) + 1,
 						},
 					};
 				}
@@ -220,8 +194,8 @@ export default function SongPanel({ allSongs }: PropType) {
 		setFinalData((data) => {
 			const newData = [...data];
 			newData.sort((s1, s2) => {
-				const s1Likes = getNumLikes(s1);
-				const s2Likes = getNumLikes(s2);
+				const s1Likes = s1.extra.numLikes || 0;
+				const s2Likes = s2.extra.numLikes || 0;
 				return s1Likes > s2Likes ? -1 : s1Likes === s2Likes ? 0 : 1;
 			});
 			return newData;
@@ -232,8 +206,8 @@ export default function SongPanel({ allSongs }: PropType) {
 		setFinalData((data) => {
 			const newData = [...data];
 			newData.sort((s1, s2) => {
-				const s1Dislikes = getNumDislikes(s1);
-				const s2Dislikes = getNumDislikes(s2);
+				const s1Dislikes = s1.extra.numDislikes || 0;
+				const s2Dislikes = s2.extra.numDislikes || 0;
 				return s1Dislikes > s2Dislikes ? -1 : s1Dislikes === s2Dislikes ? 0 : 1;
 			});
 			return newData;

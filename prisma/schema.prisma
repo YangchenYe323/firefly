@@ -6,6 +6,12 @@ generator client {
   binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
+/// Always after the prisma-client-js generator
+generator json {
+  provider  = "prisma-json-types-generator"
+  namespace = "PrismaJson"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_PRISMA_URL") // uses connection pooling
@@ -28,6 +34,7 @@ model Song {
   // 创建时间
   created_on DateTime @default(now())
   // 服务器管理的数据（点赞，点踩，etc.)
+  /// [SongExtraType]
   extra      Json
 }
 
