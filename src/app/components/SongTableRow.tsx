@@ -9,7 +9,6 @@ import {
 	wontSing,
 } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { getNumDislikes, getNumLikes } from "./SongPanel";
 
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
@@ -152,7 +151,7 @@ export default function SongTableRow({
 						<motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.8 }}>
 							️❤️
 						</motion.div>
-						<div>{getNumLikes(song)}</div>
+						<div>{song.extra.numLikes || 0}</div>
 					</Button>
 					<Button
 						variant="ghost"
@@ -165,7 +164,7 @@ export default function SongTableRow({
 						<motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.8 }}>
 							😅️️
 						</motion.div>
-						<div>{getNumDislikes(song)}</div>
+						<div>{song.extra.numDislikes || 0}</div>
 					</Button>
 				</div>
 			</TableCell>

@@ -99,14 +99,14 @@ export async function updateSong(
 		};
 	}
 
-	let video_created_on = null;
+	let video_created_on: string | undefined;
 	if (song.url) {
 		const bvid = extractBvidFromUrl(song.url);
 		if (bvid !== null) {
 			const response = await getVideoInfo({ bvid });
 			if (response.data) {
 				const pubdate = response.data.pubdate;
-				video_created_on = new Date(pubdate * 1000);
+				video_created_on = new Date(pubdate * 1000).toISOString();
 			}
 		}
 	}
@@ -154,7 +154,7 @@ export async function updateSong(
 				remark: song.remark,
 				url: song.url,
 				extra: {
-					...(oldSong!.extra as object),
+					...oldSong.extra,
 					video_created_on,
 					bucket_url: song.bucket_url,
 				},

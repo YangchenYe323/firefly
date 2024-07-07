@@ -15,7 +15,7 @@ export default async function Admin() {
 
 	const editableSongs: EditableSong[] = songs.map((song) => ({
 		...song,
-		bucket_url: song.extra ? (song.extra as any).bucket_url || "" : "",
+		bucket_url: song.extra?.bucket_url || "",
 	}));
 
 	return <EditableSongTable songs={editableSongs} />;

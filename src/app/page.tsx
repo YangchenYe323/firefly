@@ -7,9 +7,9 @@ export default async function Home() {
 	const { songs } = await readSongAllNoCacheLatest();
 
 	const tracks = songs
-		.filter((song) => (song.extra as any).bucket_url)
+		.filter((song) => song.extra.bucket_url)
 		.map((song) => ({
-			url: (song.extra as any).bucket_url,
+			url: song.extra.bucket_url!,
 			title: song.title,
 			artist: song.artist,
 		}));

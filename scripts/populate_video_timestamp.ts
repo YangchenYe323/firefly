@@ -23,8 +23,10 @@ async function main() {
             },
             data: {
               extra: {
-                ...(song.extra as object),
-                video_created_on: new Date(response.data.pubdate * 1000),
+                ...song.extra,
+                video_created_on: new Date(
+                  response.data.pubdate * 1000
+                ).toISOString(),
               },
             },
           });
