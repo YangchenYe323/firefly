@@ -346,8 +346,7 @@ export default function SongPanel({ allSongs }: PropType) {
 			</div>
 			<div className="py-4 px-10 w-11/12 md:w-8/12 m-auto mt-4 text-center border-t border-b border-t-black border-b-black">
 				<span className="font-alex font-thin text-3xl">
-					And in case I don’t see you, good afternoon, good evening and good
-					night!
+          You're a savage gift on a wayward bus, but you stepped down and you sang to us
 				</span>
 			</div>
 		</div>
