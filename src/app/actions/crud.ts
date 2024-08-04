@@ -1,8 +1,9 @@
 "use server";
 
+import type { Footer, Song } from "@/generated/client";
+
 import type { ActionReturnTypeBase } from "./types";
 import type { EditableSong } from "../admin/page";
-import type { Footer, Song } from "@/generated/client";
 import { cookies } from "next/headers";
 import { extractBvidFromUrl } from "@/lib/utils";
 import { getVideoInfo } from "@/lib/bilibili";
