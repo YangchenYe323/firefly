@@ -1,11 +1,14 @@
+import { readFooters, readSongAllNoCacheLatest } from "./actions/crud";
+
 import Image from "next/image";
 import Root from "./Root";
 
-import { readSongAllNoCacheLatest } from "./actions/crud";
 import vtuberProfile from "@/profile";
 
 export default async function Home() {
 	const { songs } = await readSongAllNoCacheLatest();
+	const footers = await readFooters();
+  const footer = footers[Math.floor(Math.random() * footers.length)]
 
 	const tracks = songs
 		.filter((song) => song.extra.bucket_url)
@@ -17,7 +20,7 @@ export default async function Home() {
 
 	return (
 		<div className="p-0">
-			<Root songs={songs} tracks={tracks} profile={vtuberProfile} />
+			<Root songs={songs} tracks={tracks} profile={vtuberProfile} footer={footer} />
 			{vtuberProfile.backgroundImagePath && (
 				<div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
 					<Image

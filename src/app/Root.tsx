@@ -1,10 +1,11 @@
 "use client";
 
+import type { Footer, Song } from "@/generated/client";
+
 import Heading from "./components/Heading";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import MainNav from "./components/MainNav";
-import type { Song } from "@/generated/client";
 import SongPanel from "./components/SongPanel";
 import StickyHeader from "@/components/StickyHeader";
 import type { Track } from "@/lib/player";
@@ -18,6 +19,7 @@ interface PropType {
 	songs: Song[];
 	tracks: Track[];
 	profile: VtuberProfile;
+	footer: Footer;
 }
 
 // Avoid SSR completely on SongPlayer as the initialization accesses the document API directly
@@ -25,7 +27,7 @@ const SongPlayer = dynamic(() => import("./components/SongPlayer"), {
 	ssr: false,
 });
 
-export default function Root({ songs, tracks, profile }: PropType) {
+export default function Root({ songs, tracks, profile, footer }: PropType) {
 	const [playerVisible, setPlayerVisible] = useState(false);
 
 	const songCount = songs.length;
@@ -54,7 +56,7 @@ export default function Root({ songs, tracks, profile }: PropType) {
 				</div>
 			</StickyHeader>
 			<Heading songCount={songCount} profile={profile} />
-			<SongPanel allSongs={songs} />
+			<SongPanel allSongs={songs} footer={footer} />
 			<div className="mt-2 mb-2 p-4 text-center text-sm text-thin text-black">
 				Copyright © 2023-2024 梦中杀蝶人协会 & 他们的朋友
 			</div>

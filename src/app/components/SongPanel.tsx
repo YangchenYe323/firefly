@@ -11,6 +11,7 @@ import {
 	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import type { Footer, Song } from "@/generated/client";
 import {
 	Table,
 	TableBody,
@@ -30,13 +31,13 @@ import { Button } from "../../components/ui/button";
 import ChineseInput from "../../components/ChineseInput";
 import { Icons } from "../../components/Icons";
 import SearchGrid from "./SearchGrid";
-import type { Song } from "@/generated/client";
 import SongTableRow from "./SongTableRow";
 
 import { toast } from "react-toastify";
 
 interface PropType {
 	allSongs: Song[];
+	footer: Footer;
 }
 
 export type SongFilter = (song: Song) => boolean;
@@ -114,7 +115,7 @@ const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
 	return song.title.indexOf(text) !== -1 || song.artist.indexOf(text) !== -1;
 };
 
-export default function SongPanel({ allSongs }: PropType) {
+export default function SongPanel({ allSongs, footer }: PropType) {
 	const [originalData, setOriginalData] = useState(
 		orderSongsWithNewVideoFirst(allSongs),
 	);
@@ -346,7 +347,7 @@ export default function SongPanel({ allSongs }: PropType) {
 			</div>
 			<div className="py-4 px-10 w-11/12 md:w-8/12 m-auto mt-4 text-center border-t border-b border-t-black border-b-black">
 				<span className="font-alex font-thin text-3xl">
-          You're a savage gift on a wayward bus, but you stepped down and you sang to us
+          {footer.content}
 				</span>
 			</div>
 		</div>

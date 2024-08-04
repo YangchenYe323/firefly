@@ -49,3 +49,8 @@ model Feedback {
   content    String
   created_on DateTime @default(now())
 }
+
+model Footer {
+  id      Int    @id @default(autoincrement())
+  content String
+}
