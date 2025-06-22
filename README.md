@@ -48,12 +48,28 @@ After the database is up, add a `.env` file in the project root directory contai
 # firefly/.env
 POSTGRES_PRISMA_URL="postgresql://postgres:<your password>@localhost:<your postgres port (default 5432)>/postgres"
 NEXT_PUBLIC_JWT_SECRET_KEY=<Choose your secret>
+NEXT_PUBLIC_API_URL=http://localhost:8787
 ```
 - If you are using Neon:
 ```
 # firefly/.env
 POSTGRES_PRISMA_URL="<copy the URL from your neon console>"
 NEXT_PUBLIC_JWT_SECRET_KEY=<Choose your secret>
+NEXT_PUBLIC_API_URL=http://localhost:8787
+```
+
+#### Album Artwork Fetching (Cloudflare Worker API)
+
+This project uses a serverless API to fetch album artwork for each song. The API endpoint is configured via the `NEXT_PUBLIC_API_URL` environment variable. The frontend will use this endpoint to display album covers for each song in the list.
+
+**To run the API locally for development:**
+
+- Please refer to [firefly-api](https://github.com/YangchenYe323/firefly-api) for instructions on starting a local instance of the API service (Cloudflare Worker).
+- Set the `NEXT_PUBLIC_API_URL` environment variable in your `.env` file to the local API endpoint (e.g. `http://localhost:8787`).
+
+Example `.env`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:8787
 ```
 
 #### Configure database

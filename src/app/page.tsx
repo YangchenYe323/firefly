@@ -18,9 +18,12 @@ export default async function Home() {
 			artist: song.artist,
 		}));
 
+  // Read API_URL from env (now using NEXT_PUBLIC_ prefix)
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 	return (
 		<div className="p-0">
-			<Root songs={songs} tracks={tracks} profile={vtuberProfile} footer={footer} />
+			<Root songs={songs} tracks={tracks} profile={vtuberProfile} footer={footer} apiUrl={apiUrl} />
 			{vtuberProfile.backgroundImagePath && (
 				<div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
 					<Image
