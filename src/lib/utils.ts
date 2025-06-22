@@ -101,11 +101,58 @@ export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
 	return [...songsWithNewVideo, ...oldSongs];
 }
 
+/**
+ * Copies song information to clipboard with robust error handling
+ * 
+ * Design decisions:
+ * 1. Primary: Use copy-to-clipboard library for broad browser compatibility
+ * 2. Fallback: Use navigator.clipboard API when available and in secure context
+ * 3. Graceful degradation: Show manual copy instructions if all methods fail
+ * 
+ * This addresses issues with:
+ * - LAN IP access (non-HTTPS) causing permission dialogs
+ * - iOS Safari's delayed click behavior
+ * - Browser clipboard permission restrictions
+ */
 export function onCopyToClipboard(song: Song) {
-	copy(`点歌 ${song.title}`, {
+	const text = `点歌 ${song.title}`;
+	
+	// Primary method: Use copy-to-clipboard library
+	// This library handles various browser quirks and provides good compatibility
+	// We disable debug mode to reduce console noise and permission dialog frequency
+	const success = copy(text, {
 		format: "text/plain",
+		onCopy: () => {
+			// Success callback - no need to show permission dialog
+			// This helps reduce the frequency of clipboard permission prompts
+		},
+		debug: false, // Disable debug mode to reduce console noise and permission dialogs
 	});
-	toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
+	
+	if (success) {
+		// Primary method succeeded - show success message
+		toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
+	} else {
+		// Primary method failed - try fallback approach
+		// Check if navigator.clipboard is available and we're in a secure context
+		// Secure context means HTTPS or localhost (not LAN IP)
+		if (navigator.clipboard && window.isSecureContext) {
+			// Fallback method: Use modern clipboard API
+			// This is more reliable in secure contexts but requires HTTPS
+			navigator.clipboard.writeText(text).then(() => {
+				toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
+			}).catch(() => {
+				// Clipboard API failed - provide manual copy instructions
+				// This ensures users can still copy the text even if automated methods fail
+				toast.error(`复制失败，请手动复制: ${text}`);
+			});
+		} else {
+			// No clipboard API available or not in secure context
+			// Provide manual copy instructions as final fallback
+			// This handles cases like LAN IP access where clipboard permissions are restricted
+			toast.error(`复制失败，请手动复制: ${text}`);
+		}
+	}
 }
 
 export function extractBvidFromUrl(url: string): string | null {

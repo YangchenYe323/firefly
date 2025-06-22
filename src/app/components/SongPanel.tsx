@@ -1,37 +1,18 @@
 "use client";
 
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuPortal,
-	DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import {
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import type { Footer, Song } from "@/generated/client";
-import {
-	Table,
-	TableBody,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { dislikeSong, likeSong } from "../actions/reaction";
 import {
 	onCopyToClipboard,
 	orderSongsWithNewVideoFirst,
-	shuffleArray,
 } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { Button } from "../../components/ui/button";
 import ChineseInput from "../../components/ChineseInput";
 import { Icons } from "../../components/Icons";
-import SearchGrid from "./SearchGrid";
-import SongTableRow from "./SongTableRow";
+import ScrollableTags from "./ScrollableTags";
+import SongRow from "./SongRow";
 
 import { toast } from "react-toastify";
 
@@ -40,6 +21,13 @@ interface PropType {
 	footer: Footer;
 }
 
+/**
+ * Type definitions for the filtering system
+ * 
+ * SongFilter: A function that takes a song and returns true if it should be included
+ * SongFilterBuilder: A factory function that creates filters based on parameters
+ * Filter: A complete filter with display name and predicate function
+ */
 export type SongFilter = (song: Song) => boolean;
 export type SongFilterBuilder<T> = (arg: T) => SongFilter;
 
@@ -48,29 +36,61 @@ export interface Filter {
 	predicate: SongFilter;
 }
 
+/**
+ * Filter for songs that are not in Mandarin Chinese
+ * Checks if the song has multiple languages or the first language is not "国语"
+ */
 const filterForeignLang: SongFilter = (song) => {
 	return song.lang.length > 1 || song.lang[0] !== "国语";
 };
 
+/**
+ * Factory function that creates a filter for songs with a specific tag
+ * Returns a function that checks if the given tag exists in the song's tag array
+ */
 const filterOnTag: SongFilterBuilder<string> = (tag) => (song) => {
 	return song.tag.indexOf(tag) !== -1;
 };
 
-const filterOnCaptain: SongFilter = (song) =>
-	song.remark.indexOf("当日限定") !== -1;
+/**
+ * Filter for songs that are captain-exclusive (limited to captain tier supporters)
+ * Checks if the remark contains "上船当日限定"
+ */
+const filterOnCaptain: SongFilter = (song) => song.remark.indexOf("上船当日限定") !== -1;
 
+/**
+ * Filter for original songs (not covers)
+ * Checks if the remark contains "原创"
+ */
 const filterOnOriginal: SongFilter = (song) =>
 	song.remark.indexOf("原创") !== -1;
 
+/**
+ * Filter for paid songs (super chat requests)
+ * Checks if the remark contains "SC点歌"
+ */
 const filterOnPaid: SongFilter = (song) => song.remark.indexOf("SC点歌") !== -1;
 
+/**
+ * Filter for songs that have a video URL available
+ * Checks if the song has a non-null URL field
+ */
 const filterOnUrlAvailable: SongFilter = (song) => song.url !== null;
 
+/**
+ * Default filter that includes all songs
+ * Used as the initial state and fallback option
+ */
 const filterAll = {
 	value: "全部",
 	predicate: () => true,
 };
 
+/**
+ * Array of all available filters
+ * Each filter has a display name and a predicate function
+ * The order determines the display order in the UI
+ */
 const filters: Filter[] = [
 	filterAll,
 	{
@@ -107,6 +127,11 @@ const filters: Filter[] = [
 	},
 ];
 
+/**
+ * Search function that checks if a song's title or artist contains the search text
+ * Case-sensitive search using indexOf for performance
+ * Returns true for empty search text (no filtering)
+ */
 const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
 	if (text.length === 0) {
 		return true;
@@ -115,14 +140,37 @@ const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
 	return song.title.indexOf(text) !== -1 || song.artist.indexOf(text) !== -1;
 };
 
+/**
+ * Main song panel component that manages the song list, filtering, and search
+ * 
+ * Design decisions:
+ * 1. Separates original data from filtered data to maintain data integrity
+ * 2. Uses useEffect for reactive filtering when search or filter changes
+ * 3. Optimistic UI updates for like/dislike actions
+ * 4. Responsive design with backdrop blur and modern styling
+ * 5. Graceful empty state handling with visual feedback
+ */
 export default function SongPanel({ allSongs, footer }: PropType) {
+	// Store the original song data ordered by new video first
+	// This preserves the original data while allowing for optimistic updates
 	const [originalData, setOriginalData] = useState(
 		orderSongsWithNewVideoFirst(allSongs),
 	);
+	
+	// Current active filter - starts with "all songs" filter
 	const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
+	
+	// Search text input by user
 	const [searchText, setSearchText] = useState<string>("");
+	
+	// Final filtered and searched data that gets rendered
 	const [finalData, setFinalData] = useState<Song[]>([]);
 
+	/**
+	 * Reactive filtering effect that runs when filter, search, or data changes
+	 * Combines both filter and search predicates for efficient filtering
+	 * Updates the final data that gets rendered in the UI
+	 */
 	useEffect(() => {
 		const combinedFilter = (song: Song) => {
 			return (
@@ -135,21 +183,32 @@ export default function SongPanel({ allSongs, footer }: PropType) {
 		setFinalData(filteredData);
 	}, [currentFilter, searchText, originalData]);
 
+	/**
+	 * Handler for filter changes from the ScrollableTags component
+	 * Creates a new filter object to trigger re-renders
+	 */
 	const onFilterChange = (selectedFilter: Filter) => {
-		// We would like the user to be able to return to the original
-		// order after playing with shuffle by simply re-clicking the
-		// "全部" filter.
 		setCurrentFilter({ ...selectedFilter });
 	};
 
+	/**
+	 * Handler for search text changes from the ChineseInput component
+	 * Updates the search state which triggers the filtering effect
+	 */
 	const onSearchTextChange = (text: string) => {
 		setSearchText(text);
 	};
 
+	/**
+	 * Handler for like song actions
+	 * Makes API call and optimistically updates the UI
+	 * Shows error toast if the API call fails
+	 */
 	const onLikeSong = (id: number) => {
 		likeSong(id).catch((err) => {
 			toast.error(`点️❤️失败: ${err}`);
 		});
+		// Optimistic update: immediately increment the like count in the UI
 		setOriginalData((data) =>
 			data.map((song) => {
 				if (song.id === id) {
@@ -166,10 +225,16 @@ export default function SongPanel({ allSongs, footer }: PropType) {
 		);
 	};
 
+	/**
+	 * Handler for dislike song actions
+	 * Similar to onLikeSong but for dislike functionality
+	 * Makes API call and optimistically updates the UI
+	 */
 	const onDislikeSong = (id: number) => {
 		dislikeSong(id).catch((err) => {
 			toast.error(`点️❤️失败: ${err}`);
 		});
+		// Optimistic update: immediately increment the dislike count in the UI
 		setOriginalData((data) =>
 			data.map((song) => {
 				if (song.id === id) {
@@ -186,169 +251,78 @@ export default function SongPanel({ allSongs, footer }: PropType) {
 		);
 	};
 
-	const onShuffle = () => {
-		// Create a random seed string
-		setFinalData((data) => shuffleArray(data));
-	};
-
-	const onSortByLikes = () => {
-		setFinalData((data) => {
-			const newData = [...data];
-			newData.sort((s1, s2) => {
-				const s1Likes = s1.extra.numLikes || 0;
-				const s2Likes = s2.extra.numLikes || 0;
-				return s1Likes > s2Likes ? -1 : s1Likes === s2Likes ? 0 : 1;
-			});
-			return newData;
-		});
-	};
-
-	const onSortByDislikes = () => {
-		setFinalData((data) => {
-			const newData = [...data];
-			newData.sort((s1, s2) => {
-				const s1Dislikes = s1.extra.numDislikes || 0;
-				const s2Dislikes = s2.extra.numDislikes || 0;
-				return s1Dislikes > s2Dislikes ? -1 : s1Dislikes === s2Dislikes ? 0 : 1;
-			});
-			return newData;
-		});
-	};
-
+	/**
+	 * Random song selection feature
+	 * Selects a random song from the currently filtered results
+	 * Uses the improved clipboard function for copying
+	 */
 	const onCopyRandom = () => {
 		const randomIdx = Math.floor(Math.random() * finalData.length);
 		onCopyToClipboard(finalData[randomIdx]);
 	};
 
 	return (
-		<div>
-			<div className="p-0 md:p-2 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_blue/20">
-				<div className="w-full">
-					<SearchGrid
-						heading={
-							<div className="text-center">
-								<Icons.search className="inline align-text-top" />
-								<span className="text-lg font-extrabold">
-									挑个想听的类别呗~
-								</span>
-							</div>
-						}
+		<div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+			{/* Main Panel Container */}
+			<div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
+				{/* Header with Search and Random Button */}
+				<div className="p-4 border-b border-gray-100/80">
+					<div className="flex items-center gap-3 mb-4">
+						<div className="flex-1">
+							<ChineseInput
+								placeholder="搜索歌曲..."
+								className="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 transition-colors"
+								onValueChange={onSearchTextChange}
+							/>
+						</div>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+							onClick={onCopyRandom}
+							title="随机选择一首歌"
+						>
+							<Icons.player_random_button className="w-5 h-5" />
+						</Button>
+					</div>
+
+					{/* Scrollable Tags */}
+					<ScrollableTags
 						filters={filters}
 						onFilterChange={onFilterChange}
 						selectedFilter={currentFilter}
 					/>
 				</div>
-			</div>
-			<div className="h-4" />
-			<div className="p-0 w-11/12 md:w-8/12 m-auto flex flex-row flex-wrap">
-				<ChineseInput
-					placeholder="搜索"
-					className="flex-[0_0_auto] w-full md:w-2/3 border rounded-3xl pl-2 text-base bg-white/80"
-					onValueChange={onSearchTextChange}
-				/>
-				<Button
-					variant="outline"
-					className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border bg-white/80"
-					onClick={onShuffle}
-				>
-					换个顺序👻
-				</Button>
-				<Button
-					variant="outline"
-					className="flex-[0_0_auto] w-full md:w-1/6 rounded-3xl border bg-white/80"
-					onClick={onCopyRandom}
-				>
-					随便听听
-				</Button>
-			</div>
-			<div className="h-4" />
-			<div className="p-0 md:p-1 w-11/12 md:w-8/12 m-auto border rounded-2xl bg-hikari_lavender_lighter/80">
-				<Table className="border-collapse">
-					<TableHeader className="border-b-2 border-black">
-						<TableRow>
-							<TableHead className="w-1/6" />
-							<TableHead className="w-2/5 text-sm md:text-base font-medium text-black text-start whitespace-nowrap">
-								歌名
-							</TableHead>
-							<TableHead />
-							<TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
-								歌手
-							</TableHead>
-							<TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
-								语种
-							</TableHead>
-							<TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
-								标签
-							</TableHead>
-							<TableHead className="w-1/5 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
-								备注
-							</TableHead>
-							<TableHead className="w-1/3 text-sm md:text-base font-medium text-black text-center whitespace-nowrap">
-								<div className="h-full flex items-center justify-center">
-									反应
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button variant="ghost" className="p-0">
-												<Icons.three_dots_vertical className="inline align-text-top" />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuPortal>
-											<DropdownMenuContent
-												className="w-36 border p-1 border-black bg-hikari_lavender_lighter/90 animate-slide-down"
-												align="start"
-												onCloseAutoFocus={(e) => {
-													e.preventDefault();
-												}}
-											>
-												<DropdownMenuRadioGroup
-													className="rounded-3xl"
-													onValueChange={(value) => {
-														if (value === "sortLike") {
-															onSortByLikes();
-														} else {
-															onSortByDislikes();
-														}
-													}}
-												>
-													<DropdownMenuRadioItem
-														className="rounded-3xl"
-														value="sortLike"
-													>
-														️❤️ 最多 ️
-													</DropdownMenuRadioItem>
-													<DropdownMenuSeparator />
-													<DropdownMenuRadioItem
-														className="rounded-3xl"
-														value="sortDislike"
-													>
-														😅 最多
-													</DropdownMenuRadioItem>
-												</DropdownMenuRadioGroup>
-											</DropdownMenuContent>
-										</DropdownMenuPortal>
-									</DropdownMenu>
-								</div>
-							</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{finalData.map((song) => {
-							return (
-								<SongTableRow
-									song={song}
+
+				{/* Songs List */}
+				<div>
+					{finalData.length === 0 ? (
+						<div className="p-8 text-center text-gray-500">
+							<Icons.search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+							<p>没有找到匹配的歌曲</p>
+						</div>
+					) : (
+						<div className="divide-y divide-gray-100/80">
+							{finalData.map((song) => (
+								<SongRow
 									key={song.id}
+									song={song}
 									onLikeSong={onLikeSong}
 									onDislikeSong={onDislikeSong}
 								/>
-							);
-						})}
-					</TableBody>
-				</Table>
-			</div>
-			<div className="py-4 px-10 w-11/12 md:w-8/12 m-auto mt-4 text-center border-t border-b border-t-black border-b-black">
-				<span className="font-alex font-thin text-3xl">
-          {footer.content}
-				</span>
+							))}
+						</div>
+					)}
+				</div>
+
+				{/* Footer */}
+				<div className="p-4 border-t border-gray-100/80 bg-gray-50/20">
+					<div className="text-center">
+						<span className="font-alex font-thin text-lg text-gray-600">
+							{footer.content}
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
