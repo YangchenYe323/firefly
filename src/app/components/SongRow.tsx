@@ -3,6 +3,7 @@
 import { onCopyToClipboard } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
+import Image from "next/image";
 import type { Song } from "@/generated/client";
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
@@ -145,16 +146,19 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
       whileTap={{ scale: 0.99 }}
     >
       {/* Album Avatar */}
-      <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
-        {imgError ? (
-          <Icons.music_note className="w-6 h-6 text-gray-500" />
-        ) : (
-          <img
-            src={albumArtUrl || undefined}
-            alt={song.title}
+      <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+        {!imgError && albumArtUrl ? (
+          <Image
+            src={albumArtUrl}
+            alt={`${song.title} album art`}
+            width={48}
+            height={48}
+            className="object-cover w-12 h-12"
             onError={() => setImgError(true)}
-            className="w-full h-full object-cover rounded-lg"
+            unoptimized={false}
           />
+        ) : (
+          <Icons.music_note className="w-6 h-6 text-gray-500" />
         )}
       </div>
 
