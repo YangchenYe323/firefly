@@ -16,7 +16,6 @@ This project is heavily based on the work of [@贝格耶喽](https://github.com/
 - [x] 点❤️/😅
 - [x] 歌曲管理后台
 - [x] 投稿播放器
-- [x] **专辑封面自动获取（通过 serverless API）**
 
 ## Getting Started
 
