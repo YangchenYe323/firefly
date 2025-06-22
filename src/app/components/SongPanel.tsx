@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 interface PropType {
 	allSongs: Song[];
 	footer: Footer;
+	apiUrl?: string;
 }
 
 /**
@@ -150,7 +151,7 @@ const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
  * 4. Responsive design with backdrop blur and modern styling
  * 5. Graceful empty state handling with visual feedback
  */
-export default function SongPanel({ allSongs, footer }: PropType) {
+export default function SongPanel({ allSongs, footer, apiUrl }: PropType) {
 	// Store the original song data ordered by new video first
 	// This preserves the original data while allowing for optimistic updates
 	const [originalData, setOriginalData] = useState(
@@ -309,6 +310,7 @@ export default function SongPanel({ allSongs, footer }: PropType) {
 									song={song}
 									onLikeSong={onLikeSong}
 									onDislikeSong={onDislikeSong}
+									apiUrl={apiUrl}
 								/>
 							))}
 						</div>

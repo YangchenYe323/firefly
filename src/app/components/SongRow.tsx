@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import type { Song } from "@/generated/client";
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface Props {
   song: Song;
   onLikeSong: (id: number) => void;
   onDislikeSong: (id: number) => void;
+  apiUrl?: string;
 }
 
 function formatDate(date: Date): string {
@@ -18,7 +19,7 @@ function formatDate(date: Date): string {
   return new Date(date).toISOString().split("T")[0];
 }
 
-export default function SongRow({ song, onLikeSong, onDislikeSong }: Props) {
+export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Props) {
   // Track touch start position and time for precise tap detection
   // This prevents accidental copies during scrolling gestures
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -26,6 +27,14 @@ export default function SongRow({ song, onLikeSong, onDislikeSong }: Props) {
   // Flag to track if the user has scrolled during the touch interaction
   // This is crucial for distinguishing between taps and scrolls on mobile
   const hasScrolledRef = useRef(false);
+
+  // Album art fallback state
+  const [imgError, setImgError] = useState(false);
+
+  // Construct album art URL
+  const albumArtUrl = apiUrl
+    ? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}&size=large`
+    : null;
 
   const handleCopy = () => {
     onCopyToClipboard(song);
@@ -118,6 +127,13 @@ export default function SongRow({ song, onLikeSong, onDislikeSong }: Props) {
     console.log("Expand song details:", song.id);
   };
 
+  const handleBilibiliClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (song.url) {
+      window.open(song.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <motion.div
       className="flex items-center p-3 hover:bg-black/5 rounded-lg transition-colors cursor-pointer group"
@@ -130,15 +146,34 @@ export default function SongRow({ song, onLikeSong, onDislikeSong }: Props) {
     >
       {/* Album Avatar */}
       <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
-        <Icons.music_note className="w-6 h-6 text-gray-500" />
+        {imgError ? (
+          <Icons.music_note className="w-6 h-6 text-gray-500" />
+        ) : (
+          <img
+            src={albumArtUrl || undefined}
+            alt={song.title}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        )}
       </div>
 
       {/* Song Info */}
       <div className="flex-1 min-w-0 mr-4">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-center gap-2">
           <h3 className="text-md font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
             {song.title}
           </h3>
+          {song.url && (
+            <button
+              type="button"
+              onClick={handleBilibiliClick}
+              className="flex-shrink-0 p-1 hover:bg-blue-100 rounded transition-colors"
+              title="查看B站视频"
+            >
+              <Icons.bilibili className="w-4 h-4 text-blue-500" />
+            </button>
+          )}
           {song.remark && (
             <span className="text-sm text-slate-500 truncate hidden sm:inline">
               {song.remark}
@@ -149,9 +184,9 @@ export default function SongRow({ song, onLikeSong, onDislikeSong }: Props) {
       </div>
 
       {/* Right side Actions & Date */}
-      <div className="flex flex-col items-start gap-1 text-slate-500">
+      <div className="flex flex-col items-end gap-1 text-slate-500">
         {/* Top row: Reaction buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-end gap-2">
           {/* Like button with count */}
           <Button
             variant="ghost"
@@ -183,7 +218,7 @@ export default function SongRow({ song, onLikeSong, onDislikeSong }: Props) {
         
         {/* Bottom row: Timestamp and expand button */}
         <div className="flex items-center gap-2">
-          <p className="text-sm font-mono hidden md:block whitespace-nowrap">
+          <p className="text-xs font-mono whitespace-nowrap text-slate-400">
             {formatDate(song.created_on)}
           </p>
           <Button
