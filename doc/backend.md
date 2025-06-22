@@ -608,7 +608,7 @@ io.on('connection', (socket) => {
 
 ## Album Artwork Serverless API
 
-The frontend fetches album artwork for each song using a serverless API endpoint. This endpoint is configured via the `API_URL` environment variable and must expose the following endpoint:
+The frontend fetches album artwork for each song using a serverless API endpoint. This endpoint is configured via the `NEXT_PUBLIC_API_URL` environment variable and must expose the following endpoint:
 
 ```
 GET /api/v1/artwork?title=<title>&artist=<artist>&size=<small|medium|large>
@@ -622,7 +622,7 @@ The API should return the album artwork image. If the API fails or returns an er
 
 ### Running the API locally
 
-To run the serverless API locally for development, see [firefly-api](https://github.com/YangchenYe323/firefly-api). Follow the instructions there to start a local Cloudflare Worker instance, and set your `API_URL` environment variable accordingly (e.g. `http://localhost:8787`).
+To run the serverless API locally for development, see [firefly-api](https://github.com/YangchenYe323/firefly-api). Follow the instructions there to start a local Cloudflare Worker instance, and set your `NEXT_PUBLIC_API_URL` environment variable accordingly (e.g. `http://localhost:8787`).
 
 ### Fallback behavior
 

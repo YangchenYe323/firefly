@@ -18,8 +18,8 @@ export default async function Home() {
 			artist: song.artist,
 		}));
 
-  // Read API_URL from env
-  const apiUrl = process.env.API_URL;
+  // Read API_URL from env (now using NEXT_PUBLIC_ prefix)
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 	return (
 		<div className="p-0">
