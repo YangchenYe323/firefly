@@ -57,7 +57,7 @@ const filterOnTag: SongFilterBuilder<string> = (tag) => (song) => {
  * Filter for songs that are captain-exclusive (limited to captain tier supporters)
  * Checks if the remark contains "上船当日限定"
  */
-const filterOnCaptain: SongFilter = (song) => song.remark.indexOf("上船当日限定") !== -1;
+const filterOnCaptain: SongFilter = (song) => song.remark.indexOf("当日限定") !== -1;
 
 /**
  * Filter for original songs (not covers)
