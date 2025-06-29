@@ -33,6 +33,11 @@ export default function SongPlayer({ visible, tracks, closePlayer, apiUrl }: Pro
 		player.setQueue(tracks, apiUrl);
 	}, [player, tracks, apiUrl]);
 
+	// Reset image error state when track changes
+	useEffect(() => {
+		setImgError(false);
+	}, [currentTrack?.title, currentTrack?.artist]);
+
 	// Construct album art URL for current track
 	const albumArtUrl = currentTrack && apiUrl
 		? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(currentTrack.title)}&artist=${encodeURIComponent(currentTrack.artist)}&size=small`
