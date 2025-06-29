@@ -2,7 +2,7 @@
 
 ## Overview
 
-Firefly features a custom HTML5 audio player built with React and TypeScript. The player provides a rich audio experience with playlist management, multiple play modes, and seamless integration with the main application.
+Firefly features a custom HTML5 audio player built with React and TypeScript. The player provides a rich audio experience with playlist management, multiple play modes, seamless integration with the main application, and modern UI design that matches the overall application aesthetic.
 
 ## Design Philosophy
 
@@ -13,6 +13,8 @@ Firefly features a custom HTML5 audio player built with React and TypeScript. Th
 **State Management:** HTML5 audio elements don't naturally integrate with React's state management. The custom player bridges this gap by providing a React-friendly interface while maintaining the performance benefits of native audio APIs.
 
 **Cross-Component Communication:** The player needs to be accessible from anywhere in the app (song list, player UI, keyboard shortcuts). A singleton pattern with pub/sub ensures all components stay synchronized.
+
+**Modern UI Integration:** The player seamlessly integrates with the song list through play buttons, album artwork, and responsive design that works across all devices.
 
 ### 2. Architecture Rationale
 
@@ -111,6 +113,288 @@ HTML5 Audio Event → Player State Update → Pub/Sub Notification → React Re-
 6. Player notifies all subscribers
 7. React components re-render with new state
 8. UI shows playing state (play button becomes pause, progress bar animates)
+
+## Song List Integration
+
+### 1. Play Button Overlay
+
+The player integrates seamlessly with the song list through play button overlays on album artwork:
+
+```typescript
+// In SongRow component
+const isPlayable = bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+const isCurrentlyPlaying = currentTrack && 
+  currentTrack.title === song.title && 
+  currentTrack.artist === song.artist &&
+  playing;
+
+// Play button overlay on album art
+{isPlayable && (
+  <>
+    {/* Desktop: Hover overlay */}
+    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hidden md:flex">
+      <button
+        onClick={isCurrentlyPlaying ? handlePauseClick : handlePlayClick}
+        className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+        title={isCurrentlyPlaying ? "暂停歌曲" : "播放歌曲"}
+      >
+        {isCurrentlyPlaying ? (
+          <Icons.player_pause_button className="w-4 h-4 fill-black" />
+        ) : (
+          <Icons.player_play_button className="w-4 h-4 fill-black ml-0.5" />
+        )}
+      </button>
+    </div>
+    
+    {/* Mobile: Only show when currently playing */}
+    {isCurrentlyPlaying && (
+      <div className="absolute inset-0 bg-black/30 flex items-center justify-center md:hidden">
+        <button
+          onClick={handlePauseClick}
+          className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center transition-colors"
+          title="暂停歌曲"
+        >
+          <Icons.player_pause_button className="w-4 h-4 fill-black" />
+        </button>
+      </div>
+    )}
+  </>
+)}
+```
+
+**Design Benefits:**
+- **Intuitive Interaction:** Users can play songs directly from the list
+- **Visual Feedback:** Clear indication of playable songs and current playback
+- **Mobile Optimized:** Different behavior for touch devices
+- **Consistent UX:** Same interaction pattern across the app
+
+### 2. Playable Song Indicators
+
+Songs with available audio files are clearly marked:
+
+```typescript
+// Musical note icon for playable songs
+{isPlayable && (
+  <Icons.music_note className="w-4 h-4 text-blue-500 flex-shrink-0" title="可播放" />
+)}
+
+// Playable filter tag at the front of filter list
+const filters: Filter[] = [
+  filterAll,
+  {
+    value: "可播放",
+    predicate: filterOnPlayable,
+  },
+  // ... other filters
+];
+```
+
+### 3. Queue Management
+
+When a song is played from the list, the player intelligently manages the queue:
+
+```typescript
+const onPlaySong = (song: Song) => {
+  if (!song.extra?.bucket_url) {
+    toast.error("这首歌没有可播放的音频文件");
+    return;
+  }
+
+  try {
+    const player = getPlayerSingleton();
+    
+    // Get all playable songs from the current filtered data
+    const playableSongs = finalData.filter(s => {
+      const bucketUrl = s.extra?.bucket_url;
+      return bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+    });
+    
+    // Convert songs to tracks
+    const tracks = playableSongs.map(s => ({
+      url: s.extra!.bucket_url!,
+      title: s.title,
+      artist: s.artist,
+    }));
+    
+    // Find the index of the selected song in the playable tracks
+    const selectedTrackIndex = tracks.findIndex(track => 
+      track.title === song.title && track.artist === song.artist
+    );
+    
+    // Set the queue with all playable songs and play the selected one
+    player.setQueue(tracks, apiUrl);
+    player.playTrack(selectedTrackIndex);
+    
+    // Show the player at the bottom
+    if (onShowPlayer) {
+      onShowPlayer();
+    }
+
+    toast.success(`正在播放: ${song.title}`);
+  } catch (error) {
+    console.error("Error playing song:", error);
+    toast.error("播放失败，请稍后重试");
+  }
+};
+```
+
+**Benefits:**
+- **Contextual Playlists:** Queue includes all currently filtered playable songs
+- **Seamless Navigation:** Next/previous buttons work with the full filtered list
+- **User Intent:** Respects the user's current filter and search context
+- **Error Handling:** Graceful fallbacks for missing audio files
+
+## Media Metadata Integration
+
+### 1. iOS Lockscreen Support
+
+The player integrates with the MediaSession API to provide rich metadata for iOS lockscreen and other media controls:
+
+```typescript
+// In player.ts
+private setupMediaSession(track: Track, apiUrl?: string): void {
+  if ('mediaSession' in navigator) {
+    // Generate artwork URL for media metadata
+    const artworkUrl = apiUrl
+      ? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(track.title)}&artist=${encodeURIComponent(track.artist)}&size=large`
+      : null;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title,
+      artist: track.artist,
+      album: 'Firefly Songs',
+      artwork: artworkUrl ? [
+        { src: artworkUrl, sizes: '512x512', type: 'image/jpeg' }
+      ] : []
+    });
+
+    // Set up media session action handlers
+    navigator.mediaSession.setActionHandler('play', () => this.play());
+    navigator.mediaSession.setActionHandler('pause', () => this.pause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => this.prev());
+    navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
+  }
+}
+```
+
+**Features:**
+- **Album Artwork:** Shows song artwork on iOS lockscreen
+- **Song Information:** Displays title and artist information
+- **Media Controls:** iOS media controls work with the player
+- **Cross-Platform:** Works on all modern browsers that support MediaSession API
+
+### 2. Album Artwork Generation
+
+Album artwork is dynamically generated for both the UI and media metadata:
+
+```typescript
+// Construct album art URL for current track
+const albumArtUrl = currentTrack && apiUrl
+  ? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(currentTrack.title)}&artist=${encodeURIComponent(currentTrack.artist)}&size=large`
+  : null;
+
+// In SongPlayer component
+const albumArtUrl = currentTrack && apiUrl
+  ? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(currentTrack.title)}&artist=${encodeURIComponent(currentTrack.artist)}&size=small`
+  : null;
+```
+
+## Modern UI Design
+
+### 1. Player Interface
+
+The player features a modern, floating design that aligns with the song panel:
+
+```typescript
+// SongPlayer component with modern styling
+return (
+  <motion.div
+    className="fixed bottom-0 left-0 right-0 duration-300 z-50"
+    animate={{ y: visible ? 0 : 100 }}
+    transition={{ type: "just", duration: 0 }}
+  >
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-white/80 backdrop-blur-md rounded-t-xl shadow-xl border border-gray-200/50">
+        <div className="flex items-center justify-between p-2">
+          {/* Album Artwork */}
+          <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden shadow-sm">
+            {/* Album art or fallback icon */}
+          </div>
+
+          {/* Playback Controls */}
+          <div className="flex items-center gap-1">
+            {/* Previous, Play/Pause, Next buttons */}
+          </div>
+
+          {/* Song Info and Progress */}
+          <div className="flex flex-col w-full h-full p-0 justify-start mx-2">
+            {/* Song title, artist, and progress bar */}
+          </div>
+
+          {/* Mode and Close Controls */}
+          <div className="flex justify-center items-center p-2">
+            {/* Play mode and close buttons */}
+          </div>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+```
+
+**Design Features:**
+- **Floating Design:** Appears as a modern floating control panel
+- **Panel Alignment:** Matches the width and styling of the song panel
+- **Glass Morphism:** Semi-transparent background with backdrop blur
+- **Responsive Layout:** Adapts to different screen sizes
+- **Smooth Animations:** Framer Motion for smooth show/hide transitions
+
+### 2. Mobile Optimizations
+
+The player is optimized for mobile devices with touch-friendly interactions:
+
+```typescript
+// Touch event handling for mobile
+const handleTouchStart = (e: React.TouchEvent) => {
+  touchStartRef.current = {
+    x: e.touches[0].clientX,
+    y: e.touches[0].clientY,
+    time: Date.now()
+  };
+  hasScrolledRef.current = false;
+};
+
+const handleTouchMove = (e: React.TouchEvent) => {
+  if (touchStartRef.current) {
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartRef.current.y);
+    
+    // If user has scrolled significantly, mark as scroll
+    if (deltaY > 10) {
+      hasScrolledRef.current = true;
+    }
+  }
+};
+
+const handleTouchEnd = (e: React.TouchEvent) => {
+  if (touchStartRef.current && !hasScrolledRef.current) {
+    const deltaTime = Date.now() - touchStartRef.current.time;
+    
+    // Only trigger if it's a quick tap (less than 300ms)
+    if (deltaTime < 300) {
+      handleCopy();
+    }
+  }
+  
+  touchStartRef.current = null;
+};
+```
+
+**Mobile Features:**
+- **Touch Detection:** Distinguishes between taps and scrolls
+- **Single-Tap Play:** Album art is clickable for playable songs on mobile
+- **Responsive Controls:** Buttons sized appropriately for touch
+- **Gesture Support:** Respects scroll gestures while allowing tap interactions
 
 ## Audio Element Lifecycle Management
 
@@ -447,6 +731,24 @@ private trackPlaybackAnalytics(track: Track, duration: number): void {
     play_duration: duration,
     play_mode: this.state.playMode,
   });
+}
+```
+
+### 3. Enhanced Mobile Features
+
+```typescript
+// Background audio support
+private setupBackgroundAudio(): void {
+  // Enable background audio playback on mobile
+  // Handle audio interruptions (calls, notifications)
+  // Resume playback when app comes to foreground
+}
+
+// Gesture controls
+private setupGestureControls(): void {
+  // Swipe gestures for next/previous
+  // Double-tap to seek
+  // Pinch to adjust volume
 }
 ```
 

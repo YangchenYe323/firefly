@@ -15,11 +15,13 @@ import ScrollableTags from "./ScrollableTags";
 import SongRow from "./SongRow";
 
 import { toast } from "react-toastify";
+import getPlayerSingleton from "@/lib/player";
 
 interface PropType {
 	allSongs: Song[];
 	footer: Footer;
 	apiUrl?: string;
+	onShowPlayer?: () => void;
 }
 
 /**
@@ -79,6 +81,15 @@ const filterOnPaid: SongFilter = (song) => song.remark.indexOf("SC点歌") !== -
 const filterOnUrlAvailable: SongFilter = (song) => song.url !== null;
 
 /**
+ * Filter for songs that are playable (have bucket_url)
+ * Checks if the song has a bucket_url in the extra field
+ */
+const filterOnPlayable: SongFilter = (song) => {
+	const bucketUrl = song.extra?.bucket_url;
+	return bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+};
+
+/**
  * Default filter that includes all songs
  * Used as the initial state and fallback option
  */
@@ -94,6 +105,10 @@ const filterAll = {
  */
 const filters: Filter[] = [
 	filterAll,
+	{
+		value: "可播放",
+		predicate: filterOnPlayable,
+	},
 	{
 		value: "流行",
 		predicate: filterOnTag("流行"),
@@ -151,7 +166,7 @@ const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
  * 4. Responsive design with backdrop blur and modern styling
  * 5. Graceful empty state handling with visual feedback
  */
-export default function SongPanel({ allSongs, footer, apiUrl }: PropType) {
+export default function SongPanel({ allSongs, footer, apiUrl, onShowPlayer }: PropType) {
 	// Store the original song data ordered by new video first
 	// This preserves the original data while allowing for optimistic updates
 	const [originalData, setOriginalData] = useState(
@@ -198,6 +213,55 @@ export default function SongPanel({ allSongs, footer, apiUrl }: PropType) {
 	 */
 	const onSearchTextChange = (text: string) => {
 		setSearchText(text);
+	};
+
+	/**
+	 * Handler for play song actions
+	 * Sets up the player with the selected song and shows the player
+	 */
+	const onPlaySong = (song: Song) => {
+		if (!song.extra?.bucket_url) {
+			toast.error("这首歌没有可播放的音频文件");
+			return;
+		}
+
+		try {
+			const player = getPlayerSingleton();
+			
+			// Get all playable songs from the current filtered data
+			const playableSongs = finalData.filter(s => {
+				const bucketUrl = s.extra?.bucket_url;
+				return bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+			});
+			
+			// Convert songs to tracks
+			const tracks = playableSongs.map(s => ({
+				url: s.extra!.bucket_url!,
+				title: s.title,
+				artist: s.artist,
+			}));
+			
+			// Find the index of the selected song in the playable tracks
+			const selectedTrackIndex = tracks.findIndex(track => 
+				track.title === song.title && track.artist === song.artist
+			);
+			
+			if (selectedTrackIndex === -1) {
+				toast.error("无法找到选中的歌曲");
+				return;
+			}
+			
+			// Set the queue with all playable songs and play the selected one
+			player.setQueue(tracks, apiUrl);
+			player.playTrack(selectedTrackIndex);
+			
+			// Show the player at the bottom
+			if (onShowPlayer) {
+				onShowPlayer();
+			}
+		} catch (error) {
+			toast.error("播放失败，请稍后重试");
+		}
 	};
 
 	/**
@@ -310,6 +374,7 @@ export default function SongPanel({ allSongs, footer, apiUrl }: PropType) {
 									song={song}
 									onLikeSong={onLikeSong}
 									onDislikeSong={onDislikeSong}
+									onPlaySong={onPlaySong}
 									apiUrl={apiUrl}
 								/>
 							))}
