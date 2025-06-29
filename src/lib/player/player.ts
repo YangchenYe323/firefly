@@ -1,6 +1,6 @@
 import { PlayMode, type PlayerState, type Track } from "./types";
 
-import { createAudio } from "./audio";
+import { createAudio, type MediaMetadata } from "./audio";
 import { createPubSub } from "../pubsub";
 import { shuffleArray } from "../utils";
 
@@ -15,6 +15,7 @@ function createPlayer() {
 		playableTracks: [],
 		currentTrackIndex: null,
 		currentTrack: null,
+		apiUrl: undefined,
 	};
 
 	const getPlayableTracks = (mode: PlayMode) => {
@@ -40,12 +41,36 @@ function createPlayer() {
 	// Audio state change should propagate to external-facing player state change
 	audio.subscribe(setState);
 
+	// Handle media session previous/next track events
+	audio.onPreviousTrack(() => {
+		prev();
+	});
+
+	audio.onNextTrack(() => {
+		next();
+	});
+
 	// Play current track
-	const playCurrentTrack = () => {
+	const playCurrentTrack = (apiUrl?: string) => {
 		const track = state.currentTrack;
 
 		if (track) {
 			audio.setUrl(track.url);
+			
+			// Construct artwork URL for media metadata
+			const artworkUrl = apiUrl
+				? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(track.title)}&artist=${encodeURIComponent(track.artist)}&size=large`
+				: undefined;
+			
+			// Set media metadata for iOS lockscreen
+			const metadata: MediaMetadata = {
+				title: track.title,
+				artist: track.artist,
+				album: '蝶蝶Hikari 歌曲集',
+				artwork: artworkUrl,
+			};
+			audio.setMediaMetadata(metadata);
+			
 			audio.play();
 		}
 	};
@@ -55,15 +80,35 @@ function createPlayer() {
 			return;
 		}
 
-		const newIndex =
-			(state.currentTrackIndex + 1) % state.playableTracks.length;
+		let newIndex: number;
+		
+		switch (state.mode) {
+			case PlayMode.Repeat:
+				// In repeat mode, stay on the same track
+				newIndex = state.currentTrackIndex;
+				break;
+			case PlayMode.Random:
+				// In random mode, pick a random track (different from current)
+				if (state.tracks.length > 1) {
+					do {
+						newIndex = Math.floor(Math.random() * state.tracks.length);
+					} while (newIndex === state.currentTrackIndex && state.tracks.length > 1);
+				} else {
+					newIndex = state.currentTrackIndex; // Stay on same track if only one
+				}
+				break;
+			default: // PlayMode.Order
+				// In order mode, go to next track
+				newIndex = (state.currentTrackIndex + 1) % state.tracks.length;
+				break;
+		}
 
 		setState({
 			currentTrackIndex: newIndex,
-			currentTrack: state.playableTracks[newIndex],
+			currentTrack: state.tracks[newIndex],
 		});
 
-		playCurrentTrack();
+		playCurrentTrack(state.apiUrl);
 	};
 
 	const prev = () => {
@@ -71,15 +116,34 @@ function createPlayer() {
 			return;
 		}
 
-		const newIndex =
-			(state.currentTrackIndex - 1 + state.playableTracks.length) %
-			state.playableTracks.length;
+		let newIndex: number;
+		
+		switch (state.mode) {
+			case PlayMode.Repeat:
+				// In repeat mode, stay on the same track
+				newIndex = state.currentTrackIndex;
+				break;
+			case PlayMode.Random:
+				// In random mode, pick a random track (different from current)
+				if (state.tracks.length > 1) {
+					do {
+						newIndex = Math.floor(Math.random() * state.tracks.length);
+					} while (newIndex === state.currentTrackIndex && state.tracks.length > 1);
+				} else {
+					newIndex = state.currentTrackIndex; // Stay on same track if only one
+				}
+				break;
+			default: // PlayMode.Order
+				// In order mode, go to previous track
+				newIndex = (state.currentTrackIndex - 1 + state.tracks.length) % state.tracks.length;
+				break;
+		}
 
 		setState({
-			currentTrack: state.playableTracks[newIndex],
 			currentTrackIndex: newIndex,
+			currentTrack: state.tracks[newIndex],
 		});
-		playCurrentTrack();
+		playCurrentTrack(state.apiUrl);
 	};
 
 	const switchMode = () => {
@@ -110,8 +174,8 @@ function createPlayer() {
 			return state;
 		},
 
-		setQueue(tracks: Track[]) {
-			setState({ tracks, playableTracks: [...tracks], mode: PlayMode.Order });
+		setQueue(tracks: Track[], apiUrl?: string) {
+			setState({ tracks, playableTracks: [...tracks], mode: PlayMode.Order, apiUrl });
 		},
 
 		playTrack(trackIndex: number) {
@@ -120,7 +184,7 @@ function createPlayer() {
 				currentTrack: state.tracks[trackIndex],
 			});
 
-			playCurrentTrack();
+			playCurrentTrack(state.apiUrl);
 		},
 
 		next,

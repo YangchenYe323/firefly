@@ -7,12 +7,14 @@ import Image from "next/image";
 import type { Song } from "@/generated/client";
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
+import getPlayerSingleton, { usePlayerState } from "@/lib/player";
 
 interface Props {
   song: Song;
   onLikeSong: (id: number) => void;
   onDislikeSong: (id: number) => void;
   apiUrl?: string;
+  onPlaySong?: (song: Song) => void;
 }
 
 function formatDate(date: Date): string {
@@ -20,7 +22,7 @@ function formatDate(date: Date): string {
   return new Date(date).toISOString().split("T")[0];
 }
 
-export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Props) {
+export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl, onPlaySong }: Props) {
   // Track touch start position and time for precise tap detection
   // This prevents accidental copies during scrolling gestures
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -32,6 +34,19 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
   // Album art fallback state
   const [imgError, setImgError] = useState(false);
 
+  // Get player state to determine if this song is currently playing
+  const { currentTrack, playing } = usePlayerState();
+
+  // Check if song is playable (has bucket_url)
+  const bucketUrl = song.extra?.bucket_url;
+  const isPlayable = bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+
+  // Check if this song is currently playing
+  const isCurrentlyPlaying = currentTrack && 
+    currentTrack.title === song.title && 
+    currentTrack.artist === song.artist &&
+    playing;
+
   // Construct album art URL
   const albumArtUrl = apiUrl
     ? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}&size=large`
@@ -39,6 +54,21 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
 
   const handleCopy = () => {
     onCopyToClipboard(song);
+  };
+
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isPlayable && onPlaySong) {
+      onPlaySong(song);
+    }
+  };
+
+  const handlePauseClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isCurrentlyPlaying) {
+      const player = getPlayerSingleton();
+      player.pause();
+    }
   };
 
   /**
@@ -100,10 +130,13 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
     const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
     const deltaTime = Date.now() - touchStartRef.current.time;
     
-    // Only trigger if it's a genuine tap (very small movement, short duration)
-    // 5px movement threshold: allows slight finger movement during tap
-    // 200ms time threshold: distinguishes taps from long presses
-    if (deltaX < 5 && deltaY < 5 && deltaTime < 200) {
+    // Check if the touch was on the album art area (where play button is)
+    const target = e.target as HTMLElement;
+    const isOnAlbumArt = target.closest('.album-art-container') !== null;
+    
+    // Only trigger copy if it's a genuine tap AND not on the album art area
+    // This prevents copy action when user taps the album art to play
+    if (deltaX < 5 && deltaY < 5 && deltaTime < 200 && !isOnAlbumArt) {
       onCopyToClipboard(song);
     }
     
@@ -145,8 +178,17 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
       whileHover={{ scale: 1.005 }}
       whileTap={{ scale: 0.99 }}
     >
-      {/* Album Avatar */}
-      <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+      {/* Album Avatar with Play/Pause Button Overlay */}
+      <div 
+        className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden relative album-art-container"
+        onClick={(e) => {
+          // On mobile, make the entire album art clickable for playable songs
+          if (isPlayable && !isCurrentlyPlaying) {
+            e.stopPropagation();
+            handlePlayClick(e);
+          }
+        }}
+      >
         {!imgError && albumArtUrl ? (
           <Image
             src={albumArtUrl}
@@ -160,6 +202,41 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
         ) : (
           <Icons.music_note className="w-6 h-6 text-gray-500" />
         )}
+        
+        {/* Play/Pause Button Overlay - Only show for playable songs */}
+        {isPlayable && (
+          <>
+            {/* Desktop: Hover overlay */}
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hidden md:flex">
+              <button
+                type="button"
+                onClick={isCurrentlyPlaying ? handlePauseClick : handlePlayClick}
+                className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                title={isCurrentlyPlaying ? "暂停歌曲" : "播放歌曲"}
+              >
+                {isCurrentlyPlaying ? (
+                  <Icons.player_pause_button className="w-4 h-4 fill-black" />
+                ) : (
+                  <Icons.player_play_button className="w-4 h-4 fill-black ml-0.5" />
+                )}
+              </button>
+            </div>
+            
+            {/* Mobile: Only show when currently playing */}
+            {isCurrentlyPlaying && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center md:hidden">
+                <button
+                  type="button"
+                  onClick={handlePauseClick}
+                  className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center transition-colors"
+                  title="暂停歌曲"
+                >
+                  <Icons.player_pause_button className="w-4 h-4 fill-black" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Song Info */}
@@ -168,6 +245,10 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl }: Pro
           <h3 className="text-md font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
             {song.title}
           </h3>
+          {/* Musical note icon for playable songs */}
+          {isPlayable && (
+            <Icons.music_note className="w-4 h-4 text-blue-500 flex-shrink-0" title="可播放" />
+          )}
           {song.url && (
             <button
               type="button"

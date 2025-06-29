@@ -37,6 +37,10 @@ export default function Root({ songs, tracks, profile, footer, apiUrl }: PropTyp
 		setPlayerVisible(false);
 	};
 
+	const showPlayer = () => {
+		setPlayerVisible(true);
+	};
+
 	return (
 		<div className="relative font-chinese bg-opacity-50">
 			<StickyHeader>
@@ -57,7 +61,12 @@ export default function Root({ songs, tracks, profile, footer, apiUrl }: PropTyp
 				</div>
 			</StickyHeader>
 			<Heading songCount={songCount} profile={profile} />
-			<SongPanel allSongs={songs} footer={footer} apiUrl={apiUrl} />
+			<SongPanel 
+				allSongs={songs} 
+				footer={footer} 
+				apiUrl={apiUrl} 
+				onShowPlayer={showPlayer}
+			/>
 			<div className="mt-2 mb-2 p-4 text-center text-sm text-thin text-black">
 				Copyright © 2023-2024 梦中杀蝶人协会 & 他们的朋友
 			</div>
@@ -95,6 +104,7 @@ export default function Root({ songs, tracks, profile, footer, apiUrl }: PropTyp
 				visible={playerVisible}
 				closePlayer={closePlayer}
 				tracks={tracks}
+				apiUrl={apiUrl}
 			/>
 		</div>
 	);

@@ -19,6 +19,8 @@ export type PlayerState = AudioState & {
 	mode: PlayMode;
 	currentTrack: Track | null;
 	currentTrackIndex: number | null;
+	// API URL for artwork generation
+	apiUrl?: string;
 };
 
 export enum PlayMode {
