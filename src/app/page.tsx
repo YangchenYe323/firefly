@@ -8,7 +8,7 @@ import vtuberProfile from "@/profile";
 export default async function Home() {
 	const { songs } = await readSongAllNoCacheLatest();
 	const footers = await readFooters();
-  const footer = footers[Math.floor(Math.random() * footers.length)]
+	const footer = footers[Math.floor(Math.random() * footers.length)];
 
 	const tracks = songs
 		.filter((song) => song.extra.bucket_url)
@@ -18,12 +18,18 @@ export default async function Home() {
 			artist: song.artist,
 		}));
 
-  // Read API_URL from env (now using NEXT_PUBLIC_ prefix)
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+	// Read API_URL from env (now using NEXT_PUBLIC_ prefix)
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 	return (
 		<div className="p-0">
-			<Root songs={songs} tracks={tracks} profile={vtuberProfile} footer={footer} apiUrl={apiUrl} />
+			<Root
+				songs={songs}
+				tracks={tracks}
+				profile={vtuberProfile}
+				footer={footer}
+				apiUrl={apiUrl}
+			/>
 			{vtuberProfile.backgroundImagePath && (
 				<div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
 					<Image

@@ -30,54 +30,68 @@ export const createAudio = () => {
 	 * Uses the MediaSession API to display song information
 	 */
 	const updateMediaMetadata = (metadata: MediaMetadata) => {
-		if ('mediaSession' in navigator) {
+		if ("mediaSession" in navigator) {
 			navigator.mediaSession.metadata = new MediaMetadata({
 				title: metadata.title,
 				artist: metadata.artist,
-				album: metadata.album || '蝶蝶Hikari 歌曲集',
-				artwork: metadata.artwork ? [
-					{
-						src: metadata.artwork,
-						sizes: '512x512',
-						type: 'image/jpeg',
-					}
-				] : undefined,
+				album: metadata.album || "蝶蝶Hikari 歌曲集",
+				artwork: metadata.artwork
+					? [
+							{
+								src: metadata.artwork,
+								sizes: "512x512",
+								type: "image/jpeg",
+							},
+						]
+					: undefined,
 			});
 
 			// Set up media session action handlers
-			(navigator.mediaSession as any).setActionHandler('play', () => {
+			(navigator.mediaSession as any).setActionHandler("play", () => {
 				element.play();
 			});
 
-			(navigator.mediaSession as any).setActionHandler('pause', () => {
+			(navigator.mediaSession as any).setActionHandler("pause", () => {
 				element.pause();
 			});
 
-			(navigator.mediaSession as any).setActionHandler('previoustrack', () => {
+			(navigator.mediaSession as any).setActionHandler("previoustrack", () => {
 				// This will be handled by the player
 				audioPubSub.publish("previous-track", null);
 			});
 
-			(navigator.mediaSession as any).setActionHandler('nexttrack', () => {
+			(navigator.mediaSession as any).setActionHandler("nexttrack", () => {
 				// This will be handled by the player
 				audioPubSub.publish("next-track", null);
 			});
 
-			(navigator.mediaSession as any).setActionHandler('seekto', (details: any) => {
-				if (details.seekTime !== undefined) {
-					element.currentTime = details.seekTime;
-				}
-			});
+			(navigator.mediaSession as any).setActionHandler(
+				"seekto",
+				(details: any) => {
+					if (details.seekTime !== undefined) {
+						element.currentTime = details.seekTime;
+					}
+				},
+			);
 
-			(navigator.mediaSession as any).setActionHandler('seekforward', (details: any) => {
-				const skipTime = details.seekOffset || 10;
-				element.currentTime = Math.min(element.currentTime + skipTime, element.duration);
-			});
+			(navigator.mediaSession as any).setActionHandler(
+				"seekforward",
+				(details: any) => {
+					const skipTime = details.seekOffset || 10;
+					element.currentTime = Math.min(
+						element.currentTime + skipTime,
+						element.duration,
+					);
+				},
+			);
 
-			(navigator.mediaSession as any).setActionHandler('seekbackward', (details: any) => {
-				const skipTime = details.seekOffset || 10;
-				element.currentTime = Math.max(element.currentTime - skipTime, 0);
-			});
+			(navigator.mediaSession as any).setActionHandler(
+				"seekbackward",
+				(details: any) => {
+					const skipTime = details.seekOffset || 10;
+					element.currentTime = Math.max(element.currentTime - skipTime, 0);
+				},
+			);
 		}
 	};
 
@@ -85,8 +99,8 @@ export const createAudio = () => {
 	 * Update media session playback state
 	 */
 	const updateMediaSessionPlaybackState = (isPlaying: boolean) => {
-		if ('mediaSession' in navigator) {
-			navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+		if ("mediaSession" in navigator) {
+			navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
 		}
 	};
 
@@ -94,7 +108,10 @@ export const createAudio = () => {
 	 * Update media session position state
 	 */
 	const updateMediaSessionPositionState = () => {
-		if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
+		if (
+			"mediaSession" in navigator &&
+			"setPositionState" in navigator.mediaSession
+		) {
 			navigator.mediaSession.setPositionState({
 				duration: element.duration || 0,
 				playbackRate: element.playbackRate,
