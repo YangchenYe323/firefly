@@ -34,6 +34,7 @@ export default function SongPlayer({ visible, tracks, closePlayer, apiUrl }: Pro
 	}, [player, tracks, apiUrl]);
 
 	// Reset image error state when track changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: when track changes, the image error state should be reset
 	useEffect(() => {
 		setImgError(false);
 	}, [currentTrack?.title, currentTrack?.artist]);
