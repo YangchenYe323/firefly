@@ -1,7 +1,7 @@
-import EditableSongTable from "./components/EditableSongTable";
 import { JsonValue } from "@/generated/client/runtime/library";
 import type { Song } from "@/generated/client";
 import { readSongAllNoCacheLatest } from "../actions/crud";
+import AdminLayout from "./components/AdminLayout";
 
 export type EditableSong = Pick<
 	Song,
@@ -18,5 +18,5 @@ export default async function Admin() {
 		bucket_url: song.extra?.bucket_url || "",
 	}));
 
-	return <EditableSongTable songs={editableSongs} />;
+	return <AdminLayout initialSongs={editableSongs} />;
 }

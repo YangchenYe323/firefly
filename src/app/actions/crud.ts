@@ -204,3 +204,26 @@ function isValidHttpUrl(urlString: string) {
   }
   return url.protocol === "http:" || url.protocol === "https:";
 }
+
+export interface DeleteSongReturnType extends ActionReturnTypeBase {
+  message?: string;
+}
+
+export async function deleteSong(id: number): Promise<DeleteSongReturnType> {
+  const authResult = await auth();
+  if (!authResult) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  try {
+    await prisma.song.delete({
+      where: { id },
+    });
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      message: "删除失败，请稍后重试",
+    };
+  }
+}
