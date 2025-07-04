@@ -245,6 +245,32 @@ export default function SongRow({ song, onLikeSong, onDislikeSong, apiUrl, onPla
           <h3 className="text-md font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
             {song.title}
           </h3>
+          {/* 上船限定图标 */}
+          {song.remark.indexOf("上总") !== -1 && (
+            <Icons.governor className="w-4 h-4 text-blue-500 flex-shrink-0" title="上总" />
+          )}
+          {song.remark.indexOf("上提") !== -1 && (
+            <Icons.admiral className="w-4 h-4 text-blue-500 flex-shrink-0" title="上提" />
+          )}
+          {song.remark.indexOf("上舰") !== -1 && (
+            <Icons.captain className="w-4 h-4 text-blue-500 flex-shrink-0" title="上舰" />
+          )}
+          {/* 付费限定图标 */}
+          {song.remark.indexOf("30元SC") !== -1 && (
+            <Image src="/icons/30.png" alt="30元SC" width={24} height={24} className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          )}
+          {song.remark.indexOf("100元SC") !== -1 && (
+            <Image src="/icons/100.png" alt="100元SC" width={24} height={24} className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          )}
+          {song.remark.indexOf("200元SC") !== -1 && (
+            <Image src="/icons/200.png" alt="200元SC" width={24} height={24} className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          )}
+          {song.remark.indexOf("1000元SC") !== -1 && (
+            <Image src="/icons/1000.png" alt="1000元SC" width={24} height={24} className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          )}
+          {song.remark.indexOf("10000元SC") !== -1 && (
+            <Image src="/icons/10000.png" alt="10000元SC" width={24} height={24} className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          )}
           {/* Musical note icon for playable songs */}
           {isPlayable && (
             <Icons.music_note className="w-4 h-4 text-blue-500 flex-shrink-0" title="可播放" />
