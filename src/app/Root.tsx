@@ -28,7 +28,13 @@ const SongPlayer = dynamic(() => import("./components/SongPlayer"), {
 	ssr: false,
 });
 
-export default function Root({ songs, tracks, profile, footer, apiUrl }: PropType) {
+export default function Root({
+	songs,
+	tracks,
+	profile,
+	footer,
+	apiUrl,
+}: PropType) {
 	const [playerVisible, setPlayerVisible] = useState(false);
 
 	const songCount = songs.length;
@@ -61,10 +67,10 @@ export default function Root({ songs, tracks, profile, footer, apiUrl }: PropTyp
 				</div>
 			</StickyHeader>
 			<Heading songCount={songCount} profile={profile} />
-			<SongPanel 
-				allSongs={songs} 
-				footer={footer} 
-				apiUrl={apiUrl} 
+			<SongPanel
+				allSongs={songs}
+				footer={footer}
+				apiUrl={apiUrl}
 				onShowPlayer={showPlayer}
 			/>
 			<div className="mt-2 mb-2 p-4 text-center text-sm text-thin text-black">

@@ -2,10 +2,7 @@
 
 import type { Footer, Song } from "@/generated/client";
 import { dislikeSong, likeSong } from "../actions/reaction";
-import {
-	onCopyToClipboard,
-	orderSongsWithNewVideoFirst,
-} from "@/lib/utils";
+import { onCopyToClipboard, orderSongsWithNewVideoFirst } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { Button } from "../../components/ui/button";
@@ -26,7 +23,7 @@ interface PropType {
 
 /**
  * Type definitions for the filtering system
- * 
+ *
  * SongFilter: A function that takes a song and returns true if it should be included
  * SongFilterBuilder: A factory function that creates filters based on parameters
  * Filter: A complete filter with display name and predicate function
@@ -59,7 +56,8 @@ const filterOnTag: SongFilterBuilder<string> = (tag) => (song) => {
  * Filter for songs that are captain-exclusive (limited to captain tier supporters)
  * Checks if the remark contains "上船当日限定"
  */
-const filterOnCaptain: SongFilter = (song) => song.remark.indexOf("当日限定") !== -1;
+const filterOnCaptain: SongFilter = (song) =>
+	song.remark.indexOf("当日限定") !== -1;
 
 /**
  * Filter for original songs (not covers)
@@ -86,7 +84,9 @@ const filterOnUrlAvailable: SongFilter = (song) => song.url !== null;
  */
 const filterOnPlayable: SongFilter = (song) => {
 	const bucketUrl = song.extra?.bucket_url;
-	return bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+	return (
+		bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== ""
+	);
 };
 
 /**
@@ -158,7 +158,7 @@ const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
 
 /**
  * Main song panel component that manages the song list, filtering, and search
- * 
+ *
  * Design decisions:
  * 1. Separates original data from filtered data to maintain data integrity
  * 2. Uses useEffect for reactive filtering when search or filter changes
@@ -166,19 +166,24 @@ const containSearchTextInTitleOrArtist = (song: Song, text: string) => {
  * 4. Responsive design with backdrop blur and modern styling
  * 5. Graceful empty state handling with visual feedback
  */
-export default function SongPanel({ allSongs, footer, apiUrl, onShowPlayer }: PropType) {
+export default function SongPanel({
+	allSongs,
+	footer,
+	apiUrl,
+	onShowPlayer,
+}: PropType) {
 	// Store the original song data ordered by new video first
 	// This preserves the original data while allowing for optimistic updates
 	const [originalData, setOriginalData] = useState(
 		orderSongsWithNewVideoFirst(allSongs),
 	);
-	
+
 	// Current active filter - starts with "all songs" filter
 	const [currentFilter, setCurrentFilter] = useState<Filter>(filterAll);
-	
+
 	// Search text input by user
 	const [searchText, setSearchText] = useState<string>("");
-	
+
 	// Final filtered and searched data that gets rendered
 	const [finalData, setFinalData] = useState<Song[]>([]);
 
@@ -227,34 +232,38 @@ export default function SongPanel({ allSongs, footer, apiUrl, onShowPlayer }: Pr
 
 		try {
 			const player = getPlayerSingleton();
-			
+
 			// Get all playable songs from the current filtered data
-			const playableSongs = finalData.filter(s => {
+			const playableSongs = finalData.filter((s) => {
 				const bucketUrl = s.extra?.bucket_url;
-				return bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== '';
+				return (
+					bucketUrl !== undefined &&
+					bucketUrl !== null &&
+					bucketUrl.trim() !== ""
+				);
 			});
-			
+
 			// Convert songs to tracks
-			const tracks = playableSongs.map(s => ({
+			const tracks = playableSongs.map((s) => ({
 				url: s.extra!.bucket_url!,
 				title: s.title,
 				artist: s.artist,
 			}));
-			
+
 			// Find the index of the selected song in the playable tracks
-			const selectedTrackIndex = tracks.findIndex(track => 
-				track.title === song.title && track.artist === song.artist
+			const selectedTrackIndex = tracks.findIndex(
+				(track) => track.title === song.title && track.artist === song.artist,
 			);
-			
+
 			if (selectedTrackIndex === -1) {
 				toast.error("无法找到选中的歌曲");
 				return;
 			}
-			
+
 			// Set the queue with all playable songs and play the selected one
 			player.setQueue(tracks, apiUrl);
 			player.playTrack(selectedTrackIndex);
-			
+
 			// Show the player at the bottom
 			if (onShowPlayer) {
 				onShowPlayer();

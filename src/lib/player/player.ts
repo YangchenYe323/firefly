@@ -56,21 +56,21 @@ function createPlayer() {
 
 		if (track) {
 			audio.setUrl(track.url);
-			
+
 			// Construct artwork URL for media metadata
 			const artworkUrl = apiUrl
 				? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(track.title)}&artist=${encodeURIComponent(track.artist)}&size=large`
 				: undefined;
-			
+
 			// Set media metadata for iOS lockscreen
 			const metadata: MediaMetadata = {
 				title: track.title,
 				artist: track.artist,
-				album: '蝶蝶Hikari 歌曲集',
+				album: "蝶蝶Hikari 歌曲集",
 				artwork: artworkUrl,
 			};
 			audio.setMediaMetadata(metadata);
-			
+
 			audio.play();
 		}
 	};
@@ -81,7 +81,7 @@ function createPlayer() {
 		}
 
 		let newIndex: number;
-		
+
 		switch (state.mode) {
 			case PlayMode.Repeat:
 				// In repeat mode, stay on the same track
@@ -92,7 +92,10 @@ function createPlayer() {
 				if (state.tracks.length > 1) {
 					do {
 						newIndex = Math.floor(Math.random() * state.tracks.length);
-					} while (newIndex === state.currentTrackIndex && state.tracks.length > 1);
+					} while (
+						newIndex === state.currentTrackIndex &&
+						state.tracks.length > 1
+					);
 				} else {
 					newIndex = state.currentTrackIndex; // Stay on same track if only one
 				}
@@ -117,7 +120,7 @@ function createPlayer() {
 		}
 
 		let newIndex: number;
-		
+
 		switch (state.mode) {
 			case PlayMode.Repeat:
 				// In repeat mode, stay on the same track
@@ -128,14 +131,19 @@ function createPlayer() {
 				if (state.tracks.length > 1) {
 					do {
 						newIndex = Math.floor(Math.random() * state.tracks.length);
-					} while (newIndex === state.currentTrackIndex && state.tracks.length > 1);
+					} while (
+						newIndex === state.currentTrackIndex &&
+						state.tracks.length > 1
+					);
 				} else {
 					newIndex = state.currentTrackIndex; // Stay on same track if only one
 				}
 				break;
 			default: // PlayMode.Order
 				// In order mode, go to previous track
-				newIndex = (state.currentTrackIndex - 1 + state.tracks.length) % state.tracks.length;
+				newIndex =
+					(state.currentTrackIndex - 1 + state.tracks.length) %
+					state.tracks.length;
 				break;
 		}
 
@@ -175,7 +183,12 @@ function createPlayer() {
 		},
 
 		setQueue(tracks: Track[], apiUrl?: string) {
-			setState({ tracks, playableTracks: [...tracks], mode: PlayMode.Order, apiUrl });
+			setState({
+				tracks,
+				playableTracks: [...tracks],
+				mode: PlayMode.Order,
+				apiUrl,
+			});
 		},
 
 		playTrack(trackIndex: number) {

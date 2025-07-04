@@ -22,7 +22,12 @@ interface PropType {
 	apiUrl?: string;
 }
 
-export default function SongPlayer({ visible, tracks, closePlayer, apiUrl }: PropType) {
+export default function SongPlayer({
+	visible,
+	tracks,
+	closePlayer,
+	apiUrl,
+}: PropType) {
 	const { playableTracks, currentTrack, playing, mode, duration } =
 		usePlayerState();
 	const currentTime = useCurrentTime();
@@ -34,15 +39,16 @@ export default function SongPlayer({ visible, tracks, closePlayer, apiUrl }: Pro
 	}, [player, tracks, apiUrl]);
 
 	// Reset image error state when track changes
-    // biome-ignore lint/correctness/useExhaustiveDependencies: when track changes, the image error state should be reset
+	// biome-ignore lint/correctness/useExhaustiveDependencies: when track changes, the image error state should be reset
 	useEffect(() => {
 		setImgError(false);
 	}, [currentTrack?.title, currentTrack?.artist]);
 
 	// Construct album art URL for current track
-	const albumArtUrl = currentTrack && apiUrl
-		? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(currentTrack.title)}&artist=${encodeURIComponent(currentTrack.artist)}&size=small`
-		: null;
+	const albumArtUrl =
+		currentTrack && apiUrl
+			? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(currentTrack.title)}&artist=${encodeURIComponent(currentTrack.artist)}&size=small`
+			: null;
 
 	const handlePlay = () => {
 		if (playing) {
@@ -91,7 +97,7 @@ export default function SongPlayer({ visible, tracks, closePlayer, apiUrl }: Pro
 							{!imgError && albumArtUrl ? (
 								<Image
 									src={albumArtUrl}
-									alt={`${currentTrack?.title || 'Unknown'} album art`}
+									alt={`${currentTrack?.title || "Unknown"} album art`}
 									width={32}
 									height={32}
 									className="object-cover w-8 h-8"
