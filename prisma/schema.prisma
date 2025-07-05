@@ -16,17 +16,22 @@ datasource db {
 
 /// Always after the prisma-client-js generator
 model Song {
-  id              Int      @id @default(autoincrement())
-  title           String
-  artist          String
-  remark          String
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  artist               String
+  remark               String
   /// [SongExtraType]
-  extra           Json
-  created_on      DateTime @default(now())
-  lang            String[]
-  tag             String[]
-  url             String?
-  lyrics_fragment String?
+  extra                Json
+  /// The date the song was created (added to the database)
+  created_on           DateTime               @default(now())
+  lang                 String[]
+  tag                  String[]
+  /// B站歌切链接
+  url                  String?
+  /// Fragment of the lyrics of the song, used for fuzzy search
+  lyrics_fragment      String?
+  /// The live recordings that the song was played in
+  SongOccurrenceInLive SongOccurrenceInLive[]
 }
 
 model User {
@@ -44,4 +49,44 @@ model Feedback {
 model Footer {
   content String
   id      Int    @id @default(autoincrement())
+}
+
+/// Live recording archive. This table store metadata about every live recording
+/// of the vtuber.
+model LiveRecordingArchive {
+  id                   Int                    @id @default(autoincrement())
+  /// B站视频ID
+  bvid                 String                 @unique
+  /// Title of the live recording
+  title                String
+  /// Publish date of the live recording (unix seconds)
+  pubdate              Int  
+  /// Duration of the live recording (seconds)
+  duration             Int
+  /// Cover image url of the recording
+  cover                String
+  /// The songs that were played in the live
+  SongOccurrenceInLive SongOccurrenceInLive[]
+
+  @@index([bvid, pubdate(sort: Desc)])
+}
+
+/// This is the relation table between Song and LiveRecordingArchive.
+/// Each entry represents a song that was played by the vtuber in the live.
+model SongOccurrenceInLive {
+  /// The song that was played in the live
+  song                   Song                 @relation(fields: [songId], references: [id])
+  /// The id of the song that was played in the live
+  songId                 Int
+  /// The live recording archive that the song was played in
+  liveRecordingArchive   LiveRecordingArchive @relation(fields: [liveRecordingArchiveId], references: [id])
+  /// The id of the live recording archive that the song was played in
+  liveRecordingArchiveId Int
+
+  /// The start time of the song in the live (seconds since the start of the live)
+  start Int
+  /// The page number of the live recording (1-indexed), refer to B站分P视频
+  page Int
+
+  @@id([songId, liveRecordingArchiveId])
 }
