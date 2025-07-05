@@ -45,6 +45,7 @@ export async function createSong(
 			tag: song.tag,
 			remark: song.remark,
 			url: song.url,
+			lyrics_fragment: song.lyrics_fragment || null,
 			extra: {},
 		},
 	});
@@ -126,6 +127,7 @@ export async function updateSong(
 				tag: song.tag,
 				remark: song.remark,
 				url: song.url,
+				lyrics_fragment: song.lyrics_fragment || null,
 			},
 		});
 	} else {
@@ -154,6 +156,7 @@ export async function updateSong(
 				tag: song.tag,
 				remark: song.remark,
 				url: song.url,
+				lyrics_fragment: song.lyrics_fragment || null,
 				extra: {
 					...oldSong.extra,
 					video_created_on,

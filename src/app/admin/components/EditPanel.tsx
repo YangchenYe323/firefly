@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Save, Trash2 } from "lucide-react";
 import type { EditableSong } from "../page";
+import { LyricsSearch } from "./LyricsSearch";
 
 interface EditPanelProps {
 	song: EditableSong;
@@ -27,6 +28,7 @@ export default function EditPanel({
 	const [formData, setFormData] = useState<EditableSong>(song);
 	const [langInput, setLangInput] = useState("");
 	const [tagInput, setTagInput] = useState("");
+	const [segments, setSegments] = useState(10);
 
 	useEffect(() => {
 		setFormData(song);
@@ -75,6 +77,36 @@ export default function EditPanel({
 		}));
 	};
 
+	const handleLyricsSelect = (result: { title: string; artist: string; lyrics_fragment: string }) => {
+		setFormData((prev) => ({
+			...prev,
+			title: result.title,
+			artist: result.artist,
+			lyrics_fragment: result.lyrics_fragment,
+		}));
+	};
+
+	const handleTitleSelect = (title: string) => {
+		setFormData((prev) => ({
+			...prev,
+			title: title,
+		}));
+	};
+
+	const handleArtistSelect = (artist: string) => {
+		setFormData((prev) => ({
+			...prev,
+			artist: artist,
+		}));
+	};
+
+	const handleLyricsOnlySelect = (lyrics: string) => {
+		setFormData((prev) => ({
+			...prev,
+			lyrics_fragment: lyrics,
+		}));
+	};
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		onSave(formData);
@@ -118,6 +150,31 @@ export default function EditPanel({
 						className="text-base"
 					/>
 				</div>
+
+				{/* Segments Configuration */}
+				<div className="space-y-2">
+					<Label htmlFor="segments">歌词搜索段落数</Label>
+					<Input
+						id="segments"
+						type="number"
+						min="1"
+						max="50"
+						value={segments}
+						onChange={(e) => setSegments(Number.parseInt(e.target.value) || 10)}
+						placeholder="10"
+						className="text-base"
+					/>
+				</div>
+
+				{/* Lyrics Search */}
+				<LyricsSearch
+					onSelectLyrics={handleLyricsSelect}
+					onSelectTitle={handleTitleSelect}
+					onSelectArtist={handleArtistSelect}
+					onSelectLyricsOnly={handleLyricsOnlySelect}
+					currentTitle={formData.title}
+					segments={segments}
+				/>
 
 				{/* Languages */}
 				<div className="space-y-2">
@@ -220,6 +277,19 @@ export default function EditPanel({
 						onChange={(e) => handleInputChange("bucket_url", e.target.value)}
 						placeholder="https://example.com/audio.mp3"
 						className="text-base"
+					/>
+				</div>
+
+				{/* Lyrics Fragment */}
+				<div className="space-y-2">
+					<Label htmlFor="lyrics_fragment">歌词片段</Label>
+					<Textarea
+						id="lyrics_fragment"
+						value={formData.lyrics_fragment || ""}
+						onChange={(e) => handleInputChange("lyrics_fragment", e.target.value)}
+						placeholder="输入歌词片段..."
+						rows={4}
+						className="text-base resize-none"
 					/>
 				</div>
 

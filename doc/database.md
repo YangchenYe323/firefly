@@ -14,15 +14,16 @@ The central model for storing song information with flexible metadata.
 
 ```prisma
 model Song {
-  id         Int      @id @default(autoincrement())
-  title      String   // Song title
-  artist     String   // Artist name
-  lang       String[] // Languages (array)
-  tag        String[] // Tags (array)
-  url        String?  // Optional external URL
-  remark     String   // Additional notes
-  created_on DateTime @default(now())
-  extra      Json     // Flexible metadata storage
+  id              Int      @id @default(autoincrement())
+  title           String   // Song title
+  artist          String   // Artist name
+  lang            String[] // Languages (array)
+  tag             String[] // Tags (array)
+  url             String?  // Optional external URL
+  remark          String   // Additional notes
+  lyrics_fragment String?  // Fragment of song lyrics
+  created_on      DateTime @default(now())
+  extra           Json     // Flexible metadata storage
 }
 ```
 
@@ -30,6 +31,7 @@ model Song {
 - Auto-incrementing primary key
 - Array fields for languages and tags
 - Optional URL for external links
+- Optional lyrics fragment for song preview
 - JSON field for flexible metadata
 - Timestamp for creation tracking
 

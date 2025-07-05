@@ -16,16 +16,17 @@ datasource db {
 
 /// Always after the prisma-client-js generator
 model Song {
-  id             Int      @id @default(autoincrement())
-  title          String
-  artist         String
-  remark         String
+  id              Int      @id @default(autoincrement())
+  title           String
+  artist          String
+  remark          String
   /// [SongExtraType]
-  extra          Json
-  created_on     DateTime @default(now())
-  lang           String[]
-  tag            String[]
-  url            String?
+  extra           Json
+  created_on      DateTime @default(now())
+  lang            String[]
+  tag             String[]
+  url             String?
+  lyrics_fragment String?
 }
 
 model User {
