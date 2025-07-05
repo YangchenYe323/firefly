@@ -62,6 +62,9 @@ export default function SongTable({
 						<TableHead className="min-w-[120px] hidden md:table-cell">
 							标签
 						</TableHead>
+						<TableHead className="min-w-[150px] hidden md:table-cell">
+							歌词片段
+						</TableHead>
 						<TableHead className="min-w-[100px] hidden md:table-cell">
 							链接
 						</TableHead>
@@ -139,6 +142,21 @@ export default function SongTable({
 										</Badge>
 									)}
 								</div>
+							</TableCell>
+
+							<TableCell className="hidden md:table-cell">
+								<span
+									className="truncate max-w-[130px] block text-sm text-muted-foreground"
+									title={song.lyrics_fragment || "无歌词"}
+								>
+									{song.lyrics_fragment ? (
+										song.lyrics_fragment.length > 50 
+											? `${song.lyrics_fragment.substring(0, 50)}...` 
+											: song.lyrics_fragment
+									) : (
+										<span className="text-muted-foreground">-</span>
+									)}
+								</span>
 							</TableCell>
 
 							<TableCell className="hidden md:table-cell">

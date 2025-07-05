@@ -18,20 +18,28 @@ interface AdminLayoutProps {
 export default function AdminLayout({ initialSongs }: AdminLayoutProps) {
 	const [songs, setSongs] = useState<EditableSong[]>(initialSongs);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [showOnlyWithoutLyrics, setShowOnlyWithoutLyrics] = useState(false);
 	const [selectedSong, setSelectedSong] = useState<EditableSong | null>(null);
 	const [isEditPanelOpen, setIsEditPanelOpen] = useState(false);
 	const [isCreating, setIsCreating] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Filter songs based on search query
+	// Filter songs based on search query and lyrics filter
 	const filteredSongs = songs.filter((song) => {
+		// First filter by lyrics if enabled
+		if (showOnlyWithoutLyrics && song.lyrics_fragment) {
+			return false;
+		}
+
+		// Then filter by search query
 		const query = searchQuery.toLowerCase();
 		return (
 			song.title.toLowerCase().includes(query) ||
 			song.artist.toLowerCase().includes(query) ||
 			song.lang.some((lang) => lang.toLowerCase().includes(query)) ||
 			song.tag.some((tag) => tag.toLowerCase().includes(query)) ||
-			song.remark.toLowerCase().includes(query)
+			song.remark.toLowerCase().includes(query) ||
+			(song.lyrics_fragment?.toLowerCase().includes(query))
 		);
 	});
 
@@ -41,20 +49,21 @@ export default function AdminLayout({ initialSongs }: AdminLayoutProps) {
 		setIsCreating(false);
 	};
 
-	const handleCreateSong = () => {
-		setSelectedSong({
-			id: 0,
-			title: "",
-			artist: "",
-			lang: [],
-			tag: [],
-			url: "",
-			remark: "",
-			bucket_url: "",
-		});
-		setIsEditPanelOpen(true);
-		setIsCreating(true);
-	};
+	  const handleCreateSong = () => {
+    setSelectedSong({
+      id: 0,
+      title: "",
+      artist: "",
+      lang: [],
+      tag: [],
+      url: "",
+      remark: "",
+      lyrics_fragment: "",
+      bucket_url: "",
+    });
+    setIsEditPanelOpen(true);
+    setIsCreating(true);
+  };
 
 	const handleDeleteSong = async (song: EditableSong) => {
 		if (!confirm(`确定要删除歌曲 "${song.title}" 吗？`)) {
@@ -162,15 +171,32 @@ export default function AdminLayout({ initialSongs }: AdminLayoutProps) {
 								</Button>
 							</div>
 
-							{/* Search Bar */}
-							<div className="relative">
-								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-								<Input
-									placeholder="搜索歌曲、歌手、标签..."
-									value={searchQuery}
-									onChange={(e) => setSearchQuery(e.target.value)}
-									className="pl-10"
-								/>
+							{/* Search and Filter Bar */}
+							<div className="space-y-2">
+								<div className="relative">
+									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+									<Input
+										placeholder="搜索歌曲、歌手、标签、歌词..."
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										className="pl-10"
+									/>
+								</div>
+								<div className="flex items-center gap-2">
+									<Button
+										variant={showOnlyWithoutLyrics ? "default" : "outline"}
+										size="sm"
+										onClick={() => setShowOnlyWithoutLyrics(!showOnlyWithoutLyrics)}
+										className="text-xs"
+									>
+										仅显示无歌词歌曲
+									</Button>
+									{showOnlyWithoutLyrics && (
+										<span className="text-xs text-muted-foreground">
+											({filteredSongs.length} 首歌曲)
+										</span>
+									)}
+								</div>
 							</div>
 						</CardHeader>
 
