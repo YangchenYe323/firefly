@@ -16,6 +16,13 @@ const nextConfig = {
         port: '',
         pathname: '/api/v1/artwork/**',
       },
+      // Allow bilibili image CDN
+      {
+        protocol: 'http',
+        hostname: '*.hdslb.com',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
   // typescript: {
