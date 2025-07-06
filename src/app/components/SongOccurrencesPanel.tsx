@@ -64,7 +64,7 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 		<Card className="group hover:shadow-md transition-all duration-200 border-gray-200/50 bg-white/60 backdrop-blur-sm">
 			<CardContent className="p-4">
 				<div className="flex gap-4">
-					{/* Cover Image with Play Overlay */}
+					{/* Cover Image*/}
 					<div className="relative flex-shrink-0">
 						{!imageError ? (
 							<Image
@@ -82,10 +82,6 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 								<ImageOff className="w-8 h-8 text-muted-foreground" />
 							</div>
 						)}
-						{/* Play button overlay that appears on hover */}
-						<div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-							<Play className="w-6 h-6 text-white" />
-						</div>
 					</div>
 
 					{/* Content Area with Title, Page, and Progress Bar */}
