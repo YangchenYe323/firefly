@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import type { Song } from "@/generated/client";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import getPlayerSingleton, { usePlayerState } from "@/lib/player";
 import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
@@ -489,18 +489,16 @@ export default function SongRow({
 				</div>
 			</motion.div>
 
-			{isExpanded && isPremium && (
-				<PremiumCard />
-			)}
-
-			{/* Song Occurrences Panel */}
-			{isExpanded && !isPremium && (
-				<div className="w-full">
-					<SongOccurrencesPanel
-						song={song}
-					/>
-				</div>
-			)}
+			<AnimatePresence>
+				{/* Premium Card */}
+				{isExpanded && isPremium && (
+					<PremiumCard />
+				)}
+				{/* Song Occurrences Panel */}
+				{isExpanded && !isPremium && (
+					<SongOccurrencesPanel song={song} />
+				)}
+			</AnimatePresence>
 		</>
 	);
 }

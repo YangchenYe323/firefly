@@ -204,7 +204,13 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
 	return (
-		<div className="border-t border-gray-100/80 bg-gray-50/30">
+		<motion.div
+			initial={{ height: 0, opacity: 0 }}
+			animate={{ height: "auto", opacity: 1 }}
+			exit={{ height: 0, opacity: 0 }}
+			transition={{ duration: 0.3, ease: "easeInOut" }}
+			className="border-t border-gray-100/80 bg-gray-50/30"
+		>
 			<div className="p-4">
 				{/* Panel Header */}
 				<div className="flex items-center gap-2 mb-4">
@@ -215,12 +221,12 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 				</div>
 
 				{/* Expandable Content with Animations */}
-				<AnimatePresence>
-					<motion.div
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: "auto", opacity: 1 }}
-						exit={{ height: 0, opacity: 0 }}
-						transition={{ duration: 0.3, ease: "easeInOut" }}
+				{/* <AnimatePresence> */}
+					<div
+						// initial={{ height: 0, opacity: 0 }}
+						// animate={{ height: "auto", opacity: 1 }}
+						// exit={{ height: 0, opacity: 0 }}
+						// transition={{ duration: 0.3, ease: "easeInOut" }}
 						className="overflow-hidden"
 					>
 						{/* Initial Loading State */}
@@ -281,9 +287,9 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 								已显示全部记录
 							</div>
 						)}
-					</motion.div>
-				</AnimatePresence>
+					</div>
+				{/* </AnimatePresence> */}
 			</div>
-		</div>
+		</motion.div>
 	);
 }

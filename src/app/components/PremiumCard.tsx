@@ -9,7 +9,6 @@ import Link from "next/link";
  */
 export function PremiumCard() {
 	return (
-		<AnimatePresence>
 			<motion.div
 				initial={{ height: 0, opacity: 0 }}
 				animate={{ height: "auto", opacity: 1 }}
@@ -26,6 +25,5 @@ export function PremiumCard() {
 					</div>
 				</div>
 			</motion.div>
-		</AnimatePresence>
 	);
 }
