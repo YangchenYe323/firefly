@@ -64,7 +64,7 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 		<Card className="group hover:shadow-md transition-all duration-200 border-gray-200/50 bg-white/60 backdrop-blur-sm">
 			<CardContent className="p-4">
 				<div className="flex gap-4">
-					{/* Cover Image with Play Overlay */}
+					{/* Cover Image*/}
 					<div className="relative flex-shrink-0">
 						{!imageError ? (
 							<Image
@@ -82,10 +82,6 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 								<ImageOff className="w-8 h-8 text-muted-foreground" />
 							</div>
 						)}
-						{/* Play button overlay that appears on hover */}
-						<div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-							<Play className="w-6 h-6 text-white" />
-						</div>
 					</div>
 
 					{/* Content Area with Title, Page, and Progress Bar */}
@@ -216,7 +212,7 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 				<div className="flex items-center gap-2 mb-4">
 					<Music className="w-4 h-4 text-blue-500" />
 					<h3 className="font-medium text-sm text-gray-700">
-						播放记录 ({occurrences.length})
+						播放记录 ({occurrences.length}) (请注意手机端跳转app会丢失时间戳😅)
 					</h3>
 				</div>
 
