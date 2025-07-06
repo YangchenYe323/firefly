@@ -77,7 +77,11 @@ export default function EditPanel({
 		}));
 	};
 
-	const handleLyricsSelect = (result: { title: string; artist: string; lyrics_fragment: string }) => {
+	const handleLyricsSelect = (result: {
+		title: string;
+		artist: string;
+		lyrics_fragment: string;
+	}) => {
 		setFormData((prev) => ({
 			...prev,
 			title: result.title,
@@ -286,7 +290,9 @@ export default function EditPanel({
 					<Textarea
 						id="lyrics_fragment"
 						value={formData.lyrics_fragment || ""}
-						onChange={(e) => handleInputChange("lyrics_fragment", e.target.value)}
+						onChange={(e) =>
+							handleInputChange("lyrics_fragment", e.target.value)
+						}
 						placeholder="输入歌词片段..."
 						rows={4}
 						className="text-base resize-none"

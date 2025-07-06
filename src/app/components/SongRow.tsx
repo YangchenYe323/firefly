@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import getPlayerSingleton, { usePlayerState } from "@/lib/player";
 import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 import { ChevronRight } from "lucide-react";
+import { PremiumCard } from "./PremiumCard";
 
 /**
  * Props for the SongRow component
@@ -195,7 +196,7 @@ export default function SongRow({
 		// Check if the touch was on the album art area (where play button is)
 		const target = e.target as HTMLElement;
 		const isOnAlbumArt = target.closest(".album-art-container") !== null;
-		
+
 		// Check if the touch was on any button (reaction buttons, expansion button, etc.)
 		const isOnButton = target.closest("button") !== null;
 
@@ -247,6 +248,9 @@ export default function SongRow({
 			window.open(song.url, "_blank", "noopener,noreferrer");
 		}
 	};
+
+	// Check if the song is premium
+	const isPremium = song.remark.indexOf("SC") !== -1 || song.remark.indexOf("当日限定") !== -1;
 
 	return (
 		<>
@@ -484,14 +488,16 @@ export default function SongRow({
 					</div>
 				</div>
 			</motion.div>
-			
+
+			{isExpanded && isPremium && (
+				<PremiumCard />
+			)}
+
 			{/* Song Occurrences Panel */}
-			{isExpanded && (
+			{isExpanded && !isPremium && (
 				<div className="w-full">
 					<SongOccurrencesPanel
 						song={song}
-						isExpanded={isExpanded}
-						onToggleExpanded={() => setIsExpanded(false)}
 					/>
 				</div>
 			)}

@@ -242,7 +242,7 @@ export async function deleteSongOccurrence(
 	songId: number,
 	bvid: string,
 	page: number,
-	start: number
+	start: number,
 ): Promise<DeleteSongOccurrenceReturnType> {
 	const authResult = await auth();
 	if (!authResult) {

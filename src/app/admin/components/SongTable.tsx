@@ -11,7 +11,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, ExternalLink, Music, ChevronDown, ChevronRight } from "lucide-react";
+import {
+	Edit,
+	Trash2,
+	ExternalLink,
+	Music,
+	ChevronDown,
+	ChevronRight,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { EditableSong } from "../page";
 import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
@@ -90,7 +97,7 @@ export default function SongTable({
 				<TableBody>
 					{songs.map((song) => {
 						const isExpanded = expandedRows.has(song.id!);
-						
+
 						return (
 							<>
 								<TableRow
@@ -147,7 +154,11 @@ export default function SongTable({
 									<TableCell className="hidden md:table-cell">
 										<div className="flex flex-wrap gap-1">
 											{song.lang.slice(0, 2).map((lang, index) => (
-												<Badge key={index} variant="secondary" className="text-xs">
+												<Badge
+													key={index}
+													variant="secondary"
+													className="text-xs"
+												>
 													{lang}
 												</Badge>
 											))}
@@ -162,7 +173,11 @@ export default function SongTable({
 									<TableCell className="hidden md:table-cell">
 										<div className="flex flex-wrap gap-1">
 											{song.tag.slice(0, 2).map((tag, index) => (
-												<Badge key={index} variant="outline" className="text-xs">
+												<Badge
+													key={index}
+													variant="outline"
+													className="text-xs"
+												>
 													{tag}
 												</Badge>
 											))}
@@ -180,9 +195,11 @@ export default function SongTable({
 											title={song.lyrics_fragment || "无歌词"}
 										>
 											{song.lyrics_fragment ? (
-												song.lyrics_fragment.length > 50 
-													? `${song.lyrics_fragment.substring(0, 50)}...` 
-													: song.lyrics_fragment
+												song.lyrics_fragment.length > 50 ? (
+													`${song.lyrics_fragment.substring(0, 50)}...`
+												) : (
+													song.lyrics_fragment
+												)
 											) : (
 												<span className="text-muted-foreground">-</span>
 											)}
@@ -234,7 +251,7 @@ export default function SongTable({
 										</div>
 									</TableCell>
 								</TableRow>
-								
+
 								{/* Expanded Row for Occurrences */}
 								<AnimatePresence>
 									{isExpanded && (
