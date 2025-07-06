@@ -216,7 +216,7 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 				<div className="flex items-center gap-2 mb-4">
 					<Music className="w-4 h-4 text-blue-500" />
 					<h3 className="font-medium text-sm text-gray-700">
-						播放记录 ({occurrences.length}) (手机端跳转app会丢失时间戳， 头疼中 = =)
+						播放记录 ({occurrences.length}) (请注意手机端跳转app会丢失时间戳😅)
 					</h3>
 				</div>
 
