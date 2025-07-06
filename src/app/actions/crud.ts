@@ -220,10 +220,58 @@ export async function deleteSong(id: number): Promise<DeleteSongReturnType> {
 
 	try {
 		await prisma.song.delete({
-			where: { id },
+			where: {
+				id: id,
+			},
 		});
+
 		return { success: true };
 	} catch (error) {
+		return {
+			success: false,
+			message: "删除失败，请稍后重试",
+		};
+	}
+}
+
+export interface DeleteSongOccurrenceReturnType extends ActionReturnTypeBase {
+	message?: string;
+}
+
+export async function deleteSongOccurrence(
+	songId: number,
+	bvid: string,
+	page: number,
+	start: number,
+): Promise<DeleteSongOccurrenceReturnType> {
+	const authResult = await auth();
+	if (!authResult) {
+		return { success: false, message: "Unauthorized" };
+	}
+
+	try {
+		// First find the live recording archive by bvid
+		const liveRecordingArchive = await prisma.liveRecordingArchive.findUnique({
+			where: { bvid },
+		});
+
+		if (!liveRecordingArchive) {
+			return { success: false, message: "找不到对应的直播回放记录" };
+		}
+
+		// Delete the specific occurrence
+		await prisma.songOccurrenceInLive.delete({
+			where: {
+				songId_liveRecordingArchiveId: {
+					songId,
+					liveRecordingArchiveId: liveRecordingArchive.id,
+				},
+			},
+		});
+
+		return { success: true };
+	} catch (error) {
+		console.error("Error deleting song occurrence:", error);
 		return {
 			success: false,
 			message: "删除失败，请稍后重试",

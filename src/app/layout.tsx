@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from "sonner";
 import vtuberProfile from "@/profile";
+import { Providers } from "./providers";
 
 const alexBrush = Alex_Brush({
 	display: "swap",
@@ -28,7 +29,7 @@ export default function RootLayout({
 	return (
 		<html lang="zh-CN" suppressHydrationWarning={true}>
 			<body className={`${alexBrush.variable} font-chinese`}>
-				{children}
+				<Providers>{children}</Providers>
 				{/*Toastify and Toaster are both used as I don't feel like changing the admin page when I switch toast library for the main page*/}
 				<ToastContainer autoClose={1000} />
 				<Toaster />

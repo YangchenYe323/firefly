@@ -5,7 +5,14 @@ import AdminLayout from "./components/AdminLayout";
 
 export type EditableSong = Pick<
 	Song,
-	"id" | "title" | "artist" | "lang" | "tag" | "url" | "remark" | "lyrics_fragment"
+	| "id"
+	| "title"
+	| "artist"
+	| "lang"
+	| "tag"
+	| "url"
+	| "remark"
+	| "lyrics_fragment"
 > & {
 	bucket_url: string;
 };

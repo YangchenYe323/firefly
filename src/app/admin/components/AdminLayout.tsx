@@ -39,7 +39,7 @@ export default function AdminLayout({ initialSongs }: AdminLayoutProps) {
 			song.lang.some((lang) => lang.toLowerCase().includes(query)) ||
 			song.tag.some((tag) => tag.toLowerCase().includes(query)) ||
 			song.remark.toLowerCase().includes(query) ||
-			(song.lyrics_fragment?.toLowerCase().includes(query))
+			song.lyrics_fragment?.toLowerCase().includes(query)
 		);
 	});
 
@@ -49,21 +49,21 @@ export default function AdminLayout({ initialSongs }: AdminLayoutProps) {
 		setIsCreating(false);
 	};
 
-	  const handleCreateSong = () => {
-    setSelectedSong({
-      id: 0,
-      title: "",
-      artist: "",
-      lang: [],
-      tag: [],
-      url: "",
-      remark: "",
-      lyrics_fragment: "",
-      bucket_url: "",
-    });
-    setIsEditPanelOpen(true);
-    setIsCreating(true);
-  };
+	const handleCreateSong = () => {
+		setSelectedSong({
+			id: 0,
+			title: "",
+			artist: "",
+			lang: [],
+			tag: [],
+			url: "",
+			remark: "",
+			lyrics_fragment: "",
+			bucket_url: "",
+		});
+		setIsEditPanelOpen(true);
+		setIsCreating(true);
+	};
 
 	const handleDeleteSong = async (song: EditableSong) => {
 		if (!confirm(`确定要删除歌曲 "${song.title}" 吗？`)) {
@@ -186,7 +186,9 @@ export default function AdminLayout({ initialSongs }: AdminLayoutProps) {
 									<Button
 										variant={showOnlyWithoutLyrics ? "default" : "outline"}
 										size="sm"
-										onClick={() => setShowOnlyWithoutLyrics(!showOnlyWithoutLyrics)}
+										onClick={() =>
+											setShowOnlyWithoutLyrics(!showOnlyWithoutLyrics)
+										}
 										className="text-xs"
 									>
 										仅显示无歌词歌曲
