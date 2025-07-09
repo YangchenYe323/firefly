@@ -1,5 +1,6 @@
 "use server";
 
+import type { Prisma } from "@/generated/client";
 import type { ActionReturnTypeBase } from "./types";
 import prisma from "@/db";
 
@@ -25,14 +26,18 @@ export interface SongOccurrencesReturnType extends ActionReturnTypeBase {
  * @param songId - The ID of the song to fetch occurrences for
  * @param pageToken - Base64 encoded pubdate for pagination (optional)
  * @param limit - Number of records to fetch (default: 20)
+ * @param afterDate - If set, only return occurrences after this date
  * @returns Paginated list of song occurrences with recording metadata
  */
 export async function getSongOccurrences(
 	songId: number,
 	pageToken?: string,
 	limit = 20,
+	afterDate?: number | string | undefined,
 ): Promise<SongOccurrencesReturnType> {
 	try {
+		const afterDateFilter = parseAfterDate(afterDate);
+
 		// Decode the page token to get the pubdate for keyset pagination
 		let pubdateFilter: { pubdate: { lt: number } } | undefined;
 
@@ -57,11 +62,23 @@ export async function getSongOccurrences(
 			}
 		}
 
+		const whereClauses: Prisma.LiveRecordingArchiveWhereInput[] = [];
+
+		if (afterDateFilter) {
+			whereClauses.push(afterDateFilter);
+		}
+
+		if (pubdateFilter) {
+			whereClauses.push(pubdateFilter);
+		}
+
 		// Fetch occurrences with recording metadata using efficient join
 		const occurrences = await prisma.songOccurrenceInLive.findMany({
 			where: {
 				songId: songId,
-				liveRecordingArchive: pubdateFilter,
+				liveRecordingArchive: {
+					AND: whereClauses,
+				},
 			},
 			include: {
 				liveRecordingArchive: {
@@ -124,4 +141,22 @@ export async function getSongOccurrences(
 			message: "Failed to fetch song occurrences",
 		};
 	}
+}
+
+function parseAfterDate(afterDate?: number | string | undefined): { pubdate: { gte: number } } | undefined {
+	if (!afterDate) {
+		return undefined;
+	}
+
+	if (typeof afterDate === "string") {
+		// Interpret as ISO string
+		const date = new Date(afterDate);
+		if (Number.isNaN(date.getTime())) {
+			return undefined;
+		}
+
+		return { pubdate: { gte: date.getTime() / 1000 } };
+	}
+
+	return { pubdate: { gte: afterDate } };
 }
