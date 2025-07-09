@@ -40,9 +40,9 @@ function formatTime(seconds: number): string {
 
 	if (hours > 0) {
 		return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-	} else {
-		return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-	}
+	} 
+	
+	return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 /**
@@ -176,9 +176,11 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 	} = useInfiniteQuery({
 		queryKey: ["song-occurrences", `${song.id}`],
 		queryFn: async ({ pageParam }: { pageParam: string | undefined }) =>
-			await getSongOccurrences(song.id, pageParam),
+			await getSongOccurrences(song.id, pageParam, 20, "2024-06-01T00:00:00.000Z"),
 		initialPageParam: undefined,
-		getNextPageParam: (lastPage, pages) => lastPage.nextToken,
+		getNextPageParam: (lastPage, pages) => {
+			return lastPage.nextToken;
+		},
 		staleTime: 60 * 60 * 1000, // 1 hour
 	});
 
@@ -286,7 +288,7 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 						{/* End of Results Indicator */}
 						{!hasNextPage && occurrences.length > 0 && (
 							<div className="text-center py-4 text-gray-500 text-sm">
-								已显示全部记录
+								远古之事，杳不可详😊
 							</div>
 						)}
 					</div>
