@@ -143,7 +143,9 @@ export async function getSongOccurrences(
 	}
 }
 
-function parseAfterDate(afterDate?: number | string | undefined): { pubdate: { gte: number } } | undefined {
+function parseAfterDate(
+	afterDate?: number | string | undefined,
+): { pubdate: { gte: number } } | undefined {
 	if (!afterDate) {
 		return undefined;
 	}

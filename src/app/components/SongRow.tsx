@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import type { Song } from "@/generated/client";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, cubicBezier, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import getPlayerSingleton, { usePlayerState } from "@/lib/player";
 import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
@@ -35,20 +35,20 @@ function formatDate(date: Date): string {
 
 /**
  * SongRow Component
- * 
+ *
  * Displays a single song in the main song list with interactive features including:
  * - Album art with play/pause overlay
  * - Song title, artist, and metadata
  * - Like/dislike buttons with counts
  * - Expansion panel for song occurrences (when song was played in recordings)
  * - Touch-friendly mobile interactions
- * 
+ *
  * Features:
  * - Responsive design with mobile-optimized touch handling
  * - Smooth animations and transitions
  * - Accessibility features
  * - Copy to clipboard on tap (excluding buttons)
- * 
+ *
  * Usage:
  * <SongRow
  *   song={songObject}
@@ -202,7 +202,13 @@ export default function SongRow({
 
 		// Only trigger copy if it's a genuine tap AND not on the album art area AND not on any button
 		// This prevents copy action when user taps the album art to play or any button
-		if (deltaX < 5 && deltaY < 5 && deltaTime < 200 && !isOnAlbumArt && !isOnButton) {
+		if (
+			deltaX < 5 &&
+			deltaY < 5 &&
+			deltaTime < 200 &&
+			!isOnAlbumArt &&
+			!isOnButton
+		) {
 			onCopyToClipboard(song);
 		}
 
@@ -250,7 +256,8 @@ export default function SongRow({
 	};
 
 	// Check if the song is premium
-	const isPremium = song.remark.indexOf("SC") !== -1 || song.remark.indexOf("当日限定") !== -1;
+	const isPremium =
+		song.remark.indexOf("SC") !== -1 || song.remark.indexOf("当日限定") !== -1;
 
 	return (
 		<>
@@ -261,8 +268,21 @@ export default function SongRow({
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
-				whileHover={{ scale: 1.005 }}
-				whileTap={{ scale: 0.99 }}
+				whileHover={{
+					scale: 1.005,
+					transition: {
+						duration: 0,
+						ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+					},
+				}}
+				whileTap={{
+					scale: 0.99,
+					transition: {
+						duration: 0,
+						ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+					},
+				}}
+
 			>
 				{/* Album Avatar with Play/Pause Button Overlay */}
 				<div
@@ -433,32 +453,39 @@ export default function SongRow({
 					{/* Top row: Reaction buttons */}
 					<div className="flex items-end gap-2">
 						{/* Like button with count */}
+						<motion.div
+							whileHover={{ scale: 1.1, transition: {duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94)} }}
+						>
 						<Button
 							variant="ghost"
 							size="sm"
-							className="h-8 px-2 hover:bg-green-100 hover:text-green-600 transition-colors flex items-center"
+							className="h-8 px-2 hover:text-green-600 hover:bg-transparent transition-colors flex items-center"
 							onClick={handleLike}
 							title="喜欢"
 						>
 							<span className="text-sm">❤️</span>
 							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
 								{song.extra?.numLikes || 0}
-							</span>
-						</Button>
-
+								</span>
+							</Button>
+						</motion.div>
 						{/* Dislike button with count */}
+						<motion.div
+							whileHover={{ scale: 1.1, transition: {duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94)} }}
+						>
 						<Button
 							variant="ghost"
 							size="sm"
-							className="h-8 px-2 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center"
+							className="h-8 px-2 hover:text-red-600 hover:bg-transparent transition-colors flex items-center"
 							onClick={handleDislike}
 							title="不喜欢"
 						>
 							<span className="text-sm">😅</span>
 							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
 								{song.extra?.numDislikes || 0}
-							</span>
-						</Button>
+								</span>
+							</Button>
+						</motion.div>
 					</div>
 
 					{/* Bottom row: Timestamp and expand button */}
@@ -476,13 +503,11 @@ export default function SongRow({
 							>
 								<motion.div
 									animate={{ rotate: isExpanded ? 90 : 0 }}
-									transition={{ duration: 0.2 }}
+									transition={{ duration: 0.3, ease: "easeInOut" }}
 								>
 									<ChevronRight className="h-5 w-5" />
 								</motion.div>
-								<span className="text-xs text-slate-400">
-									录播记录
-								</span>
+								<span className="text-xs text-slate-400">录播记录</span>
 							</Button>
 						</div>
 					</div>
@@ -491,13 +516,9 @@ export default function SongRow({
 
 			<AnimatePresence>
 				{/* Premium Card */}
-				{isExpanded && isPremium && (
-					<PremiumCard />
-				)}
+				{isExpanded && isPremium && <PremiumCard />}
 				{/* Song Occurrences Panel */}
-				{isExpanded && !isPremium && (
-					<SongOccurrencesPanel song={song} />
-				)}
+				{isExpanded && !isPremium && <SongOccurrencesPanel song={song} />}
 			</AnimatePresence>
 		</>
 	);
