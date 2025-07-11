@@ -11,7 +11,7 @@ import getPlayerSingleton, {
 import { Slider } from "@/components/ui/slider";
 
 import { formatMMSS } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { cubicBezier, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -87,11 +87,11 @@ export default function SongPlayer({
 		<motion.div
 			className="fixed bottom-0 left-0 right-0 duration-300 z-50"
 			animate={{ y: visible ? 0 : 100 }}
-			transition={{ type: "just", duration: 0 }}
+			transition={{ duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94) }}
 		>
 			<div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="bg-white/80 backdrop-blur-md rounded-t-xl shadow-xl border border-gray-200/50">
-					<div className="flex items-center justify-between p-2">
+					<div className="flex items-center justify-between p-4">
 						{/* Album Artwork */}
 						<div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden shadow-sm">
 							{!imgError && albumArtUrl ? (

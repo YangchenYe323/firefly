@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import type { Filter } from "./SongPanel";
 import { useRef, useState, useEffect, useCallback } from "react";
+import { cubicBezier, motion } from "framer-motion";
 
 interface Props {
 	filters: Filter[];
@@ -100,19 +101,36 @@ export default function ScrollableTags({
 				{/* Inner container with flex layout and minimum width to prevent wrapping */}
 				<div className="flex gap-2 p-2 min-w-max">
 					{filters.map((filter) => (
-						<Button
+						<motion.div
 							key={filter.value}
-							variant="outline"
-							size="sm"
-							className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition-all ${
-								selectedFilter.value === filter.value
-									? "bg-blue-500 text-white border-blue-500 shadow-md"
-									: "bg-white/80 text-gray-700 border-gray-200 hover:bg-gray-50"
-							}`}
-							onClick={() => onFilterChange(filter)}
+							whileHover={{
+								scale: 1.005,
+								transition: {
+									duration: 0,
+									ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+								},
+							}}
+							whileTap={{
+								scale: 0.99,
+								transition: {
+									duration: 0,
+									ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+								},
+							}}
 						>
-							{filter.value}
-						</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition-all ${
+									selectedFilter.value === filter.value
+										? "bg-blue-500 text-white border-blue-500 shadow-md"
+										: "bg-white/80 text-gray-700 border-gray-200 hover:bg-gray-50"
+								}`}
+								onClick={() => onFilterChange(filter)}
+							>
+								{filter.value}
+							</Button>
+						</motion.div>
 					))}
 				</div>
 			</div>
