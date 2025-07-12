@@ -9,13 +9,13 @@ interface PropType {
 }
 
 export default function Heading({ songCount, profile }: PropType) {
-	const { name, bannerImagePath, backgroundImagePath } = profile;
+	const { name, avatarImagePath, backgroundImagePath } = profile;
 
 	return (
 		<div className="w-full text-center my-6">
 			<span className="inline-block overflow-hidden border-0 mx-0 mb-4 p-0">
 				<Image
-					src={bannerImagePath}
+					src={avatarImagePath}
 					alt={name}
 					width={240}
 					height={240}
