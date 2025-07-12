@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: true,
+  },
   images: {
     remotePatterns: [
       // Allow localhost for development
@@ -20,6 +23,13 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: '*.hdslb.com',
+        port: '',
+        pathname: '/**',
+      },
+      // Allow cloudflare r2 buckets
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
         port: '',
         pathname: '/**',
       }

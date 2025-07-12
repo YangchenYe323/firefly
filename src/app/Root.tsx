@@ -10,7 +10,7 @@ import SongPanel from "./components/SongPanel";
 import StickyHeader from "@/components/StickyHeader";
 import type { Track } from "@/lib/player";
 import UserNav from "./components/UserNav";
-import type { VtuberProfile } from "@/profile";
+import { VtuberProfileWithThemesAndLinks } from "./actions/crud";
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -18,7 +18,7 @@ import { useState } from "react";
 interface PropType {
 	songs: Song[];
 	tracks: Track[];
-	profile: VtuberProfile;
+	profile: VtuberProfileWithThemesAndLinks;
 	footer: Footer;
 	apiUrl?: string;
 }

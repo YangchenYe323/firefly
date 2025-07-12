@@ -1,9 +1,8 @@
-import { readFooters, readSongAllNoCacheLatest } from "./actions/crud";
+import { getVtuberProfileNoCache, readFooters, readSongAllNoCacheLatest } from "./actions/crud";
 
 import Image from "next/image";
 import Root from "./Root";
-
-import vtuberProfile from "@/profile";
+import { VtuberProfileWithThemesAndLinks } from "./actions/crud";
 
 export default async function Home() {
 	const { songs } = await readSongAllNoCacheLatest();
@@ -18,6 +17,12 @@ export default async function Home() {
 			artist: song.artist,
 		}));
 
+	const profile = await getVtuberProfileNoCache();
+
+	if (!profile.profile) {
+		return <div>Profile not found</div>;
+	}
+
 	// Read API_URL from env (now using NEXT_PUBLIC_ prefix)
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -26,14 +31,14 @@ export default async function Home() {
 			<Root
 				songs={songs}
 				tracks={tracks}
-				profile={vtuberProfile}
+				profile={profile.profile}
 				footer={footer}
 				apiUrl={apiUrl}
 			/>
-			{vtuberProfile.backgroundImagePath && (
+			{profile.profile?.themes[0].backgroundImagePath && (
 				<div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
 					<Image
-						src={vtuberProfile.backgroundImagePath}
+						src={profile.profile?.themes[0].backgroundImagePath ?? ""}
 						alt="background"
 						width={0}
 						height={0}

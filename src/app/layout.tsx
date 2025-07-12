@@ -6,7 +6,6 @@ import { Alex_Brush } from "next/font/google";
 import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from "sonner";
-import vtuberProfile from "@/profile";
 import { Providers } from "./providers";
 
 const alexBrush = Alex_Brush({
@@ -17,8 +16,8 @@ const alexBrush = Alex_Brush({
 });
 
 export const metadata: Metadata = {
-	title: vtuberProfile.metaTitle,
-	description: vtuberProfile.metaDescription,
+	title: "Vtuber Profile",
+	description: "Vtuber Profile",
 };
 
 export default function RootLayout({

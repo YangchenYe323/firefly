@@ -1,28 +1,34 @@
-import type { NextRequest } from "next/server";
-import { verifyJwtToken } from "./lib/auth";
+// import type { NextRequest } from "next/server";
+// import { verifyJwtToken } from "./lib/auth";
 
-const ADMIN_PATH = ["/admin"];
+import { NextRequest, NextResponse } from "next/server";
 
-function isAccessAdminPath(pathname: string) {
-	return ADMIN_PATH.some((p) => pathname.startsWith(p));
-}
+// const ADMIN_PATH = ["/admin"];
 
-export async function middleware(request: NextRequest) {
-	const currentUser = request.cookies.get("currentUser")?.value;
+// function isAccessAdminPath(pathname: string) {
+// 	return ADMIN_PATH.some((p) => pathname.startsWith(p));
+// }
 
-	const jwtVerified = currentUser && (await verifyJwtToken(currentUser));
+// export async function middleware(request: NextRequest) {
+// 	const currentUser = request.cookies.get("currentUser")?.value;
 
-	// If cookie is set, no need to login again, redirect to admin page
-	if (
-		jwtVerified &&
-		request.nextUrl.pathname.startsWith("/login") &&
-		request.method === "GET"
-	) {
-		return Response.redirect(new URL("/admin", request.url));
-	}
+// 	const jwtVerified = currentUser && (await verifyJwtToken(currentUser));
 
-	// Admin page could not be accessed without set cookie
-	if (!jwtVerified && isAccessAdminPath(request.nextUrl.pathname)) {
-		return Response.redirect(new URL("/login", request.url));
-	}
+// 	// If cookie is set, no need to login again, redirect to admin page
+// 	if (
+// 		jwtVerified &&
+// 		request.nextUrl.pathname.startsWith("/login") &&
+// 		request.method === "GET"
+// 	) {
+// 		return Response.redirect(new URL("/admin", request.url));
+// 	}
+
+// 	// Admin page could not be accessed without set cookie
+// 	if (!jwtVerified && isAccessAdminPath(request.nextUrl.pathname)) {
+// 		return Response.redirect(new URL("/login", request.url));
+// 	}
+// }
+
+export default function middleware(request: NextRequest) {
+	return NextResponse.next();
 }
