@@ -20,7 +20,7 @@ import {
 	ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 
 interface SongTableProps {

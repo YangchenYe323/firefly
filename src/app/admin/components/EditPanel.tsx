@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Save, Trash2 } from "lucide-react";
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 import { LyricsSearch } from "./LyricsSearch";
 import type { SongForEditOrCreate } from "./AdminLayout";
 

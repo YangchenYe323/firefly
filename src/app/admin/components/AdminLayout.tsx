@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 import React, { useState } from "react";
 
 import SongTable from "./SongTable";

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";

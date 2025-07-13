@@ -1,6 +1,6 @@
 "use client";
 
-import type { Footer, Song } from "@/generated/client";
+import type { Footer, Song } from "@prisma/client";
 
 import Heading from "./components/Heading";
 import ThemeProvider from "./components/ThemeProvider";

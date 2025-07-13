@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Theme } from "@/generated/client";
+import type { Theme } from "@prisma/client";
 
 interface ThemeProviderProps {
     themes: Theme[];

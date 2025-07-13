@@ -14,7 +14,7 @@ import {
 	useUpdateThemeMutation,
 } from "@/lib/admin-store";
 import ThemeForm from "./ThemeForm";
-import type { Theme } from "@/generated/client";
+import type { Theme } from "@prisma/client";
 
 export type ThemeForEditOrCreate = {
 	theme: Theme;

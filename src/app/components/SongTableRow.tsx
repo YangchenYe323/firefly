@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import Link from "next/link";
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 import { motion } from "framer-motion";
 
 type PropType = {

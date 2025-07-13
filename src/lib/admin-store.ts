@@ -5,7 +5,7 @@ import type {
 	VtuberProfile,
 	Theme,
 	VtuberExternalLink,
-} from "@/generated/client";
+} from "@prisma/client";
 import {
 	getVtuberProfileNoCache,
 	createVtuberProfile,
