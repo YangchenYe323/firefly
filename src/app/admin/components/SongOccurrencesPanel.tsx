@@ -11,7 +11,7 @@ import {
 	getSongOccurrences,
 	type SongOccurrence,
 } from "@/app/actions/song-occurrences";
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 
 interface SongOccurrencesPanelProps {
 	song: Song;

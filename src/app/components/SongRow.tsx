@@ -4,7 +4,7 @@ import { onCopyToClipboard } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
-import type { Song } from "@/generated/client";
+import type { Song } from "@prisma/client";
 import { AnimatePresence, cubicBezier, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import getPlayerSingleton, { usePlayerState } from "@/lib/player";

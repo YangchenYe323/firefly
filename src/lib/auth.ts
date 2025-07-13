@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 
-import type { User } from "@/generated/client";
+import type { User } from "@prisma/client";
 
 export function getJwtSecretKey() {
 	const secret = process.env.NEXT_PUBLIC_JWT_SECRET_KEY;

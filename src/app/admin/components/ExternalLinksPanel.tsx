@@ -14,7 +14,7 @@ import {
 	useDeleteExternalLinkMutation,
 } from "@/lib/admin-store";
 import ExternalLinkForm from "./ExternalLinkForm";
-import type { VtuberExternalLink } from "@/generated/client";
+import type { VtuberExternalLink } from "@prisma/client";
 
 export type ExternalLinkForEditOrCreate = {
 	link: VtuberExternalLink;

@@ -75,8 +75,15 @@ NEXT_PUBLIC_API_URL=http://localhost:8787
 #### Configure database
 
 This project uses [Prisma-ORM](https://www.prisma.io/), and after the database is up, the configuration is as easy as running
+
 ```Bash
 pnpm prisma db push
+```
+
+#### Run prisma code generator
+
+```Bash
+pnpm prisma generate
 ```
 
 #### Start development server

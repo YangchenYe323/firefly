@@ -12,7 +12,7 @@ import {
 	useUpdateVtuberProfileMutation,
 } from "@/lib/admin-store";
 import ProfileForm from "./ProfileForm";
-import type { VtuberProfile } from "@/generated/client";
+import type { VtuberProfile } from "@prisma/client";
 
 export default function ProfilePanel() {
 	// Jotai atoms

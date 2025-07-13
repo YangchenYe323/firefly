@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/generated/client";
+import { PrismaClient } from "@prisma/client";
 
 // Extra fields on the song data type, could add more in the future!
 export type SongExtra = {

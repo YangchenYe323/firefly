@@ -1,6 +1,6 @@
 "use server";
 
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 import type { ActionReturnTypeBase } from "./types";
 import prisma from "@/db";
 

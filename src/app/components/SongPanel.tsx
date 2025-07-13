@@ -1,6 +1,6 @@
 "use client";
 
-import type { Footer, Song } from "@/generated/client";
+import type { Footer, Song } from "@prisma/client";
 import { dislikeSong, likeSong } from "../actions/reaction";
 import { onCopyToClipboard, orderSongsWithNewVideoFirst } from "@/lib/utils";
 import { useEffect, useState } from "react";

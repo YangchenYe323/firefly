@@ -6,7 +6,7 @@ import type {
 	Theme,
 	VtuberExternalLink,
 	VtuberProfile,
-} from "@/generated/client";
+} from "@prisma/client";
 import type { ActionReturnTypeBase } from "./types";
 import { cookies } from "next/headers";
 import { extractBvidFromUrl } from "@/lib/utils";

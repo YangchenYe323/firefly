@@ -14,7 +14,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Save, X } from "lucide-react";
-import type { VtuberProfile, Theme } from "@/generated/client";
+import type { VtuberProfile, Theme } from "@prisma/client";
 
 interface ProfileFormProps {
 	profile?: VtuberProfile;

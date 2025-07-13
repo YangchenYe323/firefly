@@ -272,7 +272,7 @@ export function copyToClipboard(text: string): Promise<void> {
 #### Prisma Client (`src/db.ts`)
 
 ```typescript
-import { PrismaClient } from "@/generated/client";
+import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
