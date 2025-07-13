@@ -8,7 +8,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
-import { VtuberProfileWithThemesAndLinks } from "../actions/crud";
+import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 
 interface PropType extends DropdownMenuProps {
 	profile: VtuberProfileWithThemesAndLinks;

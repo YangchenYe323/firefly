@@ -2,7 +2,7 @@
 
 import { Icons } from "../../components/Icons";
 import Link from "next/link";
-import { VtuberProfileWithThemesAndLinks } from "../actions/crud";
+import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 
 import { cn } from "@/lib/utils";
 

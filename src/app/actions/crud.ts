@@ -13,6 +13,7 @@ import { extractBvidFromUrl } from "@/lib/utils";
 import { getVideoInfo } from "@/lib/bilibili";
 import prisma from "@/db";
 import { verifyJwtToken } from "@/lib/auth";
+import { cache } from "react";
 
 const auth = async () => {
 	const currentUser = cookies().get("currentUser")?.value;
@@ -255,26 +256,31 @@ export interface VtuberProfileWithThemesAndLinks extends VtuberProfile {
 
 // Vtuber Profile CRUD Operations
 export async function getVtuberProfileNoCache(): Promise<GetVtuberProfileReturnType> {
-	// disable the cache for this server action
 	const _cookies = cookies();
 
 	const profile = await prisma.vtuberProfile.findFirst({
 		include: {
 			defaultTheme: true,
-			externalLinks: {
-				orderBy: { displayOrder: "asc" },
-			},
 			themes: {
-				orderBy: { createdOn: "desc" },
+				orderBy: {
+					createdOn: "desc",
+				},
+			},
+			externalLinks: {
+				orderBy: {
+					displayOrder: "asc",
+				},
 			},
 		},
 	});
 
-	return {
-		success: true,
-		profile: profile || undefined,
-	};
+	return { success: true, profile: profile || undefined };
 }
+
+// Highly optimized cached version using React cache
+export const getVtuberProfileCached = cache(async (): Promise<GetVtuberProfileReturnType> => {
+	return getVtuberProfileNoCache();
+});
 
 export interface CreateVtuberProfileReturnType extends ActionReturnTypeBase {
 	profile?: any;

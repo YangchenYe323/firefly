@@ -1,8 +1,5 @@
-import { getVtuberProfileNoCache, readFooters, readSongAllNoCacheLatest } from "./actions/crud";
-
-import Image from "next/image";
+import { getVtuberProfileCached, readFooters, readSongAllNoCacheLatest } from "./actions/crud";
 import Root from "./Root";
-import { VtuberProfileWithThemesAndLinks } from "./actions/crud";
 
 export default async function Home() {
 	const { songs } = await readSongAllNoCacheLatest();
@@ -17,7 +14,7 @@ export default async function Home() {
 			artist: song.artist,
 		}));
 
-	const profile = await getVtuberProfileNoCache();
+	const profile = await getVtuberProfileCached();
 
 	if (!profile.profile) {
 		return <div>Profile not found</div>;
@@ -35,19 +32,6 @@ export default async function Home() {
 				footer={footer}
 				apiUrl={apiUrl}
 			/>
-			{profile.profile?.themes[0].backgroundImagePath && (
-				<div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
-					<Image
-						src={profile.profile?.themes[0].backgroundImagePath ?? ""}
-						alt="background"
-						width={0}
-						height={0}
-						sizes="100vw"
-						style={{ width: "100%", height: "100%" }}
-						className="absolute inset-0 opacity-45 object-cover"
-					/>
-				</div>
-			)}
 		</div>
 	);
 }

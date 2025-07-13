@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from "sonner";
 import { Providers } from "./providers";
+import { getVtuberProfileCached } from "./actions/crud";
 
 const alexBrush = Alex_Brush({
 	display: "swap",
@@ -15,10 +16,39 @@ const alexBrush = Alex_Brush({
 	variable: "--font-alex-brush",
 });
 
-export const metadata: Metadata = {
-	title: "Vtuber Profile",
-	description: "Vtuber Profile",
-};
+// Dynamic metadata generation
+export async function generateMetadata(): Promise<Metadata> {
+	try {
+		const { profile } = await getVtuberProfileCached();
+		
+		if (profile) {
+			return {
+				title: profile.metaTitle || "Vtuber Profile",
+				description: profile.metaDescription || "Vtuber Profile",
+				// You can add more metadata fields here
+				openGraph: {
+					title: profile.metaTitle || "Vtuber Profile",
+					description: profile.metaDescription || "Vtuber Profile",
+					// Add Open Graph image if you have one
+					// images: profile.themes[0]?.avatarImagePath ? [profile.themes[0].avatarImagePath] : [],
+				},
+				twitter: {
+					card: "summary",
+					title: profile.metaTitle || "Vtuber Profile",
+					description: profile.metaDescription || "Vtuber Profile",
+				},
+			};
+		}
+	} catch (error) {
+		console.error("Failed to fetch profile for metadata:", error);
+	}
+
+	// Fallback metadata
+	return {
+		title: "Vtuber Profile",
+		description: "Vtuber Profile",
+	};
+}
 
 export default function RootLayout({
 	children,
