@@ -1,0 +1,159 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/client"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+generator json {
+  provider  = "prisma-json-types-generator"
+  namespace = "PrismaJson"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+}
+
+/// Vtuber profile configuration - stores the main vtuber information
+model VtuberProfile {
+  id              Int                  @id @default(autoincrement())
+  /// Name of the vtuber
+  name            String
+  /// Meta title for SEO
+  metaTitle       String?
+  /// Meta description for SEO
+  metaDescription String?
+  /// Default theme ID
+  defaultThemeId  Int?                 @unique
+  /// Default theme relation
+  defaultTheme    Theme?               @relation("DefaultTheme", fields: [defaultThemeId], references: [id])
+  /// External links for the vtuber
+  externalLinks   VtuberExternalLink[]
+  /// Available themes for this vtuber
+  themes          Theme[]
+  /// When this profile was created
+  createdOn       DateTime             @default(now())
+  /// When this profile was last updated
+  updatedOn       DateTime             @updatedAt
+}
+
+/// Theme configuration - stores different visual themes for the vtuber
+model Theme {
+  id                  Int            @id @default(autoincrement())
+  /// Name of the theme
+  name                String
+  /// Description of the theme
+  description         String?
+  /// Avatar image URL for user navigation
+  avatarImagePath     String
+  /// Background image URL
+  backgroundImagePath String?
+  /// Whether this theme is active
+  isActive            Boolean        @default(true)
+  /// Vtuber profile that owns this theme
+  vtuberProfileId     Int
+  vtuberProfile       VtuberProfile  @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  /// Default theme relation (reverse)
+  defaultForProfile   VtuberProfile? @relation("DefaultTheme")
+  /// When this theme was created
+  createdOn           DateTime       @default(now())
+  /// When this theme was last updated
+  updatedOn           DateTime       @updatedAt
+}
+
+/// External links for the vtuber (social media, etc.)
+model VtuberExternalLink {
+  id              Int           @id @default(autoincrement())
+  /// Display text for the link
+  value           String
+  /// Icon identifier for the link
+  icon            String?
+  /// URL for the link
+  href            String
+  /// Order for display
+  displayOrder    Int           @default(0)
+  /// Vtuber profile that owns this link
+  vtuberProfileId Int
+  vtuberProfile   VtuberProfile @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  /// When this link was created
+  createdOn       DateTime      @default(now())
+  /// When this link was last updated
+  updatedOn       DateTime      @updatedAt
+}
+
+/// Always after the prisma-client-js generator
+model Song {
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  artist               String
+  remark               String
+  /// [SongExtraType]
+  extra                Json
+  /// The date the song was created (added to the database)
+  created_on           DateTime               @default(now())
+  lang                 String[]
+  tag                  String[]
+  /// B站歌切链接
+  url                  String?
+  /// Fragment of the lyrics of the song, used for fuzzy search
+  lyrics_fragment      String?
+  /// The live recordings that the song was played in
+  SongOccurrenceInLive SongOccurrenceInLive[]
+}
+
+model User {
+  salt          String
+  password_hash String
+  username      String @id
+}
+
+model Feedback {
+  id         String   @id @default(uuid())
+  content    String
+  created_on DateTime @default(now())
+}
+
+model Footer {
+  content String
+  id      Int    @id @default(autoincrement())
+}
+
+/// Live recording archive. This table store metadata about every live recording
+/// of the vtuber.
+model LiveRecordingArchive {
+  id                   Int                    @id @default(autoincrement())
+  /// B站视频ID
+  bvid                 String                 @unique
+  /// Title of the live recording
+  title                String
+  /// Publish date of the live recording (unix seconds)
+  pubdate              Int
+  /// Duration of the live recording (seconds)
+  duration             Int
+  /// Cover image url of the recording
+  cover                String
+  /// The songs that were played in the live
+  SongOccurrenceInLive SongOccurrenceInLive[]
+
+  @@index([bvid, pubdate(sort: Desc)])
+}
+
+/// This is the relation table between Song and LiveRecordingArchive.
+/// Each entry represents a song that was played by the vtuber in the live.
+model SongOccurrenceInLive {
+  /// The song that was played in the live
+  song                   Song                 @relation(fields: [songId], references: [id], onDelete: Cascade)
+  /// The id of the song that was played in the live
+  songId                 Int
+  /// The live recording archive that the song was played in
+  liveRecordingArchive   LiveRecordingArchive @relation(fields: [liveRecordingArchiveId], references: [id], onDelete: Cascade)
+  /// The id of the live recording archive that the song was played in
+  liveRecordingArchiveId Int
+
+  /// The start time of the song in the live (seconds since the start of the live)
+  start Int
+  /// The page number of the live recording (1-indexed), refer to B站分P视频
+  page  Int
+
+  @@id([songId, liveRecordingArchiveId])
+}

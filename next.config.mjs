@@ -2,9 +2,6 @@ import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    useCache: true,
-  },
     webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()]
@@ -27,22 +24,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**',
         port: '',
-        pathname: '/api/v1/artwork/**',
+        pathname: '/**',
       },
-      // Allow bilibili image CDN
+      // Allow bilibili image CDN. God knows why they are not using https.
       {
         protocol: 'http',
         hostname: '*.hdslb.com',
         port: '',
         pathname: '/**',
       },
-      // Allow cloudflare r2 buckets
-      {
-        protocol: 'https',
-        hostname: '*.r2.dev',
-        port: '',
-        pathname: '/**',
-      }
     ],
   },
   // typescript: {
