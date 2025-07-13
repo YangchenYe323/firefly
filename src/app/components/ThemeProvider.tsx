@@ -31,7 +31,7 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
         setPreviousThemeIndex(currentThemeIndex);
         const newIndex = currentThemeIndex === 0 ? themes.length - 1 : currentThemeIndex - 1;
         setCurrentThemeIndex(newIndex);
-        setTimeout(() => setIsTransitioning(false), 600);
+        setTimeout(() => setIsTransitioning(false), 1000);
     };
 
     const handleNextTheme = () => {
@@ -41,7 +41,7 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
         setPreviousThemeIndex(currentThemeIndex);
         const newIndex = currentThemeIndex === themes.length - 1 ? 0 : currentThemeIndex + 1;
         setCurrentThemeIndex(newIndex);
-        setTimeout(() => setIsTransitioning(false), 600);
+        setTimeout(() => setIsTransitioning(false), 1000);
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,9 +82,8 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                         }}
                         transition={{
                             type: "spring",
-                            stiffness: 300,
-                            damping: 30,
-                            duration: 0.6,
+                            stiffness: 200,
+                            damping: 25,
                         }}
                         className="absolute inset-0"
                     >
@@ -112,9 +111,8 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                     }}
                     transition={{
                         type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                        duration: 0.6,
+                        stiffness: 200,
+                        damping: 25,
                     }}
                     className="absolute inset-0"
                 >
@@ -183,8 +181,9 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                                 opacity: 0.45
                             }}
                             transition={{
-                                duration: 0.6,
-                                ease: "easeInOut",
+                                type: "spring",
+                                stiffness: 200,
+                                damping: 25,
                             }}
                             className="absolute inset-0"
                         >
@@ -213,8 +212,9 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                             opacity: 0.45
                         }}
                         transition={{
-                            duration: 0.6,
-                            ease: "easeInOut",
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 25,
                         }}
                         className="absolute inset-0"
                     >
