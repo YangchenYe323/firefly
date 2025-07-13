@@ -1,5 +1,6 @@
 "use client";
 
+import { Provider } from "jotai/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -21,6 +22,8 @@ export function Providers({ children }: ProvidersProps) {
 	);
 
 	return (
-		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		<QueryClientProvider client={queryClient}>
+			<Provider>{children}</Provider>
+		</QueryClientProvider>
 	);
 }

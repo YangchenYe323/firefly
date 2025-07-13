@@ -11,10 +11,10 @@ import {
 	getSongOccurrences,
 	type SongOccurrence,
 } from "@/app/actions/song-occurrences";
-import type { EditableSong } from "../page";
+import type { Song } from "@/generated/client";
 
 interface SongOccurrencesPanelProps {
-	song: EditableSong;
+	song: Song;
 	isExpanded: boolean;
 	onToggleExpanded: () => void;
 }

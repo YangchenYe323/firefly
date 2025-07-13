@@ -1,5 +1,18 @@
+import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    useCache: true,
+  },
+    webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = [...config.plugins, new PrismaPlugin()]
+    }
+
+    return config
+  },
+
   images: {
     remotePatterns: [
       // Allow localhost for development
@@ -20,6 +33,13 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: '*.hdslb.com',
+        port: '',
+        pathname: '/**',
+      },
+      // Allow cloudflare r2 buckets
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
         port: '',
         pathname: '/**',
       }

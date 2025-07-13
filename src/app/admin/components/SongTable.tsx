@@ -20,21 +20,19 @@ import {
 	ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { EditableSong } from "../page";
+import type { Song } from "@/generated/client";
 import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 
 interface SongTableProps {
-	songs: EditableSong[];
-	onEditSong: (song: EditableSong) => void;
-	onDeleteSong: (song: EditableSong) => void;
-	isLoading: boolean;
+	songs: Song[];
+	onEditSong: (song: Song) => void;
+	onDeleteSong: (song: Song) => Promise<void>;
 }
 
 export default function SongTable({
 	songs,
 	onEditSong,
 	onDeleteSong,
-	isLoading,
 }: SongTableProps) {
 	const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 	const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
@@ -48,14 +46,6 @@ export default function SongTable({
 		}
 		setExpandedRows(newExpandedRows);
 	};
-
-	if (isLoading) {
-		return (
-			<div className="flex items-center justify-center h-64">
-				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-			</div>
-		);
-	}
 
 	if (songs.length === 0) {
 		return (
@@ -123,7 +113,7 @@ export default function SongTable({
 													<ChevronRight className="w-3 h-3" />
 												</motion.div>
 											</Button>
-											{song.bucket_url && (
+											{(song.extra as any)?.bucket_url && (
 												<Music className="w-4 h-4 text-blue-500" />
 											)}
 											<div className="min-w-0 flex-1">

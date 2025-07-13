@@ -2,12 +2,12 @@
 
 import { Icons } from "../../components/Icons";
 import Link from "next/link";
-import type { VtuberProfile } from "@/profile";
+import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 
 import { cn } from "@/lib/utils";
 
 interface PropType extends React.HTMLAttributes<HTMLElement> {
-	profile: VtuberProfile;
+	profile: VtuberProfileWithThemesAndLinks;
 }
 
 export default function MainNav({ className, profile, ...props }: PropType) {

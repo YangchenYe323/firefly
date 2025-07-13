@@ -282,7 +282,6 @@ export default function SongRow({
 						ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
 					},
 				}}
-
 			>
 				{/* Album Avatar with Play/Pause Button Overlay */}
 				<div
@@ -454,35 +453,47 @@ export default function SongRow({
 					<div className="flex items-end gap-2">
 						{/* Like button with count */}
 						<motion.div
-							whileHover={{ scale: 1.1, transition: {duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94)} }}
+							whileHover={{
+								scale: 1.1,
+								transition: {
+									duration: 0,
+									ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+								},
+							}}
 						>
-						<Button
-							variant="ghost"
-							size="sm"
-							className="h-8 px-2 hover:text-green-600 hover:bg-transparent transition-colors flex items-center"
-							onClick={handleLike}
-							title="喜欢"
-						>
-							<span className="text-sm">❤️</span>
-							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
-								{song.extra?.numLikes || 0}
+							<Button
+								variant="ghost"
+								size="sm"
+								className="h-8 px-2 hover:text-green-600 hover:bg-transparent transition-colors flex items-center"
+								onClick={handleLike}
+								title="喜欢"
+							>
+								<span className="text-sm">❤️</span>
+								<span className="ml-1 text-xs text-slate-500 w-6 text-left">
+									{song.extra?.numLikes || 0}
 								</span>
 							</Button>
 						</motion.div>
 						{/* Dislike button with count */}
 						<motion.div
-							whileHover={{ scale: 1.1, transition: {duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94)} }}
+							whileHover={{
+								scale: 1.1,
+								transition: {
+									duration: 0,
+									ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+								},
+							}}
 						>
-						<Button
-							variant="ghost"
-							size="sm"
-							className="h-8 px-2 hover:text-red-600 hover:bg-transparent transition-colors flex items-center"
-							onClick={handleDislike}
-							title="不喜欢"
-						>
-							<span className="text-sm">😅</span>
-							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
-								{song.extra?.numDislikes || 0}
+							<Button
+								variant="ghost"
+								size="sm"
+								className="h-8 px-2 hover:text-red-600 hover:bg-transparent transition-colors flex items-center"
+								onClick={handleDislike}
+								title="不喜欢"
+							>
+								<span className="text-sm">😅</span>
+								<span className="ml-1 text-xs text-slate-500 w-6 text-left">
+									{song.extra?.numDislikes || 0}
 								</span>
 							</Button>
 						</motion.div>

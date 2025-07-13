@@ -7,46 +7,47 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Save, Trash2 } from "lucide-react";
-import type { EditableSong } from "../page";
+import type { Song } from "@/generated/client";
 import { LyricsSearch } from "./LyricsSearch";
+import type { SongForEditOrCreate } from "./AdminLayout";
 
 interface EditPanelProps {
-	song: EditableSong;
-	onSave: (song: EditableSong) => void;
+	song: SongForEditOrCreate;
+	onSave: (song: SongForEditOrCreate) => Promise<void>;
 	onCancel: () => void;
-	isLoading: boolean;
-	isCreating: boolean;
 }
 
-export default function EditPanel({
-	song,
-	onSave,
-	onCancel,
-	isLoading,
-	isCreating,
-}: EditPanelProps) {
-	const [formData, setFormData] = useState<EditableSong>(song);
+export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [formData, setFormData] = useState<SongForEditOrCreate>(song);
+
+	// Language text box
 	const [langInput, setLangInput] = useState("");
+	// Tag text box
 	const [tagInput, setTagInput] = useState("");
+	// Number of segments to search for lyrics
 	const [segments, setSegments] = useState(10);
 
-	useEffect(() => {
-		setFormData(song);
-	}, [song]);
-
-	const handleInputChange = (field: keyof EditableSong, value: string) => {
+	const handleInputChange = (field: keyof Song, value: string) => {
 		setFormData((prev) => ({
 			...prev,
-			[field]: value,
+			song: {
+				...prev.song,
+				[field]: value,
+			},
 		}));
 	};
 
 	const addLanguage = () => {
 		const trimmedLang = langInput.trim();
-		if (trimmedLang && !formData.lang.includes(trimmedLang)) {
+		if (trimmedLang && !formData.song.lang.includes(trimmedLang)) {
 			setFormData((prev) => ({
 				...prev,
-				lang: [...prev.lang, trimmedLang],
+				song: {
+					...prev.song,
+					lang: [...prev.song.lang, trimmedLang],
+				},
 			}));
 			setLangInput("");
 		}
@@ -55,16 +56,22 @@ export default function EditPanel({
 	const removeLanguage = (langToRemove: string) => {
 		setFormData((prev) => ({
 			...prev,
-			lang: prev.lang.filter((lang) => lang !== langToRemove),
+			song: {
+				...prev.song,
+				lang: prev.song.lang.filter((lang) => lang !== langToRemove),
+			},
 		}));
 	};
 
 	const addTag = () => {
 		const trimmedTag = tagInput.trim();
-		if (trimmedTag && !formData.tag.includes(trimmedTag)) {
+		if (trimmedTag && !formData.song.tag.includes(trimmedTag)) {
 			setFormData((prev) => ({
 				...prev,
-				tag: [...prev.tag, trimmedTag],
+				song: {
+					...prev.song,
+					tag: [...prev.song.tag, trimmedTag],
+				},
 			}));
 			setTagInput("");
 		}
@@ -73,7 +80,10 @@ export default function EditPanel({
 	const removeTag = (tagToRemove: string) => {
 		setFormData((prev) => ({
 			...prev,
-			tag: prev.tag.filter((tag) => tag !== tagToRemove),
+			song: {
+				...prev.song,
+				tag: prev.song.tag.filter((tag) => tag !== tagToRemove),
+			},
 		}));
 	};
 
@@ -84,36 +94,50 @@ export default function EditPanel({
 	}) => {
 		setFormData((prev) => ({
 			...prev,
-			title: result.title,
-			artist: result.artist,
-			lyrics_fragment: result.lyrics_fragment,
+			song: {
+				...prev.song,
+				title: result.title,
+				artist: result.artist,
+				lyrics_fragment: result.lyrics_fragment,
+			},
 		}));
 	};
 
 	const handleTitleSelect = (title: string) => {
 		setFormData((prev) => ({
 			...prev,
-			title: title,
+			song: {
+				...prev.song,
+				title: title,
+			},
 		}));
 	};
 
 	const handleArtistSelect = (artist: string) => {
 		setFormData((prev) => ({
 			...prev,
-			artist: artist,
+			song: {
+				...prev.song,
+				artist: artist,
+			},
 		}));
 	};
 
 	const handleLyricsOnlySelect = (lyrics: string) => {
 		setFormData((prev) => ({
 			...prev,
-			lyrics_fragment: lyrics,
+			song: {
+				...prev.song,
+				lyrics_fragment: lyrics,
+			},
 		}));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		onSave(formData);
+		setIsLoading(true);
+		await onSave(formData);
+		setIsLoading(false);
 	};
 
 	const handleKeyDown = (
@@ -134,7 +158,7 @@ export default function EditPanel({
 					<Label htmlFor="title">歌曲名 *</Label>
 					<Input
 						id="title"
-						value={formData.title}
+						value={formData.song.title}
 						onChange={(e) => handleInputChange("title", e.target.value)}
 						placeholder="输入歌曲名"
 						required
@@ -147,7 +171,7 @@ export default function EditPanel({
 					<Label htmlFor="artist">歌手 *</Label>
 					<Input
 						id="artist"
-						value={formData.artist}
+						value={formData.song.artist}
 						onChange={(e) => handleInputChange("artist", e.target.value)}
 						placeholder="输入歌手名"
 						required
@@ -176,7 +200,7 @@ export default function EditPanel({
 					onSelectTitle={handleTitleSelect}
 					onSelectArtist={handleArtistSelect}
 					onSelectLyricsOnly={handleLyricsOnlySelect}
-					currentTitle={formData.title}
+					currentTitle={formData.song.title}
 					segments={segments}
 				/>
 
@@ -204,7 +228,7 @@ export default function EditPanel({
 						</Button>
 					</div>
 					<div className="flex flex-wrap gap-1">
-						{formData.lang.map((lang, index) => (
+						{formData.song.lang.map((lang, index) => (
 							<Badge key={index} variant="secondary" className="text-xs">
 								{lang}
 								<button
@@ -243,7 +267,7 @@ export default function EditPanel({
 						</Button>
 					</div>
 					<div className="flex flex-wrap gap-1">
-						{formData.tag.map((tag, index) => (
+						{formData.song.tag.map((tag, index) => (
 							<Badge key={index} variant="outline" className="text-xs">
 								{tag}
 								<button
@@ -264,7 +288,7 @@ export default function EditPanel({
 					<Input
 						id="url"
 						type="url"
-						value={formData.url || ""}
+						value={formData.song.url || ""}
 						onChange={(e) => handleInputChange("url", e.target.value)}
 						placeholder="https://www.bilibili.com/video/..."
 						className="text-base"
@@ -277,8 +301,16 @@ export default function EditPanel({
 					<Input
 						id="bucket_url"
 						type="url"
-						value={formData.bucket_url}
-						onChange={(e) => handleInputChange("bucket_url", e.target.value)}
+						value={(formData.song.extra as any)?.bucket_url || ""}
+						onChange={(e) => {
+							setFormData((prev) => ({
+								...prev,
+								extra: {
+									...prev.song.extra,
+									bucket_url: e.target.value,
+								},
+							}));
+						}}
 						placeholder="https://example.com/audio.mp3"
 						className="text-base"
 					/>
@@ -289,7 +321,7 @@ export default function EditPanel({
 					<Label htmlFor="lyrics_fragment">歌词片段</Label>
 					<Textarea
 						id="lyrics_fragment"
-						value={formData.lyrics_fragment || ""}
+						value={formData.song.lyrics_fragment || ""}
 						onChange={(e) =>
 							handleInputChange("lyrics_fragment", e.target.value)
 						}
@@ -304,7 +336,7 @@ export default function EditPanel({
 					<Label htmlFor="remark">备注</Label>
 					<Textarea
 						id="remark"
-						value={formData.remark}
+						value={formData.song.remark}
 						onChange={(e) => handleInputChange("remark", e.target.value)}
 						placeholder="添加备注信息"
 						rows={3}
@@ -325,7 +357,7 @@ export default function EditPanel({
 					) : (
 						<>
 							<Save className="w-5 h-5 mr-2" />
-							{isCreating ? "创建" : "保存"}
+							{formData.create ? "创建" : "保存"}
 						</>
 					)}
 				</Button>

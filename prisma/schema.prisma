@@ -14,6 +14,73 @@ datasource db {
   url      = env("POSTGRES_PRISMA_URL")
 }
 
+/// Vtuber profile configuration - stores the main vtuber information
+model VtuberProfile {
+  id                Int                 @id @default(autoincrement())
+  /// Name of the vtuber
+  name              String
+  /// Meta title for SEO
+  metaTitle         String?
+  /// Meta description for SEO
+  metaDescription   String?
+  /// Default theme ID
+  defaultThemeId    Int?                @unique
+  /// Default theme relation
+  defaultTheme      Theme?              @relation("DefaultTheme", fields: [defaultThemeId], references: [id])
+  /// External links for the vtuber
+  externalLinks     VtuberExternalLink[]
+  /// Available themes for this vtuber
+  themes            Theme[]
+  /// When this profile was created
+  createdOn         DateTime            @default(now())
+  /// When this profile was last updated
+  updatedOn         DateTime            @updatedAt
+}
+
+/// Theme configuration - stores different visual themes for the vtuber
+model Theme {
+  id                Int            @id @default(autoincrement())
+  /// Name of the theme
+  name              String
+  /// Description of the theme
+  description       String?
+  /// Avatar image URL for user navigation
+  avatarImagePath   String
+  /// Background image URL
+  backgroundImagePath String?
+  /// Whether this theme is active
+  isActive          Boolean         @default(true)
+  /// Vtuber profile that owns this theme
+  vtuberProfileId   Int
+  vtuberProfile     VtuberProfile   @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  /// Default theme relation (reverse)
+  defaultForProfile VtuberProfile?  @relation("DefaultTheme")
+  /// When this theme was created
+  createdOn         DateTime        @default(now())
+  /// When this theme was last updated
+  updatedOn         DateTime        @updatedAt
+}
+
+/// External links for the vtuber (social media, etc.)
+model VtuberExternalLink {
+  id              Int           @id @default(autoincrement())
+  /// Display text for the link
+  value           String
+  /// Icon identifier for the link
+  icon            String?
+  /// URL for the link
+  href            String
+  /// Order for display
+  displayOrder    Int           @default(0)
+  /// Vtuber profile that owns this link
+  vtuberProfileId Int
+  vtuberProfile   VtuberProfile @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  /// When this link was created
+  createdOn       DateTime      @default(now())
+  /// When this link was last updated
+  updatedOn       DateTime      @updatedAt
+}
+
 /// Always after the prisma-client-js generator
 model Song {
   id                   Int                    @id @default(autoincrement())

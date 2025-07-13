@@ -1,28 +1,21 @@
 "use client";
 
-import Image from "next/image";
-import type { VtuberProfile } from "@/profile";
+import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 
 interface PropType {
 	songCount: number;
-	profile: VtuberProfile;
+	profile: VtuberProfileWithThemesAndLinks;
+	renderAvatar: () => React.ReactNode;
 }
 
-export default function Heading({ songCount, profile }: PropType) {
-	const { name, bannerImagePath, backgroundImagePath } = profile;
+export default function Heading({ songCount, profile, renderAvatar }: PropType) {
+	const { name } = profile;
 
 	return (
 		<div className="w-full text-center my-6">
-			<span className="inline-block overflow-hidden border-0 mx-0 mb-4 p-0">
-				<Image
-					src={bannerImagePath}
-					alt={name}
-					width={240}
-					height={240}
-					className="rounded-full border border-black"
-					priority={true}
-				/>
-			</span>
+			<div className="mb-4">
+				{renderAvatar()}
+			</div>
 			<h1 className="text-center text-3xl md:text-4xl lg:text-5xl text-black font-light font-alex_chinese">
 				{name}
 			</h1>

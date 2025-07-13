@@ -76,12 +76,7 @@ export function SongOccurrenceCard({
 
 		setIsDeleting(true);
 		try {
-			const result = await deleteSongOccurrence(
-				songId,
-				occurrence.bvid,
-				occurrence.page,
-				occurrence.start,
-			);
+			const result = await deleteSongOccurrence(songId, occurrence.bvid);
 
 			if (result.success) {
 				toast.success("播放记录删除成功");
