@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Theme } from "@prisma/client";
 
@@ -19,29 +18,61 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
     const [isHovering, setIsHovering] = useState(false);
     const [hoverSide, setHoverSide] = useState<"left" | "right" | null>(null);
     const [isTransitioning, setIsTransitioning] = useState(false);
-    const [direction, setDirection] = useState<"left" | "right">("right");
+    const [showPrevious, setShowPrevious] = useState(false);
+    const [previousTransform, setPreviousTransform] = useState("translateX(0)");
+    const [currentTransform, setCurrentTransform] = useState("translateX(0)");
 
     const currentTheme = themes[currentThemeIndex];
     const previousTheme = themes[previousThemeIndex];
 
     const handlePreviousTheme = () => {
         if (isTransitioning) return;
-        setDirection("left");
         setIsTransitioning(true);
         setPreviousThemeIndex(currentThemeIndex);
+        setShowPrevious(true);
+        
+        // Set initial positions for sliding animation
+        setPreviousTransform("translateX(0)");
+        setCurrentTransform("translateX(-100%)");
+        
         const newIndex = currentThemeIndex === 0 ? themes.length - 1 : currentThemeIndex - 1;
         setCurrentThemeIndex(newIndex);
-        setTimeout(() => setIsTransitioning(false), 1000);
+        
+        // Trigger the slide animation
+        requestAnimationFrame(() => {
+            setPreviousTransform("translateX(100%)");
+            setCurrentTransform("translateX(0)");
+        });
+        
+        setTimeout(() => {
+            setIsTransitioning(false);
+            setShowPrevious(false);
+        }, 300);
     };
 
     const handleNextTheme = () => {
         if (isTransitioning) return;
-        setDirection("right");
         setIsTransitioning(true);
         setPreviousThemeIndex(currentThemeIndex);
+        setShowPrevious(true);
+        
+        // Set initial positions for sliding animation
+        setPreviousTransform("translateX(0)");
+        setCurrentTransform("translateX(100%)");
+        
         const newIndex = currentThemeIndex === themes.length - 1 ? 0 : currentThemeIndex + 1;
         setCurrentThemeIndex(newIndex);
-        setTimeout(() => setIsTransitioning(false), 1000);
+        
+        // Trigger the slide animation
+        requestAnimationFrame(() => {
+            setPreviousTransform("translateX(-100%)");
+            setCurrentTransform("translateX(0)");
+        });
+        
+        setTimeout(() => {
+            setIsTransitioning(false);
+            setShowPrevious(false);
+        }, 300);
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -72,20 +103,14 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
             {/* Avatar Container with sliding animation */}
             <div className="relative overflow-hidden rounded-full border border-black" style={{ width: avatarSize, height: avatarSize }}>
                 {/* Previous Theme (slides out) */}
-                {isTransitioning && (
-                    <motion.div
+                {showPrevious && (
+                    <div
                         key={`previous-${previousThemeIndex}`}
-                        initial={{ x: 0, opacity: 1 }}
-                        animate={{
-                            x: direction === "right" ? -avatarSize : avatarSize,
-                            opacity: 1
+                        className="absolute inset-0 transition-transform duration-300"
+                        style={{ 
+                            transform: previousTransform,
+                            transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)" // ease-in-out-quad
                         }}
-                        transition={{
-                            type: "spring",
-                            stiffness: 200,
-                            damping: 25,
-                        }}
-                        className="absolute inset-0"
                     >
                         <Image
                             src={previousTheme.avatarImagePath}
@@ -95,26 +120,17 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                             className="rounded-full"
                             priority={true}
                         />
-                    </motion.div>
+                    </div>
                 )}
 
                 {/* Current Theme (slides in) */}
-                <motion.div
+                <div
                     key={`current-${currentThemeIndex}`}
-                    initial={isTransitioning ? {
-                        x: direction === "right" ? avatarSize : -avatarSize,
-                        opacity: 1
-                    } : { x: 0, opacity: 1 }}
-                    animate={{
-                        x: 0,
-                        opacity: 1
+                    className="absolute inset-0 transition-transform duration-300"
+                    style={{ 
+                        transform: currentTransform,
+                        transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)" // ease-in-out-quad
                     }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 25,
-                    }}
-                    className="absolute inset-0"
                 >
                     <Image
                         src={currentTheme.avatarImagePath}
@@ -124,45 +140,37 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                         className="rounded-full"
                         priority={true}
                     />
-                </motion.div>
+                </div>
             </div>
 
             {/* Hover Controls */}
-            <AnimatePresence>
-                {isHovering && hoverSide && !isTransitioning && (
-                    <>
-                        {/* Left Control */}
-                        {hoverSide === "left" && (
-                            <motion.button
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.2 }}
-                                onClick={handlePreviousTheme}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-colors"
-                                aria-label="Previous theme"
-                            >
-                                <ChevronLeft className="w-6 h-6" />
-                            </motion.button>
-                        )}
+            <button
+                onClick={handlePreviousTheme}
+                className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-all duration-200 ${
+                    isHovering && hoverSide === "left" && !isTransitioning
+                        ? "opacity-100 transform translate-x-0"
+                        : "opacity-0 transform -translate-x-4 pointer-events-none"
+                }`}
+                style={{ transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)" }} // ease-in-out-quad
+                aria-label="Previous theme"
+                type="button"
+            >
+                <ChevronLeft className="w-6 h-6" />
+            </button>
 
-                        {/* Right Control */}
-                        {hoverSide === "right" && (
-                            <motion.button
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                transition={{ duration: 0.2 }}
-                                onClick={handleNextTheme}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-colors"
-                                aria-label="Next theme"
-                            >
-                                <ChevronRight className="w-6 h-6" />
-                            </motion.button>
-                        )}
-                    </>
-                )}
-            </AnimatePresence>
+            <button
+                onClick={handleNextTheme}
+                className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-all duration-200 ${
+                    isHovering && hoverSide === "right" && !isTransitioning
+                        ? "opacity-100 transform translate-x-0"
+                        : "opacity-0 transform translate-x-4 pointer-events-none"
+                }`}
+                style={{ transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)" }} // ease-in-out-quad
+                aria-label="Next theme"
+                type="button"
+            >
+                <ChevronRight className="w-6 h-6" />
+            </button>
         </div>
     );
 
@@ -172,20 +180,14 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
             {currentTheme.backgroundImagePath && (
                 <div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
                     {/* Previous Background (slides out) */}
-                    {isTransitioning && previousTheme.backgroundImagePath && (
-                        <motion.div
+                    {showPrevious && previousTheme.backgroundImagePath && (
+                        <div
                             key={`bg-previous-${previousThemeIndex}`}
-                            initial={{ x: 0, opacity: 0.45 }}
-                            animate={{
-                                x: direction === "right" ? "-100%" : "100%",
-                                opacity: 0.45
+                            className="absolute inset-0 transition-transform duration-300"
+                            style={{ 
+                                transform: previousTransform,
+                                transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)" // ease-in-out-quad
                             }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 200,
-                                damping: 25,
-                            }}
-                            className="absolute inset-0"
                         >
                             <Image
                                 src={previousTheme.backgroundImagePath}
@@ -194,29 +196,20 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                                 height={0}
                                 sizes="100vw"
                                 style={{ width: "100%", height: "100%" }}
-                                className="absolute inset-0 object-cover"
+                                className="absolute inset-0 object-cover opacity-45"
                                 priority={true}
                             />
-                        </motion.div>
+                        </div>
                     )}
 
                     {/* Current Background (slides in) */}
-                    <motion.div
+                    <div
                         key={`bg-current-${currentThemeIndex}`}
-                        initial={isTransitioning ? {
-                            x: direction === "right" ? "100%" : "-100%",
-                            opacity: 0.45
-                        } : { x: 0, opacity: 0.45 }}
-                        animate={{
-                            x: 0,
-                            opacity: 0.45
+                        className="absolute inset-0 transition-transform duration-300"
+                        style={{ 
+                            transform: currentTransform,
+                            transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)" // ease-in-out-quad
                         }}
-                        transition={{
-                            type: "spring",
-                            stiffness: 200,
-                            damping: 25,
-                        }}
-                        className="absolute inset-0"
                     >
                         <Image
                             src={currentTheme.backgroundImagePath}
@@ -225,10 +218,10 @@ export default function ThemeProvider({ themes, defaultTheme, children, avatarSi
                             height={0}
                             sizes="100vw"
                             style={{ width: "100%", height: "100%" }}
-                            className="absolute inset-0 object-cover"
+                            className="absolute inset-0 object-cover opacity-45"
                             priority={true}
                         />
-                    </motion.div>
+                    </div>
                 </div>
             )}
 
