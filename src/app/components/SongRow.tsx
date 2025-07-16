@@ -446,7 +446,7 @@ export default function SongRow({
 						<Button
 							variant="ghost"
 							size="sm"
-							className="h-8 px-2 hover:scale-[1.2] hover:text-green-600 hover:bg-transparent transition-colors flex items-center"
+							className="h-8 px-2 hover:scale-[1.2] hover:text-green-600 hover:bg-transparent active:scale-[0.8] transition-colors flex items-center"
 							style={{
 								transition: "transform 0.2s",
 								transitionDuration: "0.2s",
@@ -465,7 +465,7 @@ export default function SongRow({
 						<Button
 							variant="ghost"
 							size="sm"
-							className="h-8 px-2 hover:scale-[1.2] hover:text-red-600 hover:bg-transparent transition-colors flex items-center"
+							className="h-8 px-2 hover:scale-[1.2] hover:text-red-600 hover:bg-transparent active:scale-[0.8] transition-colors flex items-center"
 							style={{
 								transition: "transform 0.2s",
 								transitionDuration: "0.2s",
