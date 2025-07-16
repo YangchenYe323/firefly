@@ -48,7 +48,11 @@ export default function Root({
 	};
 
 	return (
-		<ThemeProvider themes={profile.themes} defaultTheme={profile.defaultTheme || undefined} avatarSize={240}>
+		<ThemeProvider
+			themes={profile.themes}
+			defaultTheme={profile.defaultTheme || undefined}
+			avatarSize={240}
+		>
 			{({ renderAvatar }) => (
 				<div className="relative font-chinese bg-opacity-50">
 					<StickyHeader>
@@ -68,7 +72,11 @@ export default function Root({
 							</div>
 						</div>
 					</StickyHeader>
-					<Heading songCount={songCount} profile={profile} renderAvatar={renderAvatar} />
+					<Heading
+						songCount={songCount}
+						profile={profile}
+						renderAvatar={renderAvatar}
+					/>
 					<SongPanel
 						allSongs={songs}
 						footer={footer}
