@@ -20,7 +20,10 @@ export default function UserNav({ profile, ...props }: PropType) {
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" className="relative h-8 w-8 rounded-full">
 					<Avatar className="h-8 w-8">
-						<AvatarImage src={profile.themes[0].avatarImagePath} alt={profile.name} />
+						<AvatarImage
+							src={profile.themes[0].avatarImagePath}
+							alt={profile.name}
+						/>
 						<AvatarFallback>SC</AvatarFallback>
 					</Avatar>
 				</Button>

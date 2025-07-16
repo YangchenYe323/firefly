@@ -278,9 +278,11 @@ export async function getVtuberProfileNoCache(): Promise<GetVtuberProfileReturnT
 }
 
 // Highly optimized cached version using React cache
-export const getVtuberProfileCached = cache(async (): Promise<GetVtuberProfileReturnType> => {
-	return getVtuberProfileNoCache();
-});
+export const getVtuberProfileCached = cache(
+	async (): Promise<GetVtuberProfileReturnType> => {
+		return getVtuberProfileNoCache();
+	},
+);
 
 export interface CreateVtuberProfileReturnType extends ActionReturnTypeBase {
 	profile?: any;

@@ -1,18 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	ChevronDown,
-	ChevronUp,
-	Music,
-	Loader2,
-	ExternalLink,
-	ImageOff,
-	Play,
-	Trash2,
-} from "lucide-react";
-import { motion, AnimatePresence, cubicBezier } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Music, Loader2, ExternalLink, ImageOff } from "lucide-react";
 import {
 	getSongOccurrences,
 	type SongOccurrence,
@@ -26,6 +16,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
  */
 interface SongOccurrencesPanelProps {
 	song: Song; // The song to display occurrences for
+	present: boolean;
 }
 
 /**
@@ -67,91 +58,86 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 	const progressPercentage = (occurrence.start / occurrence.duration) * 100;
 
 	return (
-		<motion.div
-			whileHover={{
-				scale: 1.005,
-				transition: { duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94) },
-			}}
-			whileTap={{
-				scale: 0.99,
-				transition: { duration: 0, ease: cubicBezier(0.25, 0.46, 0.45, 0.94) },
+		<Card
+			className="group hover:scale-[1.01] hover:shadow-md active:scale-[0.99] border-gray-200/50 bg-white/60 backdrop-blur-sm"
+			style={{
+				transition: "transform 0.2s",
+				transitionDuration: "0.2s",
+				transitionTimingFunction: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 			}}
 		>
-			<Card className="group hover:shadow-md transition-all duration-200 border-gray-200/50 bg-white/60 backdrop-blur-sm">
-				<CardContent className="p-4">
-					<div className="flex gap-4">
-						{/* Cover Image*/}
-						<div className="relative flex-shrink-0">
-							{!imageError ? (
-								<Image
-									src={occurrence.cover}
-									alt={occurrence.title}
-									width={80}
-									height={80}
-									className="w-20 h-20 object-cover rounded-lg shadow-sm"
-									loading="lazy"
-									onError={handleImageError}
-									referrerPolicy="no-referrer" // Prevents 403 errors from CDN referrer policies
-								/>
-							) : (
-								<div className="w-20 h-20 bg-muted rounded-lg shadow-sm flex items-center justify-center">
-									<ImageOff className="w-8 h-8 text-muted-foreground" />
-								</div>
+			<CardContent className="p-4">
+				<div className="flex gap-4">
+					{/* Cover Image*/}
+					<div className="relative flex-shrink-0">
+						{!imageError ? (
+							<Image
+								src={occurrence.cover}
+								alt={occurrence.title}
+								width={80}
+								height={80}
+								className="w-20 h-20 object-cover rounded-lg shadow-sm"
+								loading="lazy"
+								onError={handleImageError}
+								referrerPolicy="no-referrer" // Prevents 403 errors from CDN referrer policies
+							/>
+						) : (
+							<div className="w-20 h-20 bg-muted rounded-lg shadow-sm flex items-center justify-center">
+								<ImageOff className="w-8 h-8 text-muted-foreground" />
+							</div>
+						)}
+					</div>
+
+					{/* Content Area with Title, Page, and Progress Bar */}
+					<div className="flex-1 min-w-0 relative">
+						{/* Title and Page Number */}
+						<div className="flex items-start justify-between gap-2 mb-2">
+							<h3 className="font-medium text-sm leading-tight line-clamp-2 flex-1">
+								{occurrence.title}
+							</h3>
+							{/* Show page number if it's not page 1 */}
+							{occurrence.page > 1 && (
+								<span className="text-xs bg-muted px-2 py-1 rounded flex-shrink-0">
+									P{occurrence.page}
+								</span>
 							)}
 						</div>
 
-						{/* Content Area with Title, Page, and Progress Bar */}
-						<div className="flex-1 min-w-0 relative">
-							{/* Title and Page Number */}
-							<div className="flex items-start justify-between gap-2 mb-2">
-								<h3 className="font-medium text-sm leading-tight line-clamp-2 flex-1">
-									{occurrence.title}
-								</h3>
-								{/* Show page number if it's not page 1 */}
-								{occurrence.page > 1 && (
-									<span className="text-xs bg-muted px-2 py-1 rounded flex-shrink-0">
-										P{occurrence.page}
-									</span>
-								)}
+						{/* Progress Bar and Time Information */}
+						<div className="space-y-1">
+							<div className="flex items-center justify-between text-xs text-muted-foreground">
+								<span>开始时间: {formatTime(occurrence.start)}</span>
+								<span>总时长: {formatTime(occurrence.duration)}</span>
 							</div>
-
-							{/* Progress Bar and Time Information */}
-							<div className="space-y-1">
-								<div className="flex items-center justify-between text-xs text-muted-foreground">
-									<span>开始时间: {formatTime(occurrence.start)}</span>
-									<span>总时长: {formatTime(occurrence.duration)}</span>
+							<div className="relative">
+								<div className="w-full bg-gray-200 rounded-full h-2">
+									<div
+										className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+										style={{ width: `${progressPercentage}%` }}
+									/>
 								</div>
-								<div className="relative">
-									<div className="w-full bg-gray-200 rounded-full h-2">
-										<div
-											className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-											style={{ width: `${progressPercentage}%` }}
-										/>
-									</div>
-									<div className="absolute inset-0 flex items-center justify-center">
-										<ExternalLink className="w-3 h-3 text-muted-foreground/50" />
-									</div>
+								<div className="absolute inset-0 flex items-center justify-center">
+									<ExternalLink className="w-3 h-3 text-muted-foreground/50" />
 								</div>
 							</div>
-
-							{/* Invisible link overlay for better accessibility and click handling */}
-							<a
-								href={bilibiliUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="absolute inset-0 z-10 cursor-pointer"
-								aria-label={`观看 ${occurrence.title} 在 ${formatTime(occurrence.start)} 的播放`}
-							>
-								<span className="sr-only">
-									观看 {occurrence.title} 在 {formatTime(occurrence.start)}{" "}
-									的播放
-								</span>
-							</a>
 						</div>
+
+						{/* Invisible link overlay for better accessibility and click handling */}
+						<a
+							href={bilibiliUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="absolute inset-0 z-10 cursor-pointer"
+							aria-label={`观看 ${occurrence.title} 在 ${formatTime(occurrence.start)} 的播放`}
+						>
+							<span className="sr-only">
+								观看 {occurrence.title} 在 {formatTime(occurrence.start)} 的播放
+							</span>
+						</a>
 					</div>
-				</CardContent>
-			</Card>
-		</motion.div>
+				</div>
+			</CardContent>
+		</Card>
 	);
 }
 
@@ -172,18 +158,20 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
  * Usage:
  * <SongOccurrencesPanel
  *   song={songObject}
- *   isExpanded={boolean}
- *   onToggleExpanded={() => {}}
+ *   present={boolean}
  * />
  */
-export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
+export function SongOccurrencesPanel({
+	song,
+	present,
+}: SongOccurrencesPanelProps) {
+	const [mounted, setMounted] = useState(false);
 	const {
 		data,
 		fetchNextPage,
 		hasNextPage,
 		isFetching,
 		isFetchingNextPage,
-		status,
 		error,
 	} = useInfiniteQuery({
 		queryKey: ["song-occurrences", `${song.id}`],
@@ -200,6 +188,21 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 		},
 		staleTime: 60 * 60 * 1000, // 1 hour
 	});
+
+	const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null);
+	const [contentHeight, setContentHeight] = useState(0);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: when data changes, the content height should be recalculated
+	useEffect(() => {
+		// Re-calculate content height when data changes
+		if (contentRef) {
+			setContentHeight(contentRef.scrollHeight);
+		}
+	}, [contentRef, data]);
 
 	const occurrences = data?.pages.flatMap((page) => page.occurrences) || [];
 
@@ -224,18 +227,39 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 		return () => observer.disconnect();
 	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+	const transform =
+		present && mounted
+			? "scaleY(1) translateY(0)"
+			: "scaleY(0.5) translateY(-50%)";
+	const opacity = present && mounted ? "1" : "0";
+	const maxHeight = present && mounted ? `${contentHeight}px` : "0px";
+	// Logarithmic duration for smoother animation
+	const duration = Math.max(200, 100 + Math.log(contentHeight) * 50);
+
 	return (
-		<motion.div
-			initial={{ height: 0, opacity: 0 }}
-			animate={{ height: "auto", opacity: 1 }}
-			exit={{ height: 0, opacity: 0 }}
-			transition={{
-				duration: 0.3,
-				ease: cubicBezier(0.455, 0.03, 0.515, 0.955),
+		<div
+			className="border-t border-gray-100/80 bg-gray-50/30 overflow-hidden"
+			style={{
+				transition: "max-height, opacity",
+				transitionTimingFunction: "cubic-bezier(0.455, 0.03, 0.515, 0.955)",
+				transitionDuration: `${duration}ms`,
+				transformOrigin: "top",
+				maxHeight: maxHeight,
+				opacity: opacity,
 			}}
-			className="border-t border-gray-100/80 bg-gray-50/30"
 		>
-			<div className="p-4">
+			<div
+				className="p-4"
+				style={{
+					transform: transform,
+					opacity: opacity,
+					transition: "transform, opacity",
+					transitionTimingFunction: "cubic-bezier(0.455, 0.03, 0.515, 0.955)",
+					transitionDuration: `${duration}ms`,
+					transformOrigin: "top",
+				}}
+				ref={setContentRef}
+			>
 				{/* Panel Header */}
 				<div className="flex items-center gap-2 mb-4">
 					<Music className="w-4 h-4 text-blue-500" />
@@ -245,7 +269,6 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 				</div>
 
 				{/* Expandable Content with Animations */}
-				{/* <AnimatePresence> */}
 				<div
 					// initial={{ height: 0, opacity: 0 }}
 					// animate={{ height: "auto", opacity: 1 }}
@@ -312,8 +335,7 @@ export function SongOccurrencesPanel({ song }: SongOccurrencesPanelProps) {
 						</div>
 					)}
 				</div>
-				{/* </AnimatePresence> */}
 			</div>
-		</motion.div>
+		</div>
 	);
 }

@@ -20,7 +20,7 @@ const alexBrush = Alex_Brush({
 export async function generateMetadata(): Promise<Metadata> {
 	try {
 		const { profile } = await getVtuberProfileCached();
-		
+
 		if (profile) {
 			return {
 				title: profile.metaTitle || "Vtuber Profile",

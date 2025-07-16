@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import type { Song } from "@prisma/client";
-import { AnimatePresence, cubicBezier, motion } from "framer-motion";
+import { cubicBezier, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import getPlayerSingleton, { usePlayerState } from "@/lib/player";
-import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 import { ChevronRight } from "lucide-react";
-import { PremiumCard } from "./PremiumCard";
+import { Presence } from "@/components/Pressence";
+import SongRowExpansionPanel from "./SongRowExpansionPanel";
 
 /**
  * Props for the SongRow component
@@ -260,28 +260,19 @@ export default function SongRow({
 		song.remark.indexOf("SC") !== -1 || song.remark.indexOf("当日限定") !== -1;
 
 	return (
-		<>
+		<div className="overflow-hidden">
 			{/* Main Song Row */}
-			<motion.div
-				className="flex items-center p-3 hover:bg-black/5 rounded-lg transition-colors cursor-pointer group"
+			<div
+				className="hover:scale-[1.01] hover:shadow-md active:scale-[0.99] flex items-center p-3 hover:bg-black/5 rounded-lg cursor-pointer group"
+				style={{
+					transition: "transform 0.2s",
+					transitionDuration: "0.2s",
+					transitionTimingFunction: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+				}}
 				onClick={handleCopy}
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
-				whileHover={{
-					scale: 1.005,
-					transition: {
-						duration: 0,
-						ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
-					},
-				}}
-				whileTap={{
-					scale: 0.99,
-					transition: {
-						duration: 0,
-						ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
-					},
-				}}
 			>
 				{/* Album Avatar with Play/Pause Button Overlay */}
 				<div
@@ -452,51 +443,43 @@ export default function SongRow({
 					{/* Top row: Reaction buttons */}
 					<div className="flex items-end gap-2">
 						{/* Like button with count */}
-						<motion.div
-							whileHover={{
-								scale: 1.1,
-								transition: {
-									duration: 0,
-									ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
-								},
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-8 px-2 hover:scale-[1.2] hover:text-green-600 hover:bg-transparent transition-colors flex items-center"
+							style={{
+								transition: "transform 0.2s",
+								transitionDuration: "0.2s",
+								transitionTimingFunction:
+									"cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 							}}
+							onClick={handleLike}
+							title="喜欢"
 						>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-8 px-2 hover:text-green-600 hover:bg-transparent transition-colors flex items-center"
-								onClick={handleLike}
-								title="喜欢"
-							>
-								<span className="text-sm">❤️</span>
-								<span className="ml-1 text-xs text-slate-500 w-6 text-left">
-									{song.extra?.numLikes || 0}
-								</span>
-							</Button>
-						</motion.div>
+							<span className="text-sm">❤️</span>
+							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
+								{song.extra?.numLikes || 0}
+							</span>
+						</Button>
 						{/* Dislike button with count */}
-						<motion.div
-							whileHover={{
-								scale: 1.1,
-								transition: {
-									duration: 0,
-									ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
-								},
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-8 px-2 hover:scale-[1.2] hover:text-red-600 hover:bg-transparent transition-colors flex items-center"
+							style={{
+								transition: "transform 0.2s",
+								transitionDuration: "0.2s",
+								transitionTimingFunction:
+									"cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 							}}
+							onClick={handleDislike}
+							title="不喜欢"
 						>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-8 px-2 hover:text-red-600 hover:bg-transparent transition-colors flex items-center"
-								onClick={handleDislike}
-								title="不喜欢"
-							>
-								<span className="text-sm">😅</span>
-								<span className="ml-1 text-xs text-slate-500 w-6 text-left">
-									{song.extra?.numDislikes || 0}
-								</span>
-							</Button>
-						</motion.div>
+							<span className="text-sm">😅</span>
+							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
+								{song.extra?.numDislikes || 0}
+							</span>
+						</Button>
 					</div>
 
 					{/* Bottom row: Timestamp and expand button */}
@@ -512,25 +495,26 @@ export default function SongRow({
 								className="h-8 px-2 hover:bg-gray-100 transition-colors flex items-center gap-1"
 								title={isExpanded ? "收起播放记录" : "展开播放记录"}
 							>
-								<motion.div
-									animate={{ rotate: isExpanded ? 90 : 0 }}
-									transition={{ duration: 0.3, ease: "easeInOut" }}
-								>
-									<ChevronRight className="h-5 w-5" />
-								</motion.div>
+								<ChevronRight
+									className="h-5 w-5"
+									style={{
+										transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+										transition: "transform 0.2s",
+										transitionDuration: "0.2s",
+										transitionTimingFunction:
+											"cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+									}}
+								/>
 								<span className="text-xs text-slate-400">录播记录</span>
 							</Button>
 						</div>
 					</div>
 				</div>
-			</motion.div>
+			</div>
 
-			<AnimatePresence>
-				{/* Premium Card */}
-				{isExpanded && isPremium && <PremiumCard />}
-				{/* Song Occurrences Panel */}
-				{isExpanded && !isPremium && <SongOccurrencesPanel song={song} />}
-			</AnimatePresence>
-		</>
+			<Presence present={isExpanded}>
+				<SongRowExpansionPanel song={song} present={isExpanded} />
+			</Presence>
+		</div>
 	);
 }

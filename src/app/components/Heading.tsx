@@ -8,14 +8,16 @@ interface PropType {
 	renderAvatar: () => React.ReactNode;
 }
 
-export default function Heading({ songCount, profile, renderAvatar }: PropType) {
+export default function Heading({
+	songCount,
+	profile,
+	renderAvatar,
+}: PropType) {
 	const { name } = profile;
 
 	return (
 		<div className="w-full text-center my-6">
-			<div className="mb-4">
-				{renderAvatar()}
-			</div>
+			<div className="mb-4">{renderAvatar()}</div>
 			<h1 className="text-center text-3xl md:text-4xl lg:text-5xl text-black font-light font-alex_chinese">
 				{name}
 			</h1>

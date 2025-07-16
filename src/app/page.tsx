@@ -1,4 +1,8 @@
-import { getVtuberProfileCached, readFooters, readSongAllNoCacheLatest } from "./actions/crud";
+import {
+	getVtuberProfileCached,
+	readFooters,
+	readSongAllNoCacheLatest,
+} from "./actions/crud";
 import Root from "./Root";
 
 export default async function Home() {
