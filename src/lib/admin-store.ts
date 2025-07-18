@@ -160,6 +160,8 @@ export const useCreateVtuberProfileMutation = () => {
 					profile.name,
 					profile.metaTitle,
 					profile.metaDescription ?? "",
+					profile.mid,
+					profile.roomId,
 				);
 				if (!result.success) {
 					throw new Error(result.message);
@@ -209,6 +211,7 @@ export const useCreateThemeMutation = () => {
 					theme.description,
 					theme.avatarImagePath ?? "",
 					theme.backgroundImagePath ?? "",
+					theme.faviconImagePath ?? "",
 					theme.isActive,
 					theme.vtuberProfileId,
 				);
