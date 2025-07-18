@@ -119,6 +119,22 @@ export default function ProfilePanel() {
 							</label>
 							<p className="text-lg">{profile?.name}</p>
 						</div>
+						{profile?.mid && (
+							<div>
+								<label className="text-sm font-medium text-gray-700">
+									Bilibili 用户 ID
+								</label>
+								<p className="text-gray-600">{profile.mid}</p>
+							</div>
+						)}
+						{profile?.roomId && (
+							<div>
+								<label className="text-sm font-medium text-gray-700">
+									Bilibili 直播间 ID
+								</label>
+								<p className="text-gray-600">{profile.roomId}</p>
+							</div>
+						)}
 						{profile?.metaTitle && (
 							<div>
 								<label className="text-sm font-medium text-gray-700">

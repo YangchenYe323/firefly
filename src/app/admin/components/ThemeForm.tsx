@@ -89,24 +89,41 @@ export default function ThemeForm({
 								placeholder="/img/background.png"
 							/>
 						</div>
-						<div className="flex items-center space-x-2">
-							<input
-								id="isActive"
-								type="checkbox"
-								checked={themeEditOrCreate.theme.isActive}
+						<div>
+							<Label htmlFor="faviconImagePath">Favicon 图片路径</Label>
+							<Input
+								id="faviconImagePath"
+								value={themeEditOrCreate.theme.faviconImagePath ?? ""}
 								onChange={(e) =>
 									setFormData({
 										...themeEditOrCreate,
 										theme: {
 											...themeEditOrCreate.theme,
-											isActive: e.target.checked,
+											faviconImagePath: e.target.value,
 										},
 									})
 								}
-								className="rounded"
+								placeholder="/img/favicon.ico"
 							/>
-							<Label htmlFor="isActive">启用主题</Label>
 						</div>
+					</div>
+					<div className="flex items-center space-x-2">
+						<input
+							id="isActive"
+							type="checkbox"
+							checked={themeEditOrCreate.theme.isActive}
+							onChange={(e) =>
+								setFormData({
+									...themeEditOrCreate,
+									theme: {
+										...themeEditOrCreate.theme,
+										isActive: e.target.checked,
+									},
+								})
+							}
+							className="rounded"
+						/>
+						<Label htmlFor="isActive">启用主题</Label>
 					</div>
 					<div>
 						<Label htmlFor="description">描述</Label>

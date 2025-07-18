@@ -43,6 +43,7 @@ export default function ThemesPanel() {
 				description: "",
 				avatarImagePath: "",
 				backgroundImagePath: "",
+				faviconImagePath: "",
 				isActive: true,
 				vtuberProfileId: vtuberProfile?.id ?? 0,
 				createdOn: new Date(),
@@ -157,6 +158,9 @@ export default function ThemesPanel() {
 												<span>头像: {theme.avatarImagePath}</span>
 												{theme.backgroundImagePath && (
 													<span>背景: {theme.backgroundImagePath}</span>
+												)}
+												{theme.faviconImagePath && (
+													<span>Favicon: {theme.faviconImagePath}</span>
 												)}
 											</div>
 										</div>

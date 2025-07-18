@@ -292,6 +292,8 @@ export async function createVtuberProfile(
 	name: string,
 	metaTitle: string,
 	metaDescription: string,
+	mid?: string | null,
+	roomId?: string | null,
 ): Promise<CreateVtuberProfileReturnType> {
 	const authResult = await auth();
 	if (!authResult) {
@@ -314,6 +316,8 @@ export async function createVtuberProfile(
 			name,
 			metaTitle,
 			metaDescription,
+			mid: mid || null,
+			roomId: roomId || null,
 		},
 	});
 
@@ -342,13 +346,13 @@ export async function updateVtuberProfile(
 		where: { id: profile.id },
 		data: {
 			name: profile.name || undefined,
+			mid: profile.mid || undefined,
+			roomId: profile.roomId || undefined,
 			metaTitle: profile.metaTitle || undefined,
 			metaDescription: profile.metaDescription || undefined,
 			defaultThemeId: profile.defaultThemeId || undefined,
 		},
 	});
-
-	console.log("updated profile", profile);
 
 	return {
 		success: true,
@@ -365,6 +369,7 @@ export async function createThemeForProfile(
 	description: string,
 	avatarImagePath: string,
 	backgroundImagePath: string,
+	faviconImagePath: string,
 	isActive: boolean,
 	vtuberProfileId: number,
 ): Promise<CreateThemeReturnType> {
@@ -382,6 +387,7 @@ export async function createThemeForProfile(
 			description,
 			avatarImagePath,
 			backgroundImagePath,
+			faviconImagePath,
 			isActive,
 			vtuberProfileId,
 		},
@@ -415,6 +421,7 @@ export async function updateThemeForProfile(
 			description: themeToUpdate.description || undefined,
 			avatarImagePath: themeToUpdate.avatarImagePath || undefined,
 			backgroundImagePath: themeToUpdate.backgroundImagePath || undefined,
+			faviconImagePath: themeToUpdate.faviconImagePath || undefined,
 			isActive: themeToUpdate.isActive ?? undefined,
 		},
 	});

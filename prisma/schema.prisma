@@ -1,6 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  // output        = "../src/generated/client"
   binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -16,49 +15,55 @@ datasource db {
 
 /// Vtuber profile configuration - stores the main vtuber information
 model VtuberProfile {
-  id                Int                 @id @default(autoincrement())
+  id              Int                  @id @default(autoincrement())
   /// Name of the vtuber
-  name              String
+  name            String
+  /// mid of the vtuber
+  mid             String?              @unique
+  /// live room id of the vtuber
+  roomId          String?              @unique
   /// Meta title for SEO
-  metaTitle         String?
+  metaTitle       String?
   /// Meta description for SEO
-  metaDescription   String?
+  metaDescription String?
   /// Default theme ID
-  defaultThemeId    Int?                @unique
+  defaultThemeId  Int?                 @unique
   /// Default theme relation
-  defaultTheme      Theme?              @relation("DefaultTheme", fields: [defaultThemeId], references: [id])
+  defaultTheme    Theme?               @relation("DefaultTheme", fields: [defaultThemeId], references: [id])
   /// External links for the vtuber
-  externalLinks     VtuberExternalLink[]
+  externalLinks   VtuberExternalLink[]
   /// Available themes for this vtuber
-  themes            Theme[]
+  themes          Theme[]
   /// When this profile was created
-  createdOn         DateTime            @default(now())
+  createdOn       DateTime             @default(now())
   /// When this profile was last updated
-  updatedOn         DateTime            @updatedAt
+  updatedOn       DateTime             @updatedAt
 }
 
 /// Theme configuration - stores different visual themes for the vtuber
 model Theme {
-  id                Int            @id @default(autoincrement())
+  id                  Int            @id @default(autoincrement())
   /// Name of the theme
-  name              String
+  name                String
   /// Description of the theme
-  description       String?
+  description         String?
   /// Avatar image URL for user navigation
-  avatarImagePath   String
+  avatarImagePath     String
   /// Background image URL
   backgroundImagePath String?
+  /// favicon image URL
+  faviconImagePath    String?
   /// Whether this theme is active
-  isActive          Boolean         @default(true)
+  isActive            Boolean        @default(true)
   /// Vtuber profile that owns this theme
-  vtuberProfileId   Int
-  vtuberProfile     VtuberProfile   @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  vtuberProfileId     Int
+  vtuberProfile       VtuberProfile  @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
   /// Default theme relation (reverse)
-  defaultForProfile VtuberProfile?  @relation("DefaultTheme")
+  defaultForProfile   VtuberProfile? @relation("DefaultTheme")
   /// When this theme was created
-  createdOn         DateTime        @default(now())
+  createdOn           DateTime       @default(now())
   /// When this theme was last updated
-  updatedOn         DateTime        @updatedAt
+  updatedOn           DateTime       @updatedAt
 }
 
 /// External links for the vtuber (social media, etc.)
@@ -127,7 +132,7 @@ model LiveRecordingArchive {
   /// Title of the live recording
   title                String
   /// Publish date of the live recording (unix seconds)
-  pubdate              Int  
+  pubdate              Int
   /// Duration of the live recording (seconds)
   duration             Int
   /// Cover image url of the recording
@@ -153,7 +158,7 @@ model SongOccurrenceInLive {
   /// The start time of the song in the live (seconds since the start of the live)
   start Int
   /// The page number of the live recording (1-indexed), refer to B站分P视频
-  page Int
+  page  Int
 
   @@id([songId, liveRecordingArchiveId])
 }

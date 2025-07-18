@@ -36,10 +36,12 @@ export default function ProfileForm({
 			createdOn: new Date(),
 			updatedOn: new Date(),
 			name: "",
+			mid: null,
+			roomId: null,
 			metaTitle: "",
 			metaDescription: "",
 			defaultThemeId: null,
-		},
+		} as VtuberProfile,
 	);
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +92,30 @@ export default function ProfileForm({
 									))}
 								</SelectContent>
 							</Select>
+						</div>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<Label htmlFor="mid">Bilibili 用户 ID (mid)</Label>
+							<Input
+								id="mid"
+								value={profileForm.mid ?? ""}
+								onChange={(e) =>
+									setProfileForm({ ...profileForm, mid: e.target.value || null })
+								}
+								placeholder="例如: 12345678"
+							/>
+						</div>
+						<div>
+							<Label htmlFor="roomId">Bilibili 直播间 ID</Label>
+							<Input
+								id="roomId"
+								value={profileForm.roomId ?? ""}
+								onChange={(e) =>
+									setProfileForm({ ...profileForm, roomId: e.target.value || null })
+								}
+								placeholder="例如: 123456"
+							/>
 						</div>
 					</div>
 					<div>

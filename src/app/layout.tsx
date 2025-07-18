@@ -37,6 +37,9 @@ export async function generateMetadata(): Promise<Metadata> {
 					title: profile.metaTitle || "Vtuber Profile",
 					description: profile.metaDescription || "Vtuber Profile",
 				},
+				icons: {
+					icon: profile.defaultTheme?.faviconImagePath || "/favicon.ico",
+				},
 			};
 		}
 	} catch (error) {
