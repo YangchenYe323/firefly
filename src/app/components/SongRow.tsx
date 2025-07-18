@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
 import type { Song } from "@prisma/client";
-import { cubicBezier, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import getPlayerSingleton, { usePlayerState } from "@/lib/player";
 import { ChevronRight } from "lucide-react";
@@ -75,6 +74,36 @@ export default function SongRow({
 	// This is crucial for distinguishing between taps and scrolls on mobile
 	const hasScrolledRef = useRef(false);
 
+	// Flag to track if we've already handled a touch event to prevent double execution
+	// This prevents both onClick and onTouchEnd from firing for the same interaction
+	const hasHandledTouchRef = useRef(false);
+
+	/**
+	 * TOUCH EVENT FIRING SEQUENCE DIFFERENCES BY PLATFORM:
+	 *
+	 * ANDROID (Chrome/WebView):
+	 * - Event sequence: touchstart → touchmove → touchend → click (immediate)
+	 * - Problem: Both touch and click events fire for the same interaction
+	 * - Result: Double execution (handleTouchEnd + handleCopy both run)
+	 *
+	 * iOS (Safari):
+	 * - Event sequence: touchstart → touchmove → touchend (immediate) → click (300ms delay)
+	 * - Smart cancellation: iOS often cancels click events if touch events are handled
+	 * - Result: Usually only touch events fire, no double execution
+	 *
+	 * DESKTOP (Chrome/Firefox/Safari):
+	 * - Event sequence: mousedown → mousemove → mouseup → click (no touch events)
+	 * - Result: Only click events fire, no double execution
+	 *
+	 * OUR FIX:
+	 * - Track touch handling with hasHandledTouchRef
+	 * - When handleTouchEnd executes copy, set hasHandledTouchRef.current = true
+	 * - handleCopy checks this flag and returns early if touch already handled
+	 * - Reset flag after 100ms to allow subsequent legitimate clicks
+	 * - This specifically targets Android's immediate click firing while preserving
+	 *   functionality on iOS and desktop
+	 */
+
 	// Album art fallback state
 	const [imgError, setImgError] = useState(false);
 
@@ -104,8 +133,13 @@ export default function SongRow({
 	/**
 	 * Copy song information to clipboard
 	 * Triggered by tapping on the song row (excluding buttons)
+	 * Only fires on desktop or when touch events haven't already handled the interaction
 	 */
 	const handleCopy = () => {
+		// Prevent double execution on mobile devices where both touch and click events fire
+		if (hasHandledTouchRef.current) {
+			return;
+		}
 		onCopyToClipboard(song);
 	};
 
@@ -143,8 +177,9 @@ export default function SongRow({
 			y: touch.clientY,
 			time: Date.now(),
 		};
-		// Reset scroll flag for new touch interaction
+		// Reset flags for new touch interaction
 		hasScrolledRef.current = false;
+		hasHandledTouchRef.current = false;
 	};
 
 	/**
@@ -185,6 +220,7 @@ export default function SongRow({
 		if (!touchStartRef.current || hasScrolledRef.current) {
 			touchStartRef.current = null;
 			hasScrolledRef.current = false;
+			hasHandledTouchRef.current = false;
 			return;
 		}
 
@@ -210,11 +246,21 @@ export default function SongRow({
 			!isOnButton
 		) {
 			onCopyToClipboard(song);
+			// Mark that we've handled this touch interaction to prevent onClick from firing
+			hasHandledTouchRef.current = true;
 		}
 
 		// Clean up touch tracking state
 		touchStartRef.current = null;
 		hasScrolledRef.current = false;
+
+		// Reset the handled flag after a short delay to allow for subsequent interactions
+		// This prevents the flag from blocking legitimate click events on desktop
+		if (hasHandledTouchRef.current) {
+			setTimeout(() => {
+				hasHandledTouchRef.current = false;
+			}, 100);
+		}
 	};
 
 	/**
@@ -276,7 +322,7 @@ export default function SongRow({
 			>
 				{/* Album Avatar with Play/Pause Button Overlay */}
 				<div
-					className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden relative album-art-container"
+					className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-2 sm:mr-4 overflow-hidden relative album-art-container"
 					onClick={(e) => {
 						// On mobile, make the entire album art clickable for playable songs
 						if (isPlayable && !isCurrentlyPlaying) {
@@ -291,12 +337,12 @@ export default function SongRow({
 							alt={`${song.title} album art`}
 							width={48}
 							height={48}
-							className="object-cover w-12 h-12"
+							className="object-cover w-10 h-10 sm:w-12 sm:h-12"
 							onError={() => setImgError(true)}
 							unoptimized={false}
 						/>
 					) : (
-						<Icons.music_note className="w-6 h-6 text-gray-500" />
+						<Icons.music_note className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
 					)}
 
 					{/* Play/Pause Button Overlay - Only show for playable songs */}
@@ -338,9 +384,9 @@ export default function SongRow({
 				</div>
 
 				{/* Song Info Section */}
-				<div className="flex-1 min-w-0 mr-4">
-					<div className="flex items-center gap-2">
-						<h3 className="text-md font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+				<div className="flex-1 min-w-0 mr-2 sm:mr-4">
+					<div className="flex items-center gap-1 sm:gap-2">
+						<h3 className="text-sm sm:text-md font-semibold text-slate-800 break-words group-hover:text-blue-600 transition-colors leading-tight">
 							{song.title}
 						</h3>
 						{/* 上船限定图标 - Governor tier icon */}
@@ -430,23 +476,25 @@ export default function SongRow({
 						)}
 						{/* Song remark/notes */}
 						{song.remark && (
-							<span className="text-sm text-slate-500 truncate hidden sm:inline">
+							<span className="text-xs sm:text-sm text-slate-500 break-words hidden sm:inline">
 								{song.remark}
 							</span>
 						)}
 					</div>
-					<p className="text-sm text-slate-500 truncate mt-1">{song.artist}</p>
+					<p className="text-xs sm:text-sm text-slate-500 break-words mt-1 leading-tight">
+						{song.artist}
+					</p>
 				</div>
 
 				{/* Right side Actions & Date */}
-				<div className="flex flex-col items-end gap-1 text-slate-500">
+				<div className="flex flex-col items-end gap-1 text-slate-500 flex-shrink-0">
 					{/* Top row: Reaction buttons */}
-					<div className="flex items-end gap-2">
+					<div className="flex items-end gap-1 sm:gap-2">
 						{/* Like button with count */}
 						<Button
 							variant="ghost"
 							size="sm"
-							className="h-8 px-2 hover:scale-[1.2] hover:text-green-600 hover:bg-transparent active:scale-[0.8] transition-colors flex items-center"
+							className="h-6 sm:h-8 px-1 sm:px-2 hover:scale-[1.2] hover:text-green-600 hover:bg-transparent active:scale-[0.8] transition-colors flex items-center"
 							style={{
 								transition: "transform 0.2s",
 								transitionDuration: "0.2s",
@@ -456,8 +504,8 @@ export default function SongRow({
 							onClick={handleLike}
 							title="喜欢"
 						>
-							<span className="text-sm">❤️</span>
-							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
+							<span className="text-xs sm:text-sm">❤️</span>
+							<span className="ml-0.5 sm:ml-1 text-xs text-slate-500 w-4 sm:w-6 text-left">
 								{song.extra?.numLikes || 0}
 							</span>
 						</Button>
@@ -465,7 +513,7 @@ export default function SongRow({
 						<Button
 							variant="ghost"
 							size="sm"
-							className="h-8 px-2 hover:scale-[1.2] hover:text-red-600 hover:bg-transparent active:scale-[0.8] transition-colors flex items-center"
+							className="h-6 sm:h-8 px-1 sm:px-2 hover:scale-[1.2] hover:text-red-600 hover:bg-transparent active:scale-[0.8] transition-colors flex items-center"
 							style={{
 								transition: "transform 0.2s",
 								transitionDuration: "0.2s",
@@ -475,15 +523,15 @@ export default function SongRow({
 							onClick={handleDislike}
 							title="不喜欢"
 						>
-							<span className="text-sm">😅</span>
-							<span className="ml-1 text-xs text-slate-500 w-6 text-left">
+							<span className="text-xs sm:text-sm">😅</span>
+							<span className="ml-0.5 sm:ml-1 text-xs text-slate-500 w-4 sm:w-6 text-left">
 								{song.extra?.numDislikes || 0}
 							</span>
 						</Button>
 					</div>
 
 					{/* Bottom row: Timestamp and expand button */}
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1 sm:gap-2">
 						<p className="text-xs font-mono whitespace-nowrap text-slate-400">
 							{formatDate(song.created_on)}
 						</p>
@@ -492,11 +540,11 @@ export default function SongRow({
 								variant="ghost"
 								size="sm"
 								onClick={handleExpand}
-								className="h-8 px-2 hover:bg-gray-100 transition-colors flex items-center gap-1"
+								className="h-6 sm:h-8 px-1 sm:px-2 hover:bg-gray-100 transition-colors flex items-center gap-1"
 								title={isExpanded ? "收起播放记录" : "展开播放记录"}
 							>
 								<ChevronRight
-									className="h-5 w-5"
+									className="h-4 w-4 sm:h-5 sm:w-5"
 									style={{
 										transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
 										transition: "transform 0.2s",
@@ -505,7 +553,9 @@ export default function SongRow({
 											"cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 									}}
 								/>
-								<span className="text-xs text-slate-400">录播记录</span>
+								<span className="text-xs text-slate-400 hidden sm:inline">
+									录播记录
+								</span>
 							</Button>
 						</div>
 					</div>
