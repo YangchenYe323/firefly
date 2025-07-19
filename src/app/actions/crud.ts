@@ -48,7 +48,7 @@ export async function createSong(song: Song): Promise<CreateSongReturnType> {
 			tag: song.tag,
 			remark: song.remark,
 			url: song.url,
-			lyrics_fragment: song.lyrics_fragment || null,
+			lyricsFragment: song.lyricsFragment || null,
 			extra: {},
 		},
 	});
@@ -76,7 +76,7 @@ export async function readSongAllNoCacheLatest(): Promise<ReadSongReturnType> {
 	const _cookies = cookies();
 	const songs = await prisma.song.findMany({
 		orderBy: {
-			created_on: "desc",
+			createdOn: "desc",
 		},
 	});
 
@@ -128,7 +128,7 @@ export async function updateSong(song: Song): Promise<UpdateSongReturnType> {
 				tag: song.tag,
 				remark: song.remark,
 				url: song.url,
-				lyrics_fragment: song.lyrics_fragment || null,
+				lyricsFragment: song.lyricsFragment || null,
 			},
 		});
 	} else {
@@ -157,7 +157,7 @@ export async function updateSong(song: Song): Promise<UpdateSongReturnType> {
 				tag: song.tag,
 				remark: song.remark,
 				url: song.url,
-				lyrics_fragment: song.lyrics_fragment || null,
+				lyricsFragment: song.lyricsFragment || null,
 				extra: {
 					...oldSong.extra,
 					video_created_on,
