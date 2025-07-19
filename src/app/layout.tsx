@@ -18,32 +18,32 @@ const alexBrush = Alex_Brush({
 
 // Dynamic metadata generation
 export async function generateMetadata(): Promise<Metadata> {
-	try {
-		const { profile } = await getVtuberProfileCached();
+	const { profile } = await getVtuberProfileCached();
 
-		if (profile) {
-			return {
-				title: profile.metaTitle || "Vtuber Profile",
-				description: profile.metaDescription || "Vtuber Profile",
-				// You can add more metadata fields here
-				openGraph: {
-					title: profile.metaTitle || "Vtuber Profile",
-					description: profile.metaDescription || "Vtuber Profile",
-					// Add Open Graph image if you have one
-					// images: profile.themes[0]?.avatarImagePath ? [profile.themes[0].avatarImagePath] : [],
-				},
-				twitter: {
-					card: "summary",
-					title: profile.metaTitle || "Vtuber Profile",
-					description: profile.metaDescription || "Vtuber Profile",
-				},
-				icons: {
-					icon: profile.defaultTheme?.faviconImagePath || "/favicon.ico",
-				},
-			};
-		}
-	} catch (error) {
-		console.error("Failed to fetch profile for metadata:", error);
+	if (profile) {
+		return {
+			title: profile.metaTitle || "主播歌单",
+			description: profile.metaDescription || "主播歌单",
+			generator: "Next.js",
+			keywords: ["主播歌单", "vtuber", "bilibili", "live", "music"],
+			robots: {
+				index: true,
+				follow: false,
+			},
+			icons: profile.themes.filter((theme) => theme.isActive).map((theme) => ({
+				rel: "icon",
+				url: theme.faviconImagePath!,
+			})),
+			openGraph: {
+				title: profile.metaTitle || "主播歌单",
+				description: profile.metaDescription || "主播歌单",
+			},
+			twitter: {
+				card: "summary",
+				title: profile.metaTitle || "主播歌单",
+				description: profile.metaDescription || "主播歌单",
+			},
+		};
 	}
 
 	// Fallback metadata
