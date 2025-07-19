@@ -321,9 +321,9 @@ export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
 					<Label htmlFor="lyrics_fragment">歌词片段</Label>
 					<Textarea
 						id="lyrics_fragment"
-						value={formData.song.lyrics_fragment || ""}
+						value={formData.song.lyricsFragment || ""}
 						onChange={(e) =>
-							handleInputChange("lyrics_fragment", e.target.value)
+							handleInputChange("lyricsFragment", e.target.value)
 						}
 						placeholder="输入歌词片段..."
 						rows={4}
