@@ -27,7 +27,6 @@ model VtuberProfile {
   metaTitle             String
   /// Meta description for SEO
   metaDescription       String
-
   /// Default theme ID
   defaultThemeId        Int?                   @unique
   /// Default theme relation
