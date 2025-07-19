@@ -41,7 +41,7 @@ export default function ThemeForm({
 							<Label htmlFor="name">主题名称</Label>
 							<Input
 								id="name"
-								value={themeEditOrCreate.theme.name}
+								value={themeEditOrCreate.theme.name ?? ""}
 								onChange={(e) =>
 									setFormData({
 										...themeEditOrCreate,

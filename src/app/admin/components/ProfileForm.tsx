@@ -36,8 +36,8 @@ export default function ProfileForm({
 			createdOn: new Date(),
 			updatedOn: new Date(),
 			name: "",
-			mid: null,
-			roomId: null,
+			mid: "",
+			roomId: "",
 			metaTitle: "",
 			metaDescription: "",
 			defaultThemeId: null,
@@ -101,7 +101,7 @@ export default function ProfileForm({
 								id="mid"
 								value={profileForm.mid ?? ""}
 								onChange={(e) =>
-									setProfileForm({ ...profileForm, mid: e.target.value || null })
+									setProfileForm({ ...profileForm, mid: e.target.value})
 								}
 								placeholder="例如: 12345678"
 							/>
@@ -112,7 +112,7 @@ export default function ProfileForm({
 								id="roomId"
 								value={profileForm.roomId ?? ""}
 								onChange={(e) =>
-									setProfileForm({ ...profileForm, roomId: e.target.value || null })
+									setProfileForm({ ...profileForm, roomId: e.target.value})
 								}
 								placeholder="例如: 123456"
 							/>

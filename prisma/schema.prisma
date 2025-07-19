@@ -18,14 +18,14 @@ model VtuberProfile {
   id              Int                  @id @default(autoincrement())
   /// Name of the vtuber
   name            String
-  /// mid of the vtuber
-  mid             String?              @unique
-  /// live room id of the vtuber
-  roomId          String?              @unique
+  /// bilibili mid of the vtuber
+  mid             String              @unique
+  /// bilibili live room id of the vtuber
+  roomId          String              @unique
   /// Meta title for SEO
-  metaTitle       String?
+  metaTitle       String
   /// Meta description for SEO
-  metaDescription String?
+  metaDescription String
   /// Default theme ID
   defaultThemeId  Int?                 @unique
   /// Default theme relation
@@ -44,15 +44,15 @@ model VtuberProfile {
 model Theme {
   id                  Int            @id @default(autoincrement())
   /// Name of the theme
-  name                String
+  name                String?
   /// Description of the theme
   description         String?
   /// Avatar image URL for user navigation
   avatarImagePath     String
   /// Background image URL
-  backgroundImagePath String?
+  backgroundImagePath String
   /// favicon image URL
-  faviconImagePath    String?
+  faviconImagePath    String
   /// Whether this theme is active
   isActive            Boolean        @default(true)
   /// Vtuber profile that owns this theme
