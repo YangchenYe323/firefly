@@ -292,8 +292,8 @@ export async function createVtuberProfile(
 	name: string,
 	metaTitle: string,
 	metaDescription: string,
-	mid?: string | null,
-	roomId?: string | null,
+	mid: string,
+	roomId: string,
 ): Promise<CreateVtuberProfileReturnType> {
 	const authResult = await auth();
 	if (!authResult) {
@@ -316,8 +316,8 @@ export async function createVtuberProfile(
 			name,
 			metaTitle,
 			metaDescription,
-			mid: mid || null,
-			roomId: roomId || null,
+			mid: mid,
+			roomId: roomId,
 		},
 	});
 

@@ -148,14 +148,6 @@ export const useCreateVtuberProfileMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (profile: VtuberProfile) => {
-				if (!profile.name) {
-					throw new Error("虚拟主播名称不能为空");
-				}
-
-				if (!profile.metaTitle) {
-					throw new Error("虚拟主播网站标签页标题不能为空");
-				}
-
 				const result = await createVtuberProfile(
 					profile.name,
 					profile.metaTitle,
