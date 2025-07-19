@@ -182,13 +182,13 @@ export default function SongTable({
 									<TableCell className="hidden md:table-cell">
 										<span
 											className="truncate max-w-[130px] block text-sm text-muted-foreground"
-											title={song.lyrics_fragment || "无歌词"}
+											title={song.lyricsFragment || "无歌词"}
 										>
-											{song.lyrics_fragment ? (
-												song.lyrics_fragment.length > 50 ? (
-													`${song.lyrics_fragment.substring(0, 50)}...`
+											{song.lyricsFragment ? (
+												song.lyricsFragment.length > 50 ? (
+													`${song.lyricsFragment.substring(0, 50)}...`
 												) : (
-													song.lyrics_fragment
+													song.lyricsFragment
 												)
 											) : (
 												<span className="text-muted-foreground">-</span>

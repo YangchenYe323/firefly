@@ -80,10 +80,9 @@ export default function AdminLayout() {
 				lang: [],
 				tag: [],
 				url: null,
-				lyrics_fragment: null,
-
-				// The below fields are not editable
-				created_on: new Date(),
+				lyricsFragment: null,
+				createdOn: new Date(),
+				updatedOn: new Date(),
 				extra: {},
 			},
 			create: true,

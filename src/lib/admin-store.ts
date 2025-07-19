@@ -105,7 +105,7 @@ export const filteredSongsAtom = atom((get) => {
 	const showOnlyWithoutLyrics = get(showOnlyWithoutLyricsAtom);
 
 	return songs.data?.filter((song: Song) => {
-		if (showOnlyWithoutLyrics && song.lyrics_fragment) {
+		if (showOnlyWithoutLyrics && song.lyricsFragment) {
 			return false;
 		}
 		return (
@@ -118,7 +118,7 @@ export const filteredSongsAtom = atom((get) => {
 				tag.toLowerCase().includes(searchQuery.toLowerCase()),
 			) ||
 			song.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			song.lyrics_fragment?.toLowerCase().includes(searchQuery.toLowerCase())
+			song.lyricsFragment?.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 	});
 });

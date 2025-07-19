@@ -533,7 +533,7 @@ export default function SongRow({
 					{/* Bottom row: Timestamp and expand button */}
 					<div className="flex items-center gap-1 sm:gap-2">
 						<p className="text-xs font-mono whitespace-nowrap text-slate-400">
-							{formatDate(song.created_on)}
+							{formatDate(song.createdOn)}
 						</p>
 						<div className="flex items-center gap-1">
 							<Button
