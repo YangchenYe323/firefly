@@ -1,7 +1,6 @@
 "use client";
 
 import type { FC } from "react";
-import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 
 interface PropType {
 	songCount: number;

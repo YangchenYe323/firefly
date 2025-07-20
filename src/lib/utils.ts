@@ -19,88 +19,6 @@ export function shuffleArray<T>(arr: T[]) {
 	return res;
 }
 
-export function isNewlyAdded(song: Song) {
-	const creationDate = song.createdOn;
-	const lastTwoMonth = new Date();
-	lastTwoMonth.setDate(0);
-	lastTwoMonth.setDate(0);
-	lastTwoMonth.setDate(1);
-	return creationDate >= lastTwoMonth;
-}
-
-export function isVideoNewlyCreated(song: Song) {
-	const video_created = song.extra.video_created_on;
-	if (!video_created) {
-		return false;
-	}
-
-	const lastTwoMonth = new Date();
-	lastTwoMonth.setDate(0);
-	lastTwoMonth.setDate(0);
-	lastTwoMonth.setDate(1);
-
-	return new Date(Date.parse(video_created)) >= lastTwoMonth;
-}
-
-export function wontSing(song: Song) {
-	return song.tag.indexOf("NO") !== -1;
-}
-
-export enum LimitedFor {
-	Captain = 0,
-	Admiral = 1,
-	Governor = 2,
-}
-
-export function getLimitedFor(song: Song) {
-	if (
-		song.remark.indexOf("上总") !== -1 ||
-		song.remark.indexOf("总督") !== -1
-	) {
-		return LimitedFor.Governor;
-	}
-
-	if (
-		song.remark.indexOf("上提") !== -1 ||
-		song.remark.indexOf("提督") !== -1
-	) {
-		return LimitedFor.Admiral;
-	}
-
-	if (
-		song.remark.indexOf("上舰") !== -1 ||
-		song.remark.indexOf("舰长") !== -1
-	) {
-		return LimitedFor.Captain;
-	}
-
-	return null;
-}
-
-export function orderNewSongsFirst(allSongs: Song[]) {
-	const newSongs = allSongs.filter(isNewlyAdded);
-	newSongs.sort((s1, s2) => {
-		return s1.createdOn.getTime() > s2.createdOn.getTime()
-			? -1
-			: s1.createdOn.getTime() === s2.createdOn.getTime()
-				? 0
-				: 1;
-	});
-	const oldSongs = allSongs.filter((song) => !isNewlyAdded(song));
-	return [...newSongs, ...oldSongs];
-}
-
-export function orderSongsWithNewVideoFirst(allSongs: Song[]) {
-	const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
-	songsWithNewVideo.sort((s1, s2) => {
-		const s1Time = Date.parse(s1.extra.video_created_on!);
-		const s2Time = Date.parse(s2.extra.video_created_on!);
-		return s1Time > s2Time ? -1 : s1Time === s2Time ? 0 : 1;
-	});
-	const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));
-	return [...songsWithNewVideo, ...oldSongs];
-}
-
 /**
  * Copies song information to clipboard with robust error handling
  *
@@ -158,16 +76,6 @@ export function onCopyToClipboard(song: Song) {
 	}
 }
 
-export function extractBvidFromUrl(url: string): string | null {
-	const re = /www.bilibili.com\/video\/(BV[\w\d]+)(\/.*)?$/;
-	const match = url.match(re);
-
-	if (!match) {
-		return null;
-	}
-
-	return match[1];
-}
 
 function padTime(value: number) {
 	const str = value.toString();

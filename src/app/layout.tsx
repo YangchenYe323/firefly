@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from "sonner";
 import { Providers } from "./providers";
-import { getVtuberProfileCached } from "./actions/crud";
+import { getVtuberProfileCached } from "./actions/v2/profile";
 
 const alexBrush = Alex_Brush({
 	display: "swap",

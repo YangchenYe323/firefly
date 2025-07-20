@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Song } from "@prisma/client";
-import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
+// import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 
 interface SongTableProps {
 	songs: Song[];
@@ -75,12 +75,6 @@ export default function SongTable({
 						<TableHead className="min-w-[150px] hidden md:table-cell">
 							歌词片段
 						</TableHead>
-						<TableHead className="min-w-[100px] hidden md:table-cell">
-							链接
-						</TableHead>
-						<TableHead className="min-w-[100px] hidden md:table-cell">
-							备注
-						</TableHead>
 						<TableHead className="w-20">操作</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -113,9 +107,6 @@ export default function SongTable({
 													<ChevronRight className="w-3 h-3" />
 												</motion.div>
 											</Button>
-											{(song.extra as any)?.bucket_url && (
-												<Music className="w-4 h-4 text-blue-500" />
-											)}
 											<div className="min-w-0 flex-1">
 												<div className="truncate" title={song.title}>
 													{song.title}
@@ -196,30 +187,6 @@ export default function SongTable({
 										</span>
 									</TableCell>
 
-									<TableCell className="hidden md:table-cell">
-										{song.url ? (
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() => window.open(song.url!, "_blank")}
-												className="h-6 px-2"
-											>
-												<ExternalLink className="w-3 h-3" />
-											</Button>
-										) : (
-											<span className="text-muted-foreground text-sm">-</span>
-										)}
-									</TableCell>
-
-									<TableCell className="hidden md:table-cell">
-										<span
-											className="truncate max-w-[80px] block text-sm text-muted-foreground"
-											title={song.remark}
-										>
-											{song.remark || "-"}
-										</span>
-									</TableCell>
-
 									<TableCell>
 										<div className="flex items-center gap-1">
 											<Button
@@ -243,7 +210,7 @@ export default function SongTable({
 								</TableRow>
 
 								{/* Expanded Row for Occurrences */}
-								<AnimatePresence>
+								{/* <AnimatePresence>
 									{isExpanded && (
 										<TableRow key={`${song.id}-expanded`}>
 											<TableCell colSpan={8} className="p-0">
@@ -255,7 +222,7 @@ export default function SongTable({
 											</TableCell>
 										</TableRow>
 									)}
-								</AnimatePresence>
+								</AnimatePresence> */}
 							</>
 						);
 					})}

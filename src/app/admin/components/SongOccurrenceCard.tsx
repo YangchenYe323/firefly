@@ -7,11 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Play, ExternalLink, ImageOff, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { deleteSongOccurrence } from "@/app/actions/crud";
-import type { SongOccurrence } from "@/app/actions/song-occurrences";
-
+import type { SongOccurrenceInLiveWithReferences } from "@/app/actions/v2/song";
 interface SongOccurrenceCardProps {
-	occurrence: SongOccurrence;
+	occurrence: SongOccurrenceInLiveWithReferences;
 	index: number;
 	songId: number;
 	onDelete?: () => void;
@@ -27,7 +25,7 @@ export function SongOccurrenceCard({
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	// Calculate progress percentage based on start time and duration
-	const progressPercentage = (occurrence.start / occurrence.duration) * 100;
+	const progressPercentage = (occurrence.start / occurrence.liveRecordingArchive.duration) * 100;
 
 	// Format time for display
 	const formatTime = (seconds: number) => {
@@ -43,7 +41,7 @@ export function SongOccurrenceCard({
 
 	// Generate Bilibili URL with timestamp and page
 	const generateBilibiliUrl = () => {
-		const baseUrl = `https://www.bilibili.com/video/${occurrence.bvid}`;
+		const baseUrl = `https://www.bilibili.com/video/${occurrence.liveRecordingArchive.bvid}`;
 		const params = new URLSearchParams();
 
 		if (occurrence.start > 0) {
@@ -68,7 +66,7 @@ export function SongOccurrenceCard({
 
 		if (
 			!confirm(
-				`确定要删除这个播放记录吗？\n${occurrence.title}\nP${occurrence.page} - ${formatTime(occurrence.start)}`,
+				`确定要删除这个播放记录吗？\n${occurrence.liveRecordingArchive.title}\nP${occurrence.page} - ${formatTime(occurrence.start)}`,
 			)
 		) {
 			return;
@@ -76,14 +74,14 @@ export function SongOccurrenceCard({
 
 		setIsDeleting(true);
 		try {
-			const result = await deleteSongOccurrence(songId, occurrence.bvid);
+			// const result = await deleteSongOccurrence(songId, occurrence.bvid);
 
-			if (result.success) {
-				toast.success("播放记录删除成功");
-				onDelete?.();
-			} else {
-				toast.error(result.message || "删除失败");
-			}
+			// if (result.success) {
+			// 	toast.success("播放记录删除成功");
+			// 	onDelete?.();
+			// } else {
+			// 	toast.error(result.message || "删除失败");
+			// }
 		} catch (error) {
 			toast.error("删除失败，请稍后重试");
 		} finally {
@@ -115,8 +113,8 @@ export function SongOccurrenceCard({
 						<div className="relative flex-shrink-0">
 							{!imageError ? (
 								<img
-									src={occurrence.cover}
-									alt={occurrence.title}
+									src={occurrence.liveRecordingArchive.cover}
+									alt={occurrence.liveRecordingArchive.title}
 									className="w-20 h-20 object-cover rounded-lg shadow-sm"
 									loading="lazy"
 									onError={handleImageError}
@@ -137,7 +135,7 @@ export function SongOccurrenceCard({
 							{/* Title and Page */}
 							<div className="flex items-start justify-between gap-2 mb-2">
 								<h3 className="font-medium text-sm leading-tight line-clamp-2 flex-1">
-									{occurrence.title}
+									{occurrence.liveRecordingArchive.title}
 								</h3>
 								{occurrence.page > 1 && (
 									<span className="text-xs bg-muted px-2 py-1 rounded flex-shrink-0">
@@ -150,7 +148,7 @@ export function SongOccurrenceCard({
 							<div className="space-y-1">
 								<div className="flex items-center justify-between text-xs text-muted-foreground">
 									<span>开始时间: {formatTime(occurrence.start)}</span>
-									<span>总时长: {formatTime(occurrence.duration)}</span>
+									<span>总时长: {formatTime(occurrence.liveRecordingArchive.duration)}</span>
 								</div>
 								<div className="relative">
 									<Progress value={progressPercentage} className="h-2" />
@@ -166,10 +164,10 @@ export function SongOccurrenceCard({
 								target="_blank"
 								rel="noopener noreferrer"
 								className="absolute inset-0 z-10 cursor-pointer"
-								aria-label={`观看 ${occurrence.title} 在 ${formatTime(occurrence.start)} 的播放`}
+								aria-label={`观看 ${occurrence.liveRecordingArchive.title} 在 ${formatTime(occurrence.start)} 的播放`}
 							>
 								<span className="sr-only">
-									观看 {occurrence.title} 在 {formatTime(occurrence.start)}{" "}
+									观看 {occurrence.liveRecordingArchive.title} 在 {formatTime(occurrence.start)}{" "}
 									的播放
 								</span>
 							</a>

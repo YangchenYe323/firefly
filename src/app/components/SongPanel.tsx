@@ -2,7 +2,7 @@
 
 import type { Song, VtuberSong } from "@prisma/client";
 import { dislikeSong, likeSong } from "../actions/v2/reaction";
-import { onCopyToClipboard, orderSongsWithNewVideoFirst } from "@/lib/utils";
+import { onCopyToClipboard } from "@/lib/utils";
 import { type FC, useEffect, useState } from "react";
 
 import { Button } from "../../components/ui/button";

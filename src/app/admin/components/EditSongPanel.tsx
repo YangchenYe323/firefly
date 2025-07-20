@@ -6,20 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { X, Plus, Save, Trash2 } from "lucide-react";
+import { X, Plus, Save } from "lucide-react";
 import type { Song } from "@prisma/client";
 import { LyricsSearch } from "./LyricsSearch";
 import type { SongForEditOrCreate } from "./AdminLayout";
 
-interface EditPanelProps {
+interface EditSongPanelProps {
 	song: SongForEditOrCreate;
 	onSave: (song: SongForEditOrCreate) => Promise<void>;
 	onCancel: () => void;
 }
 
-export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
+export default function EditSongPanel({ song, onSave, onCancel }: EditSongPanelProps) {
 	const [isLoading, setIsLoading] = useState(false);
-
 	const [formData, setFormData] = useState<SongForEditOrCreate>(song);
 
 	// Language text box
@@ -128,7 +127,7 @@ export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
 			...prev,
 			song: {
 				...prev.song,
-				lyrics_fragment: lyrics,
+				lyricsFragment: lyrics,
 			},
 		}));
 	};
@@ -282,40 +281,6 @@ export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
 					</div>
 				</div>
 
-				{/* URL */}
-				<div className="space-y-2">
-					<Label htmlFor="url">作品链接</Label>
-					<Input
-						id="url"
-						type="url"
-						value={formData.song.url || ""}
-						onChange={(e) => handleInputChange("url", e.target.value)}
-						placeholder="https://www.bilibili.com/video/..."
-						className="text-base"
-					/>
-				</div>
-
-				{/* Bucket URL */}
-				<div className="space-y-2">
-					<Label htmlFor="bucket_url">音频文件链接</Label>
-					<Input
-						id="bucket_url"
-						type="url"
-						value={(formData.song.extra as any)?.bucket_url || ""}
-						onChange={(e) => {
-							setFormData((prev) => ({
-								...prev,
-								extra: {
-									...prev.song.extra,
-									bucket_url: e.target.value,
-								},
-							}));
-						}}
-						placeholder="https://example.com/audio.mp3"
-						className="text-base"
-					/>
-				</div>
-
 				{/* Lyrics Fragment */}
 				<div className="space-y-2">
 					<Label htmlFor="lyrics_fragment">歌词片段</Label>
@@ -327,19 +292,6 @@ export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
 						}
 						placeholder="输入歌词片段..."
 						rows={4}
-						className="text-base resize-none"
-					/>
-				</div>
-
-				{/* Remark */}
-				<div className="space-y-2">
-					<Label htmlFor="remark">备注</Label>
-					<Textarea
-						id="remark"
-						value={formData.song.remark}
-						onChange={(e) => handleInputChange("remark", e.target.value)}
-						placeholder="添加备注信息"
-						rows={3}
 						className="text-base resize-none"
 					/>
 				</div>
@@ -373,4 +325,4 @@ export default function EditPanel({ song, onSave, onCancel }: EditPanelProps) {
 			</div>
 		</form>
 	);
-}
+} 

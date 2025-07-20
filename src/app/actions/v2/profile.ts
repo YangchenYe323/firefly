@@ -1,6 +1,6 @@
 "use server";
 
-import { PremiumStatus, type Song, type SuperChat, type Theme, type VtuberExternalLink, type VtuberProfile, type VtuberSong } from "@prisma/client";
+import type { Song, SuperChat, Theme, VtuberExternalLink, VtuberProfile, VtuberSong } from "@prisma/client";
 import prisma from "@/db";
 import { cookies } from "next/headers";
 import type { ActionReturnTypeBase } from "../types";
@@ -97,6 +97,51 @@ export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 	};
 }
 
+export interface VtuberProfileWithThemesAndLinks extends VtuberProfile {
+	defaultTheme: Theme | null;
+	themes: Theme[];
+	externalLinks: VtuberExternalLink[];
+}
+
+interface GetVtuberProfileForAdminReturnType extends ActionReturnTypeBase {
+	profiles?: VtuberProfileWithThemesAndLinks[];
+}
+
+/**
+ * The site admin's API to retrieve all the profiles.
+ * 
+ * @returns The profile.
+ */
+export async function listVtuberProfilesForAdmin(): Promise<GetVtuberProfileForAdminReturnType> {
+	const authResult = await auth();
+	if (!authResult) {
+		return { success: false, message: "无法获取虚拟主播信息，请先登录" };
+	}
+
+	const profiles = await prisma.vtuberProfile.findMany({
+		include: {
+			// Fetch the default theme
+			defaultTheme: true,
+			// Fetch all themes
+			themes: true,
+			// Fetch all external links
+			externalLinks: true,
+		},
+	});
+
+	if (!profiles) {
+		return {
+			success: false,
+			message: "Profile not found",
+		};
+	}
+
+	return {
+		success: true,
+		profiles,
+	};
+}
+
 interface CreateVtuberProfileReturnType extends ActionReturnTypeBase {
 	profile?: VtuberProfile;
 }
@@ -112,6 +157,11 @@ export async function createVtuberProfile(profile: VtuberProfile): Promise<Creat
 
 	if (!authResult) {
 		return { success: false, message: "无法创建新虚拟主播，请先登录" };
+	}
+
+	const validationResult = validateVtuberProfile(profile);
+	if (validationResult) {
+		return validationResult;
 	}
 
 	const profileToCreate = {
@@ -151,8 +201,21 @@ export async function updateVtuberProfile(profile: VtuberProfile): Promise<Updat
 		return { success: false, message: "无法更新虚拟主播信息，请先登录" };
 	}
 
+	const validationResult = validateVtuberProfile(profile);
+	if (validationResult) {
+		return validationResult;
+	}
+
 	const profileToUpdate = {
 		...profile,
+		id: undefined,
+		// We don't update any relations, just the profile itself
+		defaultThemeId: undefined,
+		defaultTheme: undefined,
+		themes: undefined,
+		externalLinks: undefined,
+		vtuberSongs: undefined,
+		liveRecordingArchives: undefined,
 		// The below fields are not editable, let the database handle them
 		createdOn: undefined,
 		updatedOn: undefined,
@@ -205,6 +268,11 @@ export async function createThemeForProfile(theme: Theme): Promise<CreateThemeFo
 		return { success: false, message: "无法创建新主题，请先登录" };
 	}
 
+	const validationResult = validateTheme(theme);
+	if (validationResult) {
+		return validationResult;
+	}
+
 	const themeToCreate = {
 		...theme,
 		// The below fields are not editable, let the database handle them
@@ -233,6 +301,11 @@ export async function updateThemeForProfile(theme: Theme): Promise<UpdateThemeFo
 	const authResult = await auth();
 	if (!authResult) {
 		return { success: false, message: "无法更新主题，请先登录" };
+	}
+
+	const validationResult = validateTheme(theme);
+	if (validationResult) {
+		return validationResult;
 	}
 
 	const themeToUpdate = {
@@ -284,6 +357,11 @@ export async function createExternalLinkForProfile(externalLink: VtuberExternalL
 		return { success: false, message: "无法创建新外部链接，请先登录" };
 	}
 
+	const validationResult = validateExternalLink(externalLink);
+	if (validationResult) {
+		return validationResult;
+	}
+
 	const externalLinkToCreate = {
 		...externalLink,
 		// The below fields are not editable, let the database handle them
@@ -306,6 +384,11 @@ export async function updateExternalLinkForProfile(externalLink: VtuberExternalL
 	const authResult = await auth();
 	if (!authResult) {
 		return { success: false, message: "无法更新外部链接，请先登录" };
+	}
+
+	const validationResult = validateExternalLink(externalLink);
+	if (validationResult) {
+		return validationResult;
 	}
 
 	const externalLinkToUpdate = {
@@ -339,4 +422,110 @@ export async function deleteExternalLinkForProfile(id: number): Promise<DeleteEx
 	});
 
 	return { success: true, externalLink: deletedExternalLink };
+}
+
+/**
+ * Validate a vtuber profile for creation or update
+ * 
+ * @param profile - The profile to validate.
+ * @returns The validation result.
+ */
+function validateVtuberProfile(profile: VtuberProfile): ActionReturnTypeBase | null {
+	if (!profile.name) {
+		return { success: false, message: "主播B站名称不能为空" };
+	}
+
+	if (!profile.mid) {
+		return { success: false, message: "B站UID不能为空" };
+	}
+
+	if (!profile.roomId) {
+		return { success: false, message: "B站直播间ID不能为空" };
+	}
+
+	return null;
+}
+
+/**
+ * Validate a theme for creation or update
+ * 
+ * @param theme - The theme to validate.
+ * @returns The validation result.
+ */
+function validateTheme(theme: Theme): ActionReturnTypeBase | null {
+	if (!theme.avatarImagePath) {
+		return { success: false, message: "头像不能为空" };
+	}
+
+	if (!theme.backgroundImagePath) {
+		return { success: false, message: "背景图不能为空" };
+	}
+
+	if (!theme.faviconImagePath) {
+		return { success: false, message: "favicon不能为空" };
+	}
+
+	return null;
+}
+
+/**
+ * Validate an external link for creation or update
+ * 
+ * @param externalLink - The external link to validate.
+ * @returns The validation result.
+ */
+function validateExternalLink(externalLink: VtuberExternalLink): ActionReturnTypeBase | null {
+	if (!externalLink.value) {
+		return { success: false, message: "链接名称不能为空" };
+	}
+
+	if (!externalLink.href) {
+		return { success: false, message: "链接不能为空" };
+	}
+
+	return null;
+}
+
+/**
+ * Validate a song for creation or update
+ * 
+ * @param song - The song to validate.
+ * @returns The validation result.
+ */
+function validateSong(song: Song): ActionReturnTypeBase | null {
+	if (!song.title) {
+		return { success: false, message: "歌曲名称不能为空" };
+	}
+
+	if (!song.artist) {
+		return { success: false, message: "歌手不能为空" };
+	}
+
+	if (!song.lang) {
+		return { success: false, message: "语言不能为空" };
+	}
+
+	if (!song.tag) {
+		return { success: false, message: "标签不能为空" };
+	}
+
+	return null;
+}
+
+/**
+ * Validate a vtuber song for creation or update
+ * 
+ * @param vtuberSong - The vtuber song to validate.
+ * @returns The validation result.
+ */
+function validateVtuberSong(vtuberSong: VtuberSong): ActionReturnTypeBase | null {
+	if (!vtuberSong.songId) {
+		return { success: false, message: "歌曲ID不能为空" };
+	}
+
+	if (!vtuberSong.vtuberProfileId) {
+		return { success: false, message: "主播ID不能为空" };
+	}
+
+	return null;
 }

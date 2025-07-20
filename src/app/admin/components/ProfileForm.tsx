@@ -19,8 +19,9 @@ import type { VtuberProfile, Theme } from "@prisma/client";
 interface ProfileFormProps {
 	profile?: VtuberProfile;
 	themes: Theme[];
-	onSubmit: (data: VtuberProfile) => Promise<void>;
+	onSubmit: (data: { profile: VtuberProfile; create: boolean }) => Promise<void>;
 	onCancel: () => void;
+	create?: boolean;
 }
 
 export default function ProfileForm({
@@ -28,6 +29,7 @@ export default function ProfileForm({
 	themes,
 	onSubmit,
 	onCancel,
+	create = false,
 }: ProfileFormProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [profileForm, setProfileForm] = useState<VtuberProfile>(
@@ -47,7 +49,7 @@ export default function ProfileForm({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
-		await onSubmit(profileForm);
+		await onSubmit({ profile: profileForm, create });
 		setIsLoading(false);
 	};
 

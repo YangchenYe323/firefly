@@ -105,9 +105,6 @@ model Song {
   title          String
   /// Artist of the song
   artist         String
-  remark         String
-  /// [SongExtraType]
-  extra          Json
   /// The languages of the song
   /// Note: we don't normalize the language and tags into their own enum tables because 
   /// The scale of the data is small enough that all the filtering is done in the frontend,
@@ -117,8 +114,6 @@ model Song {
   lang           String[]
   /// The tags of the song
   tag            String[]
-  /// B站歌切链接
-  url            String?
   /// Fragment of the lyrics of the song, used for fuzzy search
   lyricsFragment String?
 
@@ -138,9 +133,9 @@ model Song {
 model VtuberSong {
   id Int @id @default(autoincrement())
 
-  songId                Int                    @unique
+  songId                Int
   song                  Song                   @relation(fields: [songId], references: [id], onDelete: Cascade)
-  vtuberProfileId       Int                    @unique
+  vtuberProfileId       Int
   vtuberProfile         VtuberProfile          @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
   /// The song occurrences in the live that this vtuber song has relation to
   songOccurrencesInLive SongOccurrenceInLive[]

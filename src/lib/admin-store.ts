@@ -13,35 +13,36 @@ import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import type {
 	Song,
+	VtuberSong,
 	VtuberProfile,
 	Theme,
 	VtuberExternalLink,
 } from "@prisma/client";
 import {
-	getVtuberProfileNoCache,
-	createVtuberProfile,
-	updateVtuberProfile,
-	deleteTheme,
-	createExternalLink,
-	updateExternalLink,
-	deleteExternalLink,
-	updateSong,
-	deleteSong,
-	createSong,
-	readSongAllNoCacheLatest,
-	createThemeForProfile,
-	updateThemeForProfile,
-} from "@/app/actions/crud";
+	listSongs,
+	createSong as createSongV2,
+	updateSong as updateSongV2,
+	deleteSong as deleteSongV2,
+	listVtuberSongs,
+	createVtuberSong,
+	updateVtuberSong,
+	deleteVtuberSong,
+	listSuperChats,
+} from "@/app/actions/v2/song";
 import {
 	useMutation,
 	useQueryClient,
 } from "@tanstack/react-query";
+import { createExternalLinkForProfile, createThemeForProfile, createVtuberProfile, deleteExternalLinkForProfile, deleteThemeForProfile, listVtuberProfilesForAdmin, updateExternalLinkForProfile, updateThemeForProfile, updateVtuberProfile, deleteVtuberProfile } from "@/app/actions/v2/profile";
 
 export const songsAtom = atomWithQuery((get) => ({
 	queryKey: ["songs"],
 	queryFn: async () => {
-		const songs = await readSongAllNoCacheLatest();
-		return songs.songs;
+		const result = await listSongs();
+		if (!result.success) {
+			throw new Error(result.message);
+		}
+		return result.songs || [];
 	},
 }));
 
@@ -51,7 +52,7 @@ export const useCreateSongMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (song: Song) => {
-				const result = await createSong(song);
+				const result = await createSongV2(song);
 				if (!result.success) {
 					throw new Error(result.message);
 				}
@@ -70,7 +71,7 @@ export const useUpdateSongMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (song: Song) => {
-				const result = await updateSong(song);
+				const result = await updateSongV2(song);
 				if (!result.success) {
 					throw new Error(result.message);
 				}
@@ -88,7 +89,7 @@ export const useDeleteSongMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (id: number) => {
-				const result = await deleteSong(id);
+				const result = await deleteSongV2(id);
 				if (!result.success) {
 					throw new Error(result.message);
 				}
@@ -100,6 +101,100 @@ export const useDeleteSongMutation = () => {
 		queryClient,
 	);
 };
+
+// Vtuber Songs atoms and mutations
+export const vtuberSongsAtom = atomWithQuery((get) => {
+	const profile = get(selectedProfileAtom);
+	
+	return {
+		queryKey: ["vtuber-songs", profile?.id],
+		queryFn: async () => {
+			if (!profile) {
+				return [];
+			}
+
+			const result = await listVtuberSongs(profile.id);
+
+			if (!result.success) {
+				throw new Error(result.message);
+			}
+
+			return result.vtuberSongs || [];
+		},
+		enabled: !!profile,
+	};
+});
+
+export const useCreateVtuberSongMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation(
+		{
+			mutationFn: async (vtuberSong: VtuberSong) => {
+				const result = await createVtuberSong(vtuberSong);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["vtuber-songs"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+export const useUpdateVtuberSongMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation(
+		{
+			mutationFn: async (vtuberSong: VtuberSong) => {
+				const result = await updateVtuberSong(vtuberSong);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["vtuber-songs"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+export const useDeleteVtuberSongMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation(
+		{
+			mutationFn: async (id: number) => {
+				const result = await deleteVtuberSong(id);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["vtuber-songs"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+// SuperChat atoms
+export const superChatsAtom = atomWithQuery((get) => ({
+	queryKey: ["super-chats"],
+	queryFn: async () => {
+		const result = await listSuperChats();
+		if (!result.success) {
+			throw new Error(result.message);
+		}
+		return result.superChats || [];
+	},
+}));
 
 // Admin UI state atoms (local state only)
 export const searchQueryAtom = atom<string>("");
@@ -125,30 +220,48 @@ export const filteredSongsAtom = atom((get) => {
 			song.tag.some((tag: string) =>
 				tag.toLowerCase().includes(searchQuery.toLowerCase()),
 			) ||
-			song.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			song.lyricsFragment?.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 	});
 });
 
-export const vtuberProfileAtom = atomWithQuery((get) => ({
-	queryKey: ["profile"],
+export const vtuberProfilesAtom = atomWithQuery((get) => ({
+	queryKey: ["profiles"],
 	queryFn: async () => {
-		const profile = await getVtuberProfileNoCache();
+		const result = await listVtuberProfilesForAdmin();
 
-		if (!profile.success) {
-			throw new Error(profile.message);
+		if (!result.success) {
+			throw new Error(result.message);
 		}
 
-		return profile.profile;
+		return result.profiles || [];
 	},
 }));
 
+// Selected profile atom for tracking which profile is currently selected
+export const selectedProfileIdAtom = atom<number | null>(null);
+
+// Derived atom for the currently selected profile
+export const selectedProfileAtom = atom((get) => {
+	const profiles = get(vtuberProfilesAtom);
+	const selectedId = get(selectedProfileIdAtom);
+
+	// Force dependency on selectedId to ensure reactivity
+	if (!profiles.data || profiles.data.length === 0) {
+		return null;
+	}
+	
+	const selectedProfile = profiles.data.find(profile => profile.id === selectedId);
+
+	
+	return selectedProfile || profiles.data[0] || null;
+});
+
 export const themesAtom = atom(
-	(get) => get(vtuberProfileAtom).data?.themes ?? [],
+	(get) => get(selectedProfileAtom)?.themes ?? [],
 );
 export const externalLinksAtom = atom(
-	(get) => get(vtuberProfileAtom).data?.externalLinks ?? [],
+	(get) => get(selectedProfileAtom)?.externalLinks ?? [],
 );
 
 export const useCreateVtuberProfileMutation = () => {
@@ -156,19 +269,13 @@ export const useCreateVtuberProfileMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (profile: VtuberProfile) => {
-				const result = await createVtuberProfile(
-					profile.name,
-					profile.metaTitle,
-					profile.metaDescription ?? "",
-					profile.mid,
-					profile.roomId,
-				);
+				const result = await createVtuberProfile(profile);
 				if (!result.success) {
 					throw new Error(result.message);
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -186,7 +293,7 @@ export const useUpdateVtuberProfileMutation = () => {
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -198,30 +305,14 @@ export const useCreateThemeMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (theme: Theme) => {
-				if (!theme.name) {
-					throw new Error("主题名称不能为空");
-				}
-
-				if (!theme.description) {
-					throw new Error("主题描述不能为空");
-				}
-
-				const result = await createThemeForProfile(
-					theme.name,
-					theme.description,
-					theme.avatarImagePath ?? "",
-					theme.backgroundImagePath ?? "",
-					theme.faviconImagePath ?? "",
-					theme.isActive,
-					theme.vtuberProfileId,
-				);
+				const result = await createThemeForProfile(theme);
 
 				if (!result.success) {
 					throw new Error(result.message);
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -239,7 +330,7 @@ export const useUpdateThemeMutation = () => {
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -251,13 +342,13 @@ export const useDeleteThemeMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (id: number) => {
-				const result = await deleteTheme(id);
+				const result = await deleteThemeForProfile(id);
 				if (!result.success) {
 					throw new Error(result.message);
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -269,28 +360,14 @@ export const useCreateExternalLinkMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (link: VtuberExternalLink) => {
-				if (!link.value) {
-					throw new Error("链接不能为空");
-				}
-
-				if (!link.href) {
-					throw new Error("链接不能为空");
-				}
-
-				const result = await createExternalLink({
-					value: link.value,
-					icon: link.icon ?? undefined,
-					href: link.href,
-					displayOrder: link.displayOrder ?? undefined,
-					vtuberProfileId: link.vtuberProfileId,
-				});
+				const result = await createExternalLinkForProfile(link);
 
 				if (!result.success) {
 					throw new Error(result.message);
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -302,13 +379,13 @@ export const useUpdateExternalLinkMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (link: VtuberExternalLink) => {
-				const result = await updateExternalLink(link);
+				const result = await updateExternalLinkForProfile(link);
 				if (!result.success) {
 					throw new Error(result.message);
 				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
@@ -320,32 +397,33 @@ export const useDeleteExternalLinkMutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (id: number) => {
-				const result = await deleteExternalLink(id);
+				const result = await deleteExternalLinkForProfile(id);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["profile"] });
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			},
 		},
 		queryClient,
 	);
 };
 
-// export const profileAtom = atom<VtuberProfile | null>(null);
-// export const isLoadingProfileAtom = atom<boolean>(false);
-// export const profileErrorAtom = atom<Error | null>(null);
-
-// export const fetchProfileAtom = atom(
-// 	null,
-// 	async (get, set) => {
-// 		set(isLoadingProfileAtom, true);
-// 		set(profileErrorAtom, null);
-// 		try {
-// 			const profile = await getVtuberProfile();
-// 			set(profileAtom, profile);
-// 		} catch (error) {
-// 			set(profileErrorAtom, error as Error);
-// 		} finally {
-// 			set(isLoadingProfileAtom, false);
-// 		}
-// 	}
-// );
+export const useDeleteVtuberProfileMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation(
+		{
+			mutationFn: async (id: number) => {
+				const result = await deleteVtuberProfile(id);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};

@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import type { ActionReturnTypeBase } from "../types";
-import type { LiveRecordingArchive, Prisma, Song, SongOccurrenceInLive, VtuberSong } from "@prisma/client";
+import type { LiveRecordingArchive, Prisma, Song, SongOccurrenceInLive, VtuberSong, SuperChat } from "@prisma/client";
 import prisma from "@/db";
 
 interface ListSongsReturnType extends ActionReturnTypeBase {
@@ -40,6 +40,7 @@ export async function createSong(song: Song): Promise<CreateSongReturnType> {
 
     const songToCreate = {
         ...song,
+        id: undefined,
         // The below fields are not editable, let the database handle them
         createdOn: undefined,
         updatedOn: undefined,
@@ -74,6 +75,7 @@ export async function updateSong(song: Song): Promise<UpdateSongReturnType> {
 
     const songToUpdate = {
         ...song,
+        id: undefined,
         // The below fields are not editable, let the database handle them
         createdOn: undefined,
         updatedOn: undefined,
@@ -161,8 +163,10 @@ export async function createVtuberSong(vtuberSong: VtuberSong): Promise<CreateVt
         return { success: false, message: "无法创建歌曲，请先登录" };
     }
 
+    // Note: In creation we do set up the relations
     const vtuberSongToCreate = {
         ...vtuberSong,
+        id: undefined,
         // The below fields are not editable, let the database handle them
         createdOn: undefined,
         updatedOn: undefined,
@@ -195,16 +199,39 @@ export async function updateVtuberSong(vtuberSong: VtuberSong): Promise<UpdateVt
         return { success: false, message: "无法更新歌曲，请先登录" };
     }
 
+    const scStatus = vtuberSong.scStatusId;
+
     const vtuberSongToUpdate = {
         ...vtuberSong,
+        id: undefined,
+        // We don't want to update the relations, just the vtuber song's own fields
+        songId: undefined,
+        song: undefined,
+        vtuberProfileId: undefined,
+        vtuberProfile: undefined,
+        // We do want to update the scStatus though...
+        scStatusId: undefined,
+        scStatus: undefined,
         // The below fields are not editable, let the database handle them
         createdOn: undefined,
         updatedOn: undefined,
     }
 
+    const updateData: Prisma.VtuberSongUpdateInput = {
+        ...vtuberSongToUpdate,
+    }
+
+    if (scStatus) {
+        updateData.scStatus = {
+            connect: {
+                id: scStatus,
+            }
+        }
+    }
+
     const updatedVtuberSong = await prisma.vtuberSong.update({
         where: { id: vtuberSong.id },
-        data: vtuberSongToUpdate,
+        data: updateData,
     });
 
     if (!updatedVtuberSong) {
@@ -339,6 +366,28 @@ export async function listVtuberSongOccurrences(
     };
 }
 
+interface DeleteSongOccurrenceReturnType extends ActionReturnTypeBase {
+    occurrence?: SongOccurrenceInLive;
+}
+
+export async function deleteSongOccurrence(vtuberSongId: number, liveRecordingArchiveId: number): Promise<DeleteSongOccurrenceReturnType> {
+    const authResult = await auth();
+    if (!authResult) {
+        return { success: false, message: "无法删除播放记录，请先登录" };
+    }
+
+    const deletedOccurrence = await prisma.songOccurrenceInLive.delete({
+        where: {
+            songId_liveRecordingArchiveId: {
+                songId: vtuberSongId,
+                liveRecordingArchiveId,
+            },
+        },
+    });
+
+    return { success: true, occurrence: deletedOccurrence };
+}
+
 function parseAfterDate(
 	afterDate?: number | string | undefined,
 ): { pubdate: { gte: number } } | undefined {
@@ -357,4 +406,23 @@ function parseAfterDate(
 	}
 
 	return { pubdate: { gte: afterDate } };
+}
+
+interface ListSuperChatsReturnType extends ActionReturnTypeBase {
+    superChats?: SuperChat[];
+}
+
+/**
+ * List all SuperChat options available for vtuber songs.
+ * 
+ * @returns The list of SuperChat options
+ */
+export async function listSuperChats(): Promise<ListSuperChatsReturnType> {
+    const superChats = await prisma.superChat.findMany({
+        orderBy: {
+            name: "asc",
+        },
+    });
+
+    return { success: true, superChats };
 }
