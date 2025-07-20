@@ -221,7 +221,7 @@ model LiveRecordingArchive {
   pubdate  Int
   /// Date of the live (直播时间). This is extracted from the title, e.g.,
   /// 【直播回放】直播 2025年1月1日12点场 -> 2025-01-01 12:00:00
-  date DateTime?
+  date DateTime
   /// Duration of the live recording (seconds)
   duration Int
   /// Cover image url of the recording
