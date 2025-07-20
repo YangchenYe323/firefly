@@ -133,7 +133,7 @@ model Song {
 model VtuberSong {
   id Int @id @default(autoincrement())
 
-  songId                Int
+  songId                Int                    @unique
   song                  Song                   @relation(fields: [songId], references: [id], onDelete: Cascade)
   vtuberProfileId       Int
   vtuberProfile         VtuberProfile          @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
@@ -238,7 +238,7 @@ model SongOccurrenceInLive {
   songId Int
 
   /// The vtuber song that was played in the live
-  vtuberSongId Int?
+  vtuberSongId Int
   vtuberSong   VtuberSong? @relation(fields: [vtuberSongId], references: [id], onDelete: Cascade)
 
   /// The live recording archive that the song was played in
@@ -251,5 +251,5 @@ model SongOccurrenceInLive {
   /// The page number of the live recording (1-indexed), refer to B站分P视频
   page  Int
 
-  @@id([songId, liveRecordingArchiveId])
+  @@id([vtuberSongId, liveRecordingArchiveId])
 }
