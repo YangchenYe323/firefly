@@ -208,9 +208,9 @@ model LiveRecordingArchive {
   id Int @id @default(autoincrement())
 
   /// The vtuber that this live recording archive belongs to
-  vtuberProfileId Int?
+  vtuberProfileId Int
   /// The vtuber that this live recording archive belongs to
-  vtuberProfile   VtuberProfile? @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  vtuberProfile   VtuberProfile @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
 
   /// B站视频ID
   bvid     String @unique
