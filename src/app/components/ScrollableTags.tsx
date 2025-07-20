@@ -2,14 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
-import type { Filter } from "./SongPanel";
-import { useRef, useState, useEffect, useCallback } from "react";
-import { cubicBezier, motion } from "framer-motion";
+import { useRef, useState, useEffect, useCallback, type FC } from "react";
+import type { SongFilter } from "@/lib/store";
 
 interface Props {
-	filters: Filter[];
-	onFilterChange: (filter: Filter) => void;
-	selectedFilter: Filter;
+	filters: SongFilter[];
+	onFilterChange: (filter: SongFilter) => void;
+	selectedFilter?: SongFilter;
 }
 
 /**
@@ -26,11 +25,11 @@ interface Props {
  * This component works in conjunction with SongPanel to provide
  * an intuitive filtering interface that works well on both desktop and mobile
  */
-export default function ScrollableTags({
+const ScrollableTags: FC<Props> = ({
 	filters,
 	onFilterChange,
 	selectedFilter,
-}: Props) {
+}) => {
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const [showLeftButton, setShowLeftButton] = useState(false);
 	const [showRightButton, setShowRightButton] = useState(false);
@@ -106,7 +105,7 @@ export default function ScrollableTags({
 							variant="outline"
 							size="sm"
 							className={`hover:scale-[1.01] hover:shadow-md active:scale-[0.99] whitespace-nowrap rounded-full px-4 py-2 text-sm transition-all ${
-								selectedFilter.value === filter.value
+								selectedFilter?.value === filter.value
 									? "bg-blue-500 text-white border-blue-500 shadow-md"
 									: "bg-white/80 text-gray-700 border-gray-200 hover:bg-gray-50"
 							}`}
@@ -126,3 +125,7 @@ export default function ScrollableTags({
 		</div>
 	);
 }
+
+ScrollableTags.displayName = "ScrollableTags";
+
+export default ScrollableTags;

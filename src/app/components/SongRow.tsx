@@ -4,22 +4,23 @@ import { onCopyToClipboard } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/Icons";
 import Image from "next/image";
-import type { Song } from "@prisma/client";
-import { useRef, useState } from "react";
-import getPlayerSingleton, { usePlayerState } from "@/lib/player";
+import { type FC, useMemo, useRef, useState } from "react";
+import { getPlayerSingleton, usePlayerState } from "@/lib/player";
 import { ChevronRight } from "lucide-react";
 import { Presence } from "@/components/Pressence";
 import SongRowExpansionPanel from "./SongRowExpansionPanel";
+import type { VtuberSongWithReferences } from "../actions/v2/profile";
+import { useAtomValue } from "jotai";
+import { apiUrlAtom } from "@/lib/store";
+import { PremiumStatus } from "@prisma/client";
+import { dislikeSong, likeSong } from "../actions/v2/reaction";
 
 /**
  * Props for the SongRow component
  */
 interface Props {
-	song: Song; // The song data to display
-	onLikeSong: (id: number) => void; // Callback for liking a song
-	onDislikeSong: (id: number) => void; // Callback for disliking a song
-	apiUrl?: string; // Optional API URL for album art
-	onPlaySong?: (song: Song) => void; // Optional callback for playing a song
+	vtuberSong: VtuberSongWithReferences; // The song data to display
+	onPlaySong?: (vtuberSong: VtuberSongWithReferences) => void; // Optional callback for playing a song
 }
 
 /**
@@ -57,13 +58,15 @@ function formatDate(date: Date): string {
  *   onPlaySong={(song) => {}}
  * />
  */
-export default function SongRow({
-	song,
-	onLikeSong,
-	onDislikeSong,
-	apiUrl,
+const SongRow: FC<Props> = ({
+	vtuberSong,
 	onPlaySong,
-}: Props) {
+}) => {
+	const apiUrl = useAtomValue(apiUrlAtom);
+
+	const [numLikes, setNumLikes] = useState(vtuberSong.numLikes);
+	const [numDislikes, setNumDislikes] = useState(vtuberSong.numDislikes);
+
 	// Track touch start position and time for precise tap detection
 	// This prevents accidental copies during scrolling gestures
 	const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
@@ -113,23 +116,22 @@ export default function SongRow({
 	// Get player state to determine if this song is currently playing
 	const { currentTrack, playing } = usePlayerState();
 
-	// Check if song is playable (has bucket_url)
-	const bucketUrl = song.extra?.bucket_url;
-	const isPlayable =
-		bucketUrl !== undefined && bucketUrl !== null && bucketUrl.trim() !== "";
+	// Check if song is playable (has audioUrl)
+	const isPlayable = vtuberSong.audioUrl !== undefined && vtuberSong.audioUrl !== null && vtuberSong.audioUrl.trim() !== "";
 
 	// Check if this song is currently playing
 	const isCurrentlyPlaying =
 		currentTrack &&
-		currentTrack.title === song.title &&
-		currentTrack.artist === song.artist &&
+		currentTrack.title === vtuberSong.song.title &&
+		currentTrack.artist === vtuberSong.song.artist &&
 		playing;
-
-	// Construct album art URL
-	const albumArtUrl = apiUrl
-		? `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}&size=large`
-		: null;
-
+	
+	const isCurrentlyPaused = 
+		currentTrack &&
+		currentTrack.title === vtuberSong.song.title &&
+		currentTrack.artist === vtuberSong.song.artist &&
+		!playing;
+	
 	/**
 	 * Copy song information to clipboard
 	 * Triggered by tapping on the song row (excluding buttons)
@@ -140,7 +142,7 @@ export default function SongRow({
 		if (hasHandledTouchRef.current) {
 			return;
 		}
-		onCopyToClipboard(song);
+		onCopyToClipboard(vtuberSong.song);
 	};
 
 	/**
@@ -149,8 +151,15 @@ export default function SongRow({
 	 */
 	const handlePlayClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
+		const player = getPlayerSingleton();
+
+		if (isCurrentlyPaused) {
+			player.play();
+			return;
+		}
+
 		if (isPlayable && onPlaySong) {
-			onPlaySong(song);
+			onPlaySong(vtuberSong);
 		}
 	};
 
@@ -245,7 +254,7 @@ export default function SongRow({
 			!isOnAlbumArt &&
 			!isOnButton
 		) {
-			onCopyToClipboard(song);
+			onCopyToClipboard(vtuberSong.song);
 			// Mark that we've handled this touch interaction to prevent onClick from firing
 			hasHandledTouchRef.current = true;
 		}
@@ -269,7 +278,8 @@ export default function SongRow({
 	 */
 	const handleLike = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		onLikeSong(song.id);
+		likeSong(vtuberSong.id);
+		setNumLikes(numLikes + 1);
 	};
 
 	/**
@@ -278,7 +288,8 @@ export default function SongRow({
 	 */
 	const handleDislike = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		onDislikeSong(song.id);
+		dislikeSong(vtuberSong.id);
+		setNumDislikes(numDislikes + 1);
 	};
 
 	/**
@@ -296,14 +307,60 @@ export default function SongRow({
 	 */
 	const handleBilibiliClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		if (song.url) {
-			window.open(song.url, "_blank", "noopener,noreferrer");
+		if (vtuberSong.bvid) {
+			window.open(`https://www.bilibili.com/video/${vtuberSong.bvid}`, "_blank", "noopener,noreferrer");
 		}
 	};
 
-	// Check if the song is premium
-	const isPremium =
-		song.remark.indexOf("SC") !== -1 || song.remark.indexOf("当日限定") !== -1;
+	const premiumIcon = useMemo(() => {
+		if (vtuberSong.premiumStatus === PremiumStatus.Captain) {
+			return <Icons.captain className="w-4 h-4 text-blue-500 flex-shrink-0" />;
+		}
+		
+		if (vtuberSong.premiumStatus === PremiumStatus.Admiral) {
+			return <Icons.admiral className="w-4 h-4 text-blue-500 flex-shrink-0" />;
+		}
+
+		if (vtuberSong.premiumStatus === PremiumStatus.Governor) {
+			return <Icons.governor className="w-4 h-4 text-blue-500 flex-shrink-0" />;
+		}
+
+		return null;
+	}, [vtuberSong.premiumStatus]);
+
+	const scIcon = useMemo(() => {
+		if (vtuberSong.scStatus === null) {
+			return null;
+		}
+
+		return <Image
+			src={`/icons/${vtuberSong.scStatus.name}.png`}
+			alt={`${vtuberSong.scStatus.name}元SC`}
+			width={24}
+			height={24}
+			className="w-4 h-4 text-blue-500 flex-shrink-0"
+		/>
+
+	}, [vtuberSong.scStatus]);
+
+	const artworkIcon = useMemo(() => {
+		if (imgError) {
+			// If image cannot be loaded, show a music note icon and remember the state so we don't DDOS the API
+			return <Icons.music_note className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />;
+		}
+
+		const albumArtUrl = `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(vtuberSong.song.title)}&artist=${encodeURIComponent(vtuberSong.song.artist)}&size=large`;
+
+		return <Image
+			src={albumArtUrl}
+			alt={`${vtuberSong.song.title} album art`}
+			width={48}
+			height={48}
+			className="object-cover w-10 h-10 sm:w-12 sm:h-12"
+			onError={() => setImgError(true)}
+			unoptimized={false}
+		/>
+	}, [imgError, apiUrl, vtuberSong.song.title, vtuberSong.song.artist]);
 
 	return (
 		<div className="overflow-hidden">
@@ -331,19 +388,7 @@ export default function SongRow({
 						}
 					}}
 				>
-					{!imgError && albumArtUrl ? (
-						<Image
-							src={albumArtUrl}
-							alt={`${song.title} album art`}
-							width={48}
-							height={48}
-							className="object-cover w-10 h-10 sm:w-12 sm:h-12"
-							onError={() => setImgError(true)}
-							unoptimized={false}
-						/>
-					) : (
-						<Icons.music_note className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
-					)}
+					{artworkIcon}
 
 					{/* Play/Pause Button Overlay - Only show for playable songs */}
 					{isPlayable && (
@@ -387,75 +432,12 @@ export default function SongRow({
 				<div className="flex-1 min-w-0 mr-2 sm:mr-4">
 					<div className="flex items-center gap-1 sm:gap-2">
 						<h3 className="text-sm sm:text-md font-semibold text-slate-800 break-words group-hover:text-blue-600 transition-colors leading-tight">
-							{song.title}
+							{vtuberSong.song.title}
 						</h3>
 						{/* 上船限定图标 - Governor tier icon */}
-						{song.remark.indexOf("上总") !== -1 && (
-							<Icons.governor
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-								title="上总"
-							/>
-						)}
-						{/* 上提限定图标 - Admiral tier icon */}
-						{song.remark.indexOf("上提") !== -1 && (
-							<Icons.admiral
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-								title="上提"
-							/>
-						)}
-						{/* 上舰限定图标 - Captain tier icon */}
-						{song.remark.indexOf("上舰") !== -1 && (
-							<Icons.captain
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-								title="上舰"
-							/>
-						)}
-						{/* 付费限定图标 - Paid content icons */}
-						{song.remark.indexOf("30元SC") !== -1 && (
-							<Image
-								src="/icons/30.png"
-								alt="30元SC"
-								width={24}
-								height={24}
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-							/>
-						)}
-						{song.remark.indexOf("100元SC") !== -1 && (
-							<Image
-								src="/icons/100.png"
-								alt="100元SC"
-								width={24}
-								height={24}
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-							/>
-						)}
-						{song.remark.indexOf("200元SC") !== -1 && (
-							<Image
-								src="/icons/200.png"
-								alt="200元SC"
-								width={24}
-								height={24}
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-							/>
-						)}
-						{song.remark.indexOf("1000元SC") !== -1 && (
-							<Image
-								src="/icons/1000.png"
-								alt="1000元SC"
-								width={24}
-								height={24}
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-							/>
-						)}
-						{song.remark.indexOf("10000元SC") !== -1 && (
-							<Image
-								src="/icons/10000.png"
-								alt="10000元SC"
-								width={24}
-								height={24}
-								className="w-4 h-4 text-blue-500 flex-shrink-0"
-							/>
-						)}
+						{premiumIcon}
+						{/* SC限定图标*/}
+						{scIcon}
 						{/* Musical note icon for playable songs */}
 						{isPlayable && (
 							<Icons.music_note
@@ -464,7 +446,7 @@ export default function SongRow({
 							/>
 						)}
 						{/* Bilibili link button */}
-						{song.url && (
+						{vtuberSong.bvid && (
 							<button
 								type="button"
 								onClick={handleBilibiliClick}
@@ -475,14 +457,14 @@ export default function SongRow({
 							</button>
 						)}
 						{/* Song remark/notes */}
-						{song.remark && (
+						{vtuberSong.remark && (
 							<span className="text-xs sm:text-sm text-slate-500 break-words hidden sm:inline">
-								{song.remark}
+								{vtuberSong.remark}
 							</span>
 						)}
 					</div>
 					<p className="text-xs sm:text-sm text-slate-500 break-words mt-1 leading-tight">
-						{song.artist}
+						{vtuberSong.song.artist}
 					</p>
 				</div>
 
@@ -506,7 +488,7 @@ export default function SongRow({
 						>
 							<span className="text-xs sm:text-sm">❤️</span>
 							<span className="ml-0.5 sm:ml-1 text-xs text-slate-500 w-4 sm:w-6 text-left">
-								{song.extra?.numLikes || 0}
+								{numLikes}
 							</span>
 						</Button>
 						{/* Dislike button with count */}
@@ -525,7 +507,7 @@ export default function SongRow({
 						>
 							<span className="text-xs sm:text-sm">😅</span>
 							<span className="ml-0.5 sm:ml-1 text-xs text-slate-500 w-4 sm:w-6 text-left">
-								{song.extra?.numDislikes || 0}
+								{numDislikes}
 							</span>
 						</Button>
 					</div>
@@ -533,7 +515,7 @@ export default function SongRow({
 					{/* Bottom row: Timestamp and expand button */}
 					<div className="flex items-center gap-1 sm:gap-2">
 						<p className="text-xs font-mono whitespace-nowrap text-slate-400">
-							{formatDate(song.createdOn)}
+							{formatDate(vtuberSong.createdOn)}
 						</p>
 						<div className="flex items-center gap-1">
 							<Button
@@ -563,8 +545,12 @@ export default function SongRow({
 			</div>
 
 			<Presence present={isExpanded}>
-				<SongRowExpansionPanel song={song} present={isExpanded} />
+				<SongRowExpansionPanel vtuberSong={vtuberSong} present={isExpanded} />
 			</Presence>
 		</div>
 	);
 }
+
+SongRow.displayName = "SongRow";
+
+export default SongRow;

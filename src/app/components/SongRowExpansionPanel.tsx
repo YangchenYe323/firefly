@@ -1,25 +1,26 @@
-import type { Song } from "@prisma/client";
-import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
-import { PremiumCard } from "./PremiumCard";
+"use client"
+
+import SongOccurrencesPanel from "./SongOccurrencesPanel";
+import PremiumCard from "./PremiumCard";
 import type { FC } from "react";
+import type { VtuberSongWithReferences } from "../actions/v2/profile";
 
 interface SongRowExpansionPanelProps {
-	song: Song;
+	vtuberSong: VtuberSongWithReferences;
 	present: boolean;
 }
 
 const SongRowExpansionPanel: FC<SongRowExpansionPanelProps> = ({
-	song,
+	vtuberSong,
 	present,
 }) => {
-	const isPremium =
-		song.remark.indexOf("SC") !== -1 || song.remark.indexOf("当日限定") !== -1;
+	const isPremium = vtuberSong.premiumStatus !== null || vtuberSong.scStatus !== null;
 
 	if (isPremium) {
 		return <PremiumCard present={present} />;
 	}
 
-	return <SongOccurrencesPanel song={song} present={present} />;
+	return <SongOccurrencesPanel vtuberSong={vtuberSong} present={present} />;
 };
 
 SongRowExpansionPanel.displayName = "SongRowExpansionPanel";

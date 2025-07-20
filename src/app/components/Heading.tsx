@@ -1,20 +1,19 @@
 "use client";
 
+import type { FC } from "react";
 import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 
 interface PropType {
 	songCount: number;
-	profile: VtuberProfileWithThemesAndLinks;
+	name: string;
 	renderAvatar: () => React.ReactNode;
 }
 
-export default function Heading({
+const Heading: FC<PropType> = ({
 	songCount,
-	profile,
+	name,
 	renderAvatar,
-}: PropType) {
-	const { name } = profile;
-
+}) => {
 	return (
 		<div className="w-full text-center my-6">
 			<div className="mb-4">{renderAvatar()}</div>
@@ -32,3 +31,7 @@ export default function Heading({
 		</div>
 	);
 }
+
+Heading.displayName = "Heading";
+
+export default Heading;

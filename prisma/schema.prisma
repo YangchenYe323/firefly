@@ -15,7 +15,7 @@ datasource db {
 
 /// Vtuber profile configuration - stores the main vtuber information
 model VtuberProfile {
-  id                    Int                    @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   /// Name of the vtuber
   name                  String
@@ -41,14 +41,14 @@ model VtuberProfile {
   liveRecordingArchives LiveRecordingArchive[]
 
   /// When this profile was created
-  createdOn             DateTime               @default(now())
+  createdOn DateTime @default(now())
   /// When this profile was last updated
-  updatedOn             DateTime               @updatedAt
+  updatedOn DateTime @updatedAt
 }
 
 /// Theme configuration - stores different visual themes for the vtuber
 model Theme {
-  id                  Int            @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   /// Name of the theme
   name                String?
@@ -61,100 +61,100 @@ model Theme {
   /// favicon image URL
   faviconImagePath    String
   /// Whether this theme is active
-  isActive            Boolean        @default(true)
+  isActive            Boolean @default(true)
 
   /// Vtuber profile that owns this theme
-  vtuberProfileId     Int
-  vtuberProfile       VtuberProfile  @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  vtuberProfileId   Int
+  vtuberProfile     VtuberProfile  @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
   /// Default theme relation (reverse)
-  defaultForProfile   VtuberProfile? @relation("DefaultTheme")
+  defaultForProfile VtuberProfile? @relation("DefaultTheme")
 
   /// When this theme was created
-  createdOn           DateTime       @default(now())
+  createdOn DateTime @default(now())
   /// When this theme was last updated
-  updatedOn           DateTime       @updatedAt
+  updatedOn DateTime @updatedAt
 }
 
 /// External links for the vtuber (social media, etc.)
 model VtuberExternalLink {
-  id              Int           @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   /// Vtuber profile that owns this link
   vtuberProfileId Int
   vtuberProfile   VtuberProfile @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
 
   /// Display text for the link
-  value           String
+  value        String
   /// Icon identifier for the link
-  icon            String?
+  icon         String?
   /// URL for the link
-  href            String
+  href         String
   /// Order for display
-  displayOrder    Int           @default(0)
+  displayOrder Int      @default(0)
   /// When this link was created
-  createdOn       DateTime      @default(now())
+  createdOn    DateTime @default(now())
   /// When this link was last updated
-  updatedOn       DateTime      @updatedAt
+  updatedOn    DateTime @updatedAt
 }
 
 /// Always after the prisma-client-js generator
 /// Stores collected songs in the global song database shared by all vtubers
 model Song {
-  id                   Int                    @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   /// Title of the song
-  title                String
+  title          String
   /// Artist of the song
-  artist               String
-  remark               String
+  artist         String
+  remark         String
   /// [SongExtraType]
-  extra                Json
+  extra          Json
   /// The languages of the song
   /// Note: we don't normalize the language and tags into their own enum tables because 
   /// The scale of the data is small enough that all the filtering is done in the frontend,
   /// having the model containing just the array is more convenient for the frontend as we share
   /// the same set of type definitions.
   /// If one day we need to do server-side filtering (SQL), we will revisit the design.
-  lang                 String[]
+  lang           String[]
   /// The tags of the song
-  tag                  String[]
+  tag            String[]
   /// B站歌切链接
-  url                  String?
+  url            String?
   /// Fragment of the lyrics of the song, used for fuzzy search
-  lyricsFragment       String?
+  lyricsFragment String?
 
   /// The live recordings that the song was played in
   SongOccurrenceInLive SongOccurrenceInLive[]
   /// The vtuber songs that this song has relation to, this can link to
   /// all the vtubers that have this song in their song list.
-  vtuberSongs VtuberSong[]
+  vtuberSongs          VtuberSong[]
 
   /// The date the song was created (added to the database)
   createdOn DateTime @default(now())
   /// The date the song was last updated (the default value is for migration)
-  updatedOn DateTime @updatedAt @default(now())
+  updatedOn DateTime @default(now()) @updatedAt
 }
 
 /// Stores songs that a vtuber can play.
 model VtuberSong {
   id Int @id @default(autoincrement())
 
-  songId          Int
-  song            Song          @relation(fields: [songId], references: [id], onDelete: Cascade)
-  vtuberProfileId Int
-  vtuberProfile   VtuberProfile @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+  songId                Int                    @unique
+  song                  Song                   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  vtuberProfileId       Int                    @unique
+  vtuberProfile         VtuberProfile          @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
   /// The song occurrences in the live that this vtuber song has relation to
   songOccurrencesInLive SongOccurrenceInLive[]
 
   /// B站歌切ID
-  bvid        String?
+  bvid          String?
   /// B站歌切发布时间 (unix seconds)
-  pubdate     Int?
+  pubdate       Int?
   /// 歌曲音频链接
-  audioUrl    String?
+  audioUrl      String?
   /// 点赞数
-  numLikes    Int     @default(0)
+  numLikes      Int            @default(0)
   /// 点踩数
-  numDislikes Int     @default(0)
+  numDislikes   Int            @default(0)
   /// 付费状态
   /// - null: 免费
   /// - "30SC": 30元SC
@@ -162,10 +162,10 @@ model VtuberSong {
   /// - "200SC": 200元SC
   /// - "1000SC": 1000元SC
   /// - "10000SC": 10000元SC
-  scStatus    SuperChat? @relation(fields: [scStatusId], references: [id])
-  scStatusId  Int?
+  scStatus      SuperChat?     @relation(fields: [scStatusId], references: [id])
+  scStatusId    Int?
   /// Remark of the song
-  remark String?
+  remark        String?
   /// 上船当天限定
   premiumStatus PremiumStatus?
 
@@ -178,9 +178,11 @@ model VtuberSong {
 /// SuperChat definition, e.g., 30SC, 100SC, 200SC, etc.
 /// Note: this is not defined as an enum because we expect this to change and add more. Postgres enum change
 /// requires a DDL lock that blocks all reads and writes.
+/// This is designed as an enum table instead of free-form string mainly because I need
+/// to generate the corresponding Icon : )
 model SuperChat {
-  id Int @id @default(autoincrement())
-  name String
+  id          Int          @id @default(autoincrement())
+  name        String
   vtuberSongs VtuberSong[]
 }
 
@@ -192,14 +194,6 @@ enum PremiumStatus {
   Admiral
   /// 总督
   Governor
-}
-
-/// SuperChat definition, e.g., 30SC, 100SC, 200SC, etc.
-/// This is designed as an enum table instead of free-form string mainly because I need
-/// to generate the corresponding Icon : )
-model SuperChatDefinition {
-  id Int @id @default(autoincrement())
-  name String
 }
 
 model User {
@@ -224,15 +218,15 @@ model LiveRecordingArchive {
   vtuberProfile   VtuberProfile? @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
 
   /// B站视频ID
-  bvid                 String                 @unique
+  bvid     String @unique
   /// Title of the live recording
-  title                String
+  title    String
   /// Publish date of the live recording (unix seconds)
-  pubdate              Int
+  pubdate  Int
   /// Duration of the live recording (seconds)
-  duration             Int
+  duration Int
   /// Cover image url of the recording
-  cover                String
+  cover    String
 
   /// The songs that were played in the live
   SongOccurrenceInLive SongOccurrenceInLive[]
@@ -244,13 +238,13 @@ model LiveRecordingArchive {
 /// Each entry represents a song that was played by the vtuber in the live.
 model SongOccurrenceInLive {
   /// The song that was played in the live
-  song                   Song                 @relation(fields: [songId], references: [id], onDelete: Cascade)
+  song   Song @relation(fields: [songId], references: [id], onDelete: Cascade)
   /// The id of the song that was played in the live
-  songId                 Int
+  songId Int
 
   /// The vtuber song that was played in the live
-  vtuberSongId           Int?
-  vtuberSong             VtuberSong?           @relation(fields: [vtuberSongId], references: [id], onDelete: Cascade)
+  vtuberSongId Int?
+  vtuberSong   VtuberSong? @relation(fields: [vtuberSongId], references: [id], onDelete: Cascade)
 
   /// The live recording archive that the song was played in
   liveRecordingArchive   LiveRecordingArchive @relation(fields: [liveRecordingArchiveId], references: [id], onDelete: Cascade)

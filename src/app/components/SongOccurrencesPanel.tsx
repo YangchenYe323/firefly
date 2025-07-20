@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type FC } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Loader2, ExternalLink, ImageOff } from "lucide-react";
 import {
@@ -10,13 +10,19 @@ import {
 import type { Song } from "@prisma/client";
 import Image from "next/image";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import type { VtuberSongWithReferences } from "../actions/v2/profile";
+import { listVtuberSongOccurrences, type SongOccurrenceInLiveWithReferences } from "../actions/v2/song";
 
 /**
  * Props for the SongOccurrencesPanel component
  */
 interface SongOccurrencesPanelProps {
-	song: Song; // The song to display occurrences for
+	vtuberSong: VtuberSongWithReferences; // The song to display occurrences for
 	present: boolean;
+}
+
+interface SongOccurrenceCardProps {
+	occurrence: SongOccurrenceInLiveWithReferences;
 }
 
 /**
@@ -41,7 +47,7 @@ function formatTime(seconds: number): string {
  * Displays a single song occurrence with cover image, title, progress bar, and link to Bilibili
  * Used within the SongOccurrencesPanel to show each occurrence
  */
-function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
+const SongOccurrenceCard: FC<SongOccurrenceCardProps> = ({ occurrence }) => {
 	const [imageError, setImageError] = useState(false);
 
 	/**
@@ -52,10 +58,10 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 	};
 
 	// Construct Bilibili URL with page and start time parameters
-	const bilibiliUrl = `https://www.bilibili.com/video/${occurrence.bvid}?p=${occurrence.page}&t=${occurrence.start}`;
+	const bilibiliUrl = `https://www.bilibili.com/video/${occurrence.liveRecordingArchive.bvid}?p=${occurrence.page}&t=${occurrence.start}`;
 
 	// Calculate progress percentage for the progress bar
-	const progressPercentage = (occurrence.start / occurrence.duration) * 100;
+	const progressPercentage = (occurrence.start / occurrence.liveRecordingArchive.duration) * 100;
 
 	return (
 		<Card
@@ -72,8 +78,8 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 					<div className="relative flex-shrink-0">
 						{!imageError ? (
 							<Image
-								src={occurrence.cover}
-								alt={occurrence.title}
+								src={occurrence.liveRecordingArchive.cover}
+								alt={occurrence.liveRecordingArchive.title}
 								width={80}
 								height={80}
 								className="w-20 h-20 object-cover rounded-lg shadow-sm"
@@ -93,7 +99,7 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 						{/* Title and Page Number */}
 						<div className="flex items-start justify-between gap-2 mb-2">
 							<h3 className="font-medium text-sm leading-tight line-clamp-2 flex-1">
-								{occurrence.title}
+								{occurrence.liveRecordingArchive.title}
 							</h3>
 							{/* Show page number if it's not page 1 */}
 							{occurrence.page > 1 && (
@@ -107,7 +113,7 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 						<div className="space-y-1">
 							<div className="flex items-center justify-between text-xs text-muted-foreground">
 								<span>开始时间: {formatTime(occurrence.start)}</span>
-								<span>总时长: {formatTime(occurrence.duration)}</span>
+								<span>总时长: {formatTime(occurrence.liveRecordingArchive.duration)}</span>
 							</div>
 							<div className="relative">
 								<div className="w-full bg-gray-200 rounded-full h-2">
@@ -128,10 +134,10 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
 							target="_blank"
 							rel="noopener noreferrer"
 							className="absolute inset-0 z-10 cursor-pointer"
-							aria-label={`观看 ${occurrence.title} 在 ${formatTime(occurrence.start)} 的播放`}
+							aria-label={`观看 ${occurrence.liveRecordingArchive.title} 在 ${formatTime(occurrence.start)} 的播放`}
 						>
 							<span className="sr-only">
-								观看 {occurrence.title} 在 {formatTime(occurrence.start)} 的播放
+								观看 {occurrence.liveRecordingArchive.title} 在 {formatTime(occurrence.start)} 的播放
 							</span>
 						</a>
 					</div>
@@ -161,10 +167,10 @@ function SongOccurrenceCard({ occurrence }: { occurrence: SongOccurrence }) {
  *   present={boolean}
  * />
  */
-export function SongOccurrencesPanel({
-	song,
+const SongOccurrencesPanel: FC<SongOccurrencesPanelProps> = ({
+	vtuberSong,
 	present,
-}: SongOccurrencesPanelProps) {
+}) => {
 	const [mounted, setMounted] = useState(false);
 	const {
 		data,
@@ -174,10 +180,10 @@ export function SongOccurrencesPanel({
 		isFetchingNextPage,
 		error,
 	} = useInfiniteQuery({
-		queryKey: ["song-occurrences", `${song.id}`],
+		queryKey: ["song-occurrences", `${vtuberSong.id}`],
 		queryFn: async ({ pageParam }: { pageParam: string | undefined }) =>
-			await getSongOccurrences(
-				song.id,
+			await listVtuberSongOccurrences(
+				vtuberSong.id,
 				pageParam,
 				20,
 				"2024-06-01T00:00:00.000Z",
@@ -306,7 +312,7 @@ export function SongOccurrencesPanel({
 						<div className="space-y-3">
 							{occurrences.map((occurrence, index) => (
 								<SongOccurrenceCard
-									key={`${occurrence?.bvid}-${occurrence?.page}-${occurrence?.start}`}
+									key={`${occurrence?.liveRecordingArchive.bvid}-${occurrence?.page}-${occurrence?.start}`}
 									occurrence={occurrence!}
 								/>
 							))}
@@ -339,3 +345,7 @@ export function SongOccurrencesPanel({
 		</div>
 	);
 }
+
+SongOccurrencesPanel.displayName = "SongOccurrencesPanel";
+
+export default SongOccurrencesPanel;

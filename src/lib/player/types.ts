@@ -13,7 +13,7 @@ export type Track = {
 export type PlayerState = AudioState & {
 	// All tracks
 	tracks: Track[];
-	// Playable tracks, encoding order information
+	// Playable tracks, e.g., if in repeat mode, the current track is the only playable track
 	playableTracks: Track[];
 	// Whether the track list should be played in random order
 	mode: PlayMode;
