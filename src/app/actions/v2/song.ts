@@ -5,6 +5,7 @@ import type { ActionReturnTypeBase } from "../types";
 import type { LiveRecordingArchive, Prisma, Song, SongOccurrenceInLive, VtuberSong, SuperChat } from "@prisma/client";
 import prisma from "@/db";
 import { getVideoInfo } from "@/lib/bilibili";
+import { VtuberSongWithReferences } from "./profile";
 
 interface ListSongsReturnType extends ActionReturnTypeBase {
     songs?: Song[];
@@ -313,7 +314,7 @@ export async function listVtuberSongOccurrences(
 ): Promise<ListSongOccurrencesReturnType> {
     // If present, parse the afterDate filter, this gets translated to a WHERE pubdate >= afterDate clause
     // so we only get occurrences after the given date
-    const afterDateFilter = parseAfterDate(afterDate);
+    const afterDateFilter = parsePubdateAfterFilter(afterDate);
 
     // If present, parse the pageToken, this gets translated to a WHERE pubdate < pageToken clause
     // so we only get occurrences before the given date (the last occurrence in the previous page)
@@ -385,6 +386,65 @@ export async function listVtuberSongOccurrences(
     };
 }
 
+export interface SongOccurrenceInLiveWithSongReference extends SongOccurrenceInLive {
+    vtuberSong?: VtuberSongWithReferences;
+}
+
+interface ListSongOccurrencesForArchiveReturnType extends ActionReturnTypeBase {
+    occurrences?: SongOccurrenceInLiveWithSongReference[];
+}
+
+/**
+ * List occurrences of a given vtuber's song in a given archive. This is not a paginated API because
+ * someone can at most sing a couple dozens of songs in one live, right? : )
+ * 
+ * @param archiveId - The id of the archive to list occurrences for
+ * @returns The occurrences of the vtuber's song in the archive
+ */
+export async function listSongOccurrencesForArchive(
+    archiveId: number,
+): Promise<ListSongOccurrencesForArchiveReturnType> {
+    const occurrences = await prisma.songOccurrenceInLive.findMany({
+        where: {
+            liveRecordingArchiveId: archiveId,
+        },
+        include: {
+            vtuberSong: {
+                include: {
+                    song: true,
+                    scStatus: true,
+                },
+            },
+        },
+    });
+
+    if (!occurrences) {
+        return { success: true, occurrences: [] };
+    }
+
+    return { success: true, occurrences };
+}
+
+export function parsePubdateAfterFilter(
+	afterDate?: number | string | undefined,
+): { pubdate: { gte: number } } | undefined {
+	if (!afterDate) {
+		return undefined;
+	}
+
+	if (typeof afterDate === "string") {
+		// Interpret as ISO string
+		const date = new Date(afterDate);
+		if (Number.isNaN(date.getTime())) {
+			return undefined;
+		}
+
+		return { pubdate: { gte: date.getTime() / 1000 } };
+	}
+
+	return { pubdate: { gte: afterDate } };
+}
+
 interface DeleteSongOccurrenceReturnType extends ActionReturnTypeBase {
     occurrence?: SongOccurrenceInLive;
 }
@@ -405,26 +465,6 @@ export async function deleteSongOccurrence(vtuberSongId: number, liveRecordingAr
     });
 
     return { success: true, occurrence: deletedOccurrence };
-}
-
-function parseAfterDate(
-    afterDate?: number | string | undefined,
-): { pubdate: { gte: number } } | undefined {
-    if (!afterDate) {
-        return undefined;
-    }
-
-    if (typeof afterDate === "string") {
-        // Interpret as ISO string
-        const date = new Date(afterDate);
-        if (Number.isNaN(date.getTime())) {
-            return undefined;
-        }
-
-        return { pubdate: { gte: date.getTime() / 1000 } };
-    }
-
-    return { pubdate: { gte: afterDate } };
 }
 
 interface ListSuperChatsReturnType extends ActionReturnTypeBase {

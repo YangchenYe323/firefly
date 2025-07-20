@@ -245,7 +245,7 @@ model SongOccurrenceInLive {
 
   /// The vtuber song that was played in the live
   vtuberSongId Int
-  vtuberSong   VtuberSong? @relation(fields: [vtuberSongId], references: [id], onDelete: Cascade)
+  vtuberSong   VtuberSong @relation(fields: [vtuberSongId], references: [id], onDelete: Cascade)
 
   /// The live recording archive that the song was played in
   liveRecordingArchive   LiveRecordingArchive @relation(fields: [liveRecordingArchiveId], references: [id], onDelete: Cascade)
