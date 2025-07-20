@@ -75,12 +75,6 @@ export default function SongTable({
 						<TableHead className="min-w-[150px] hidden md:table-cell">
 							歌词片段
 						</TableHead>
-						<TableHead className="min-w-[100px] hidden md:table-cell">
-							链接
-						</TableHead>
-						<TableHead className="min-w-[100px] hidden md:table-cell">
-							备注
-						</TableHead>
 						<TableHead className="w-20">操作</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -193,30 +187,6 @@ export default function SongTable({
 											) : (
 												<span className="text-muted-foreground">-</span>
 											)}
-										</span>
-									</TableCell>
-
-									<TableCell className="hidden md:table-cell">
-										{song.url ? (
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() => window.open(song.url!, "_blank")}
-												className="h-6 px-2"
-											>
-												<ExternalLink className="w-3 h-3" />
-											</Button>
-										) : (
-											<span className="text-muted-foreground text-sm">-</span>
-										)}
-									</TableCell>
-
-									<TableCell className="hidden md:table-cell">
-										<span
-											className="truncate max-w-[80px] block text-sm text-muted-foreground"
-											title={song.remark}
-										>
-											{song.remark || "-"}
 										</span>
 									</TableCell>
 

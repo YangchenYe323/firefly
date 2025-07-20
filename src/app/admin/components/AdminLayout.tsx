@@ -12,14 +12,24 @@ import {
 	Palette,
 	Link,
 	RefreshCw,
+	List,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import type { Song } from "@prisma/client";
-import React, { useState } from "react";
+import type { Song, VtuberSong } from "@prisma/client";
+import React, { useState, useEffect } from "react";
 
 import SongTable from "./SongTable";
-import EditPanel from "./EditPanel";
+import VtuberSongTable from "./VtuberSongTable";
+import EditSongPanel from "./EditSongPanel";
+import EditVtuberSongPanel from "./EditVtuberSongPanel";
 import ProfilePanel from "./ProfilePanel";
 import ThemesPanel from "./ThemesPanel";
 import ExternalLinksPanel from "./ExternalLinksPanel";
@@ -31,19 +41,36 @@ import {
 	useUpdateSongMutation,
 	songsAtom,
 	useDeleteSongMutation,
+	useCreateVtuberSongMutation,
+	useUpdateVtuberSongMutation,
+	useDeleteVtuberSongMutation,
+	vtuberProfilesAtom,
+	selectedProfileIdAtom,
+	selectedProfileAtom,
 } from "@/lib/admin-store";
 
-type TabType = "songs" | "profile" | "themes" | "links";
+type TabType = "songs" | "vtuber-songs" | "profile" | "themes" | "links";
 
 export type SongForEditOrCreate = {
 	song: Song;
 	create: boolean;
 };
 
+export type VtuberSongForEditOrCreate = {
+	vtuberSong: VtuberSong;
+	create: boolean;
+};
+
 export default function AdminLayout() {
+	const selectedProfile = useAtomValue(selectedProfileAtom);
+	const [selectedProfileId, setSelectedProfileId] = useAtom(selectedProfileIdAtom);
+	const [profilesAtomState] = useAtom(vtuberProfilesAtom);
+
 	const [
 		{ isLoading: isLoadingSongs, error: songsError, refetch: refetchSongs },
 	] = useAtom(songsAtom);
+
+	const [{refetch: refetchVtuberProfile}] = useAtom(vtuberProfilesAtom);
 
 	const filteredSongs = useAtomValue(filteredSongsAtom);
 
@@ -56,8 +83,15 @@ export default function AdminLayout() {
 	const { mutateAsync: updateSong } = useUpdateSongMutation();
 	const { mutateAsync: deleteSong } = useDeleteSongMutation();
 
+	const { mutateAsync: createVtuberSong } = useCreateVtuberSongMutation();
+	const { mutateAsync: updateVtuberSong } = useUpdateVtuberSongMutation();
+	const { mutateAsync: deleteVtuberSong } = useDeleteVtuberSongMutation();
+
 	const [activeTab, setActiveTab] = useState<TabType>("songs");
 	const [selectedSong, setSelectedSong] = useState<SongForEditOrCreate | null>(
+		null,
+	);
+	const [selectedVtuberSong, setSelectedVtuberSong] = useState<VtuberSongForEditOrCreate | null>(
 		null,
 	);
 
@@ -89,8 +123,46 @@ export default function AdminLayout() {
 		});
 	};
 
+	const handleEditVtuberSong = (vtuberSong: VtuberSong) => {
+		setSelectedVtuberSong({
+			vtuberSong,
+			create: false,
+		});
+	};
+
+	const handleCreateVtuberSong = () => {
+		if (!selectedProfile) {
+			toast.error("请先选择一个个人资料");
+			return;
+		}
+		setSelectedVtuberSong({
+			vtuberSong: {
+				id: 0,
+				songId: 0,
+				vtuberProfileId: selectedProfile.id,
+				bvid: null,
+				pubdate: null,
+				audioUrl: null,
+				numLikes: 0,
+				numDislikes: 0,
+				scStatusId: null,
+				remark: null,
+				premiumStatus: null,
+				createdOn: new Date(),
+				updatedOn: new Date(),
+			},
+			create: true,
+		});
+	};
+
 	const handleCloseEditPanel = () => {
 		setSelectedSong(null);
+		setSelectedVtuberSong(null);
+	};
+
+	const handleNavigateToCreateSong = () => {
+		setActiveTab("songs");
+		handleCreateSong();
 	};
 
 	const handleSaveSong = async (song: SongForEditOrCreate) => {
@@ -119,6 +191,32 @@ export default function AdminLayout() {
 		handleCloseEditPanel();
 	};
 
+	const handleSaveVtuberSong = async (vtuberSong: VtuberSongForEditOrCreate) => {
+		if (vtuberSong.create) {
+			try {
+				await createVtuberSong(vtuberSong.vtuberSong);
+			} catch (error) {
+				toast.error(`创建主播歌曲失败: ${error}`);
+				return;
+			}
+			toast.success("已创建主播歌曲");
+			refetchVtuberProfile();
+			handleCloseEditPanel();
+			return;
+		}
+
+		try {
+			await updateVtuberSong(vtuberSong.vtuberSong);
+		} catch (error) {
+			toast.error(`更新主播歌曲失败: ${error}`);
+			return;
+		}
+
+		toast.success("已更新主播歌曲");
+		refetchVtuberProfile();
+		handleCloseEditPanel();
+	};
+
 	const handleDeleteSong = async (song: Song) => {
 		// Prompt user for confirmation
 		const confirmed = confirm(`确定要删除歌曲 ${song.title} 吗？`);
@@ -132,8 +230,24 @@ export default function AdminLayout() {
 		await refetchSongs();
 	};
 
+	const handleDeleteVtuberSong = async (vtuberSong: VtuberSong) => {
+		// Prompt user for confirmation
+		const confirmed = confirm("确定要删除主播歌曲吗？");
+
+		if (!confirmed) return;
+
+		try {
+			await deleteVtuberSong(vtuberSong.id);
+			toast.success("已删除主播歌曲");
+			refetchVtuberProfile();
+		} catch (error) {
+			toast.error(`删除主播歌曲失败: ${error}`);
+		}
+	};
+
 	const tabs = [
-		{ id: "songs" as TabType, label: "歌曲管理", icon: Music },
+		{ id: "songs" as TabType, label: "编辑歌曲", icon: Music },
+		{ id: "vtuber-songs" as TabType, label: "编辑主播歌单", icon: List },
 		{ id: "profile" as TabType, label: "个人资料", icon: User },
 		{ id: "themes" as TabType, label: "主题管理", icon: Palette },
 		{ id: "links" as TabType, label: "外部链接", icon: Link },
@@ -154,10 +268,33 @@ export default function AdminLayout() {
 							</Button>
 						</div>
 						<div className="flex-1 overflow-auto p-4">
-							<EditPanel
+							<EditSongPanel
 								song={selectedSong}
 								onSave={handleSaveSong}
 								onCancel={handleCloseEditPanel}
+							/>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{selectedVtuberSong && (
+				<div className="fixed inset-0 z-50 lg:hidden bg-background">
+					<div className="h-full flex flex-col">
+						<div className="flex items-center justify-between p-4 border-b">
+							<h2 className="text-lg font-semibold">
+								{selectedVtuberSong.create ? "添加主播歌曲" : "编辑主播歌曲"}
+							</h2>
+							<Button variant="ghost" size="sm" onClick={handleCloseEditPanel}>
+								<X className="w-4 h-4" />
+							</Button>
+						</div>
+						<div className="flex-1 overflow-auto p-4">
+							<EditVtuberSongPanel
+								vtuberSong={selectedVtuberSong}
+								onSave={handleSaveVtuberSong}
+								onCancel={handleCloseEditPanel}
+								onNavigateToCreateSong={handleNavigateToCreateSong}
 							/>
 						</div>
 					</div>
@@ -284,13 +421,113 @@ export default function AdminLayout() {
 								</CardHeader>
 
 								<CardContent className="flex-1">
-									<EditPanel
+									<EditSongPanel
 										song={selectedSong}
 										onSave={handleSaveSong}
 										onCancel={handleCloseEditPanel}
 									/>
 								</CardContent>
 							</Card>
+						</div>
+					)}
+				</div>
+			)}
+
+			{activeTab === "vtuber-songs" && (
+				<div className="space-y-6">
+					{/* Profile Selector */}
+					<Card>
+						<CardHeader>
+							<div className="flex items-center justify-between">
+								<CardTitle>选择个人资料</CardTitle>
+								{selectedProfile && (
+									<Button onClick={handleCreateVtuberSong} size="sm">
+										<Plus className="w-4 h-4 mr-2" />
+										添加主播歌曲
+									</Button>
+								)}
+							</div>
+						</CardHeader>
+						<CardContent>
+							{selectedProfile ? (
+								<div className="space-y-4">
+									<Select
+										value={selectedProfileId?.toString() || selectedProfile?.id.toString()}
+										onValueChange={(profileId) => setSelectedProfileId(Number(profileId))}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="选择个人资料" />
+										</SelectTrigger>
+										<SelectContent>
+											{profilesAtomState.data?.map((profile) => (
+												<SelectItem key={profile.id} value={profile.id.toString()}>
+													{profile.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
+							) : (
+								<div className="text-center py-8 text-gray-500">
+									<p>请先在"个人资料"标签页创建个人资料。</p>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+
+					{/* Vtuber Songs Table */}
+					{selectedProfile && (
+						<div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]">
+							{/* Table Section */}
+							<div className={`flex-1 ${selectedVtuberSong ? "lg:w-2/3" : "w-full"}`}>
+								<Card className="h-full">
+									<CardHeader className="pb-4">
+										<div className="flex items-center justify-between">
+											<CardTitle className="text-xl font-semibold">
+												{selectedProfile.name} - 主播歌单管理
+											</CardTitle>
+										</div>
+									</CardHeader>
+
+									<CardContent className="p-0 flex-1">
+										<VtuberSongTable
+											onEditVtuberSong={handleEditVtuberSong}
+											onDeleteVtuberSong={handleDeleteVtuberSong}
+										/>
+									</CardContent>
+								</Card>
+							</div>
+
+					{/* Desktop Edit Panel */}
+					{selectedVtuberSong && (
+						<div className="hidden lg:block lg:w-1/3">
+							<Card className="h-full">
+								<CardHeader className="pb-4">
+									<div className="flex items-center justify-between">
+										<CardTitle className="text-lg font-semibold">
+											{selectedVtuberSong.create ? "添加主播歌曲" : "编辑主播歌曲"}
+										</CardTitle>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={handleCloseEditPanel}
+										>
+											<X className="w-4 h-4" />
+										</Button>
+									</div>
+								</CardHeader>
+
+								<CardContent className="flex-1">
+									<EditVtuberSongPanel
+										vtuberSong={selectedVtuberSong}
+										onSave={handleSaveVtuberSong}
+										onCancel={handleCloseEditPanel}
+										onNavigateToCreateSong={handleNavigateToCreateSong}
+									/>
+								</CardContent>
+							</Card>
+						</div>
+					)}
 						</div>
 					)}
 				</div>

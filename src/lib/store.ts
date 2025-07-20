@@ -79,10 +79,6 @@ export const allFiltersAtom = atom<SongFilter[]>(
                 predicate: (vtbSong: VtuberSongWithReferences) => vtbSong.premiumStatus !== null,
             },
             {
-                value: "原创",
-                predicate: (vtbSong: VtuberSongWithReferences) => vtbSong.remark?.includes("原创") ?? false,
-            },
-            {
                 value: "付费",
                 predicate: (vtbSong: VtuberSongWithReferences) => vtbSong.scStatus !== null,
             },
