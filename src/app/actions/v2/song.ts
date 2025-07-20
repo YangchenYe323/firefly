@@ -366,6 +366,28 @@ export async function listVtuberSongOccurrences(
     };
 }
 
+interface DeleteSongOccurrenceReturnType extends ActionReturnTypeBase {
+    occurrence?: SongOccurrenceInLive;
+}
+
+export async function deleteSongOccurrence(vtuberSongId: number, liveRecordingArchiveId: number): Promise<DeleteSongOccurrenceReturnType> {
+    const authResult = await auth();
+    if (!authResult) {
+        return { success: false, message: "无法删除播放记录，请先登录" };
+    }
+
+    const deletedOccurrence = await prisma.songOccurrenceInLive.delete({
+        where: {
+            songId_liveRecordingArchiveId: {
+                songId: vtuberSongId,
+                liveRecordingArchiveId,
+            },
+        },
+    });
+
+    return { success: true, occurrence: deletedOccurrence };
+}
+
 function parseAfterDate(
 	afterDate?: number | string | undefined,
 ): { pubdate: { gte: number } } | undefined {

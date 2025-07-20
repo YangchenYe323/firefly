@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Song } from "@prisma/client";
-import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
+// import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 
 interface SongTableProps {
 	songs: Song[];
@@ -210,7 +210,7 @@ export default function SongTable({
 								</TableRow>
 
 								{/* Expanded Row for Occurrences */}
-								<AnimatePresence>
+								{/* <AnimatePresence>
 									{isExpanded && (
 										<TableRow key={`${song.id}-expanded`}>
 											<TableCell colSpan={8} className="p-0">
@@ -222,7 +222,7 @@ export default function SongTable({
 											</TableCell>
 										</TableRow>
 									)}
-								</AnimatePresence>
+								</AnimatePresence> */}
 							</>
 						);
 					})}
