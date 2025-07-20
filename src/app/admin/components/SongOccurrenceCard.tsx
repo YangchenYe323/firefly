@@ -12,7 +12,7 @@ interface SongOccurrenceCardProps {
 	occurrence: SongOccurrenceInLiveWithReferences;
 	index: number;
 	songId: number;
-	onDelete?: () => void;
+	onDelete: (occurrence: SongOccurrenceInLiveWithReferences) => Promise<void>;
 }
 
 export function SongOccurrenceCard({
@@ -73,20 +73,8 @@ export function SongOccurrenceCard({
 		}
 
 		setIsDeleting(true);
-		try {
-			// const result = await deleteSongOccurrence(songId, occurrence.bvid);
-
-			// if (result.success) {
-			// 	toast.success("播放记录删除成功");
-			// 	onDelete?.();
-			// } else {
-			// 	toast.error(result.message || "删除失败");
-			// }
-		} catch (error) {
-			toast.error("删除失败，请稍后重试");
-		} finally {
-			setIsDeleting(false);
-		}
+		await onDelete?.(occurrence);
+		setIsDeleting(false);
 	};
 
 	const bilibiliUrl = generateBilibiliUrl();
