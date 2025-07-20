@@ -216,8 +216,12 @@ model LiveRecordingArchive {
   bvid     String @unique
   /// Title of the live recording
   title    String
-  /// Publish date of the live recording (unix seconds)
+  /// Publish date of the live recording (unix seconds) (录播发布时间), this is a unix seconds because
+  /// that is what the bilibili api returns.
   pubdate  Int
+  /// Date of the live (直播时间). This is extracted from the title, e.g.,
+  /// 【直播回放】直播 2025年1月1日12点场 -> 2025-01-01 12:00:00
+  date DateTime?
   /// Duration of the live recording (seconds)
   duration Int
   /// Cover image url of the recording
