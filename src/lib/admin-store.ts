@@ -220,7 +220,6 @@ export const filteredSongsAtom = atom((get) => {
 			song.tag.some((tag: string) =>
 				tag.toLowerCase().includes(searchQuery.toLowerCase()),
 			) ||
-			song.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			song.lyricsFragment?.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 	});
