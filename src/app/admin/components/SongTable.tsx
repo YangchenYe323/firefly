@@ -107,9 +107,6 @@ export default function SongTable({
 													<ChevronRight className="w-3 h-3" />
 												</motion.div>
 											</Button>
-											{(song.extra as any)?.bucket_url && (
-												<Music className="w-4 h-4 text-blue-500" />
-											)}
 											<div className="min-w-0 flex-1">
 												<div className="truncate" title={song.title}>
 													{song.title}
