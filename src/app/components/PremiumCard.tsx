@@ -2,12 +2,16 @@
 
 import { Icons } from "@/components/Icons";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FC } from "react";
+
+interface PremiumCardProps {
+	present: boolean;
+}
 
 /**
  * A card for premium songs, whose occurrences are not shown to the public.
  */
-export function PremiumCard({ present }: { present: boolean }) {
+const PremiumCard: FC<PremiumCardProps> = ({ present }) => {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
@@ -55,3 +59,7 @@ export function PremiumCard({ present }: { present: boolean }) {
 		</div>
 	);
 }
+
+PremiumCard.displayName = "PremiumCard";
+
+export default PremiumCard;

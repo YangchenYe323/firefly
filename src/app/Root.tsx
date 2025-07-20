@@ -1,23 +1,19 @@
 "use client";
 
-import type { Footer, Song } from "@prisma/client";
-
 import Heading from "./components/Heading";
 import ThemeProvider from "./components/ThemeProvider";
 import SongPanel from "./components/SongPanel";
 import CollapsibleHeader from "./components/CollapsibleHeader";
-import type { Track } from "@/lib/player";
-import type { VtuberProfileWithThemesAndLinks } from "./actions/crud";
+import { useHydrateAtoms } from "jotai/utils";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { type FC, useMemo, useState } from "react";
+import type { VtuberProfileWithReferences } from "./actions/v2/profile";
+import { allVtuberSongsAtom, apiUrlAtom, profileAtom } from "@/lib/store";
+import { useAtom, useAtomValue } from "jotai";
 
 interface PropType {
-	songs: Song[];
-	tracks: Track[];
-	profile: VtuberProfileWithThemesAndLinks;
-	footer: Footer;
-	apiUrl?: string;
+	profileFromServer: VtuberProfileWithReferences;
 }
 
 // Avoid SSR completely on SongPlayer as the initialization accesses the document API directly
@@ -25,16 +21,15 @@ const SongPlayer = dynamic(() => import("./components/SongPlayer"), {
 	ssr: false,
 });
 
-export default function Root({
-	songs,
-	tracks,
-	profile,
-	footer,
-	apiUrl,
-}: PropType) {
-	const [playerVisible, setPlayerVisible] = useState(false);
+const Root: FC<PropType> = ({ profileFromServer }) => {
+	// Hydrate the profile atom
+	useHydrateAtoms([[profileAtom, profileFromServer]]);
 
-	const songCount = songs.length;
+	const [profile, setProfile] = useAtom(profileAtom);
+	const [allVtuberSongs] = useAtom(allVtuberSongsAtom);
+	const apiUrl = useAtomValue(apiUrlAtom);
+
+	const [playerVisible, setPlayerVisible] = useState(false);
 
 	const closePlayer = () => {
 		setPlayerVisible(false);
@@ -45,27 +40,14 @@ export default function Root({
 	};
 
 	return (
-		<ThemeProvider
-			themes={profile.themes}
-			defaultTheme={profile.defaultTheme || undefined}
-			avatarSize={240}
-		>
+		<ThemeProvider avatarSize={240}>
 			{({ renderAvatar }) => (
 				<div className="relative font-chinese bg-opacity-50">
-					<CollapsibleHeader profile={profile} />
+					<CollapsibleHeader profile={profile!} />
 					{/* Add top padding to account for the floating arrow */}
 					<div className="pt-10">
-						<Heading
-							songCount={songCount}
-							profile={profile}
-							renderAvatar={renderAvatar}
-						/>
-						<SongPanel
-							allSongs={songs}
-							footer={footer}
-							apiUrl={apiUrl}
-							onShowPlayer={showPlayer}
-						/>
+						<Heading songCount={allVtuberSongs.length} name={profile!.name} renderAvatar={renderAvatar} />
+						<SongPanel onShowPlayer={showPlayer} />
 						<div className="mt-2 mb-2 p-4 text-center text-sm text-thin text-black">
 							Copyright © 2023-2024 梦中杀蝶人协会 & 他们的朋友
 						</div>
@@ -101,7 +83,6 @@ export default function Root({
 						<SongPlayer
 							visible={playerVisible}
 							closePlayer={closePlayer}
-							tracks={tracks}
 							apiUrl={apiUrl}
 						/>
 					</div>
@@ -110,3 +91,7 @@ export default function Root({
 		</ThemeProvider>
 	);
 }
+
+Root.displayName = "Root";
+
+export default Root;

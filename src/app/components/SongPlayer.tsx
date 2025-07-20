@@ -3,7 +3,8 @@
 import { type IconProps, Icons } from "@/components/Icons";
 import { PlayMode, type Track } from "@/lib/player/types";
 
-import getPlayerSingleton, {
+import {
+	getPlayerSingleton,
 	useCurrentTime,
 	usePlayerState,
 } from "@/lib/player";
@@ -11,34 +12,28 @@ import getPlayerSingleton, {
 import { Slider } from "@/components/ui/slider";
 
 import { formatMMSS } from "@/lib/utils";
-import { cubicBezier, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import Image from "next/image";
 
 interface PropType {
+	apiUrl: string;
 	visible: boolean;
 	closePlayer: () => void;
-	tracks: Track[];
-	apiUrl?: string;
 }
 
-export default function SongPlayer({
-	visible,
-	tracks,
-	closePlayer,
+const SongPlayer: FC<PropType> = ({
 	apiUrl,
-}: PropType) {
+	visible,
+	closePlayer,
+}) => {
 	const { playableTracks, currentTrack, playing, mode, duration } =
 		usePlayerState();
 	const currentTime = useCurrentTime();
-	const player = getPlayerSingleton();
 	const [imgError, setImgError] = useState(false);
 
-	useEffect(() => {
-		player.setQueue(tracks, apiUrl);
-	}, [player, tracks, apiUrl]);
-
 	// Reset image error state when track changes
+	// TODO: we should rewrite this to actually be a list of tracks, not "faking" a single track tab and modify its state
+	// to match what is actually being played.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: when track changes, the image error state should be reset
 	useEffect(() => {
 		setImgError(false);
@@ -52,17 +47,17 @@ export default function SongPlayer({
 
 	const handlePlay = () => {
 		if (playing) {
-			player.pause();
+			getPlayerSingleton().pause();
 			return;
 		}
 
 		if (currentTrack) {
-			player.play();
+			getPlayerSingleton().play();
 			return;
 		}
 
 		if (playableTracks.length > 0) {
-			player.playTrack(0);
+			getPlayerSingleton().playTrack(0);
 		}
 	};
 
@@ -93,7 +88,7 @@ export default function SongPlayer({
 			}}
 		>
 			<div className="bg-white/80 backdrop-blur-md rounded-t-xl shadow-xl border border-gray-200/50">
-				<div className="flex items-center justify-between p-4">
+				<div className="flex items-center justify-between p-2">
 					{/* Album Artwork */}
 					<div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden shadow-sm">
 						{!imgError && albumArtUrl ? (
@@ -114,7 +109,7 @@ export default function SongPlayer({
 					{/* Playback Controls */}
 					<div className="flex items-center gap-1">
 						<Icons.player_prev_button
-							onClick={() => player.prev()}
+							onClick={() => getPlayerSingleton().prev()}
 							className="ml-2 fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 						<PlayOrPauseIcon
@@ -122,7 +117,7 @@ export default function SongPlayer({
 							className="ml-1 fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 						<Icons.player_next_button
-							onClick={() => player.next()}
+							onClick={() => getPlayerSingleton().next()}
 							className="ml-1 fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 					</div>
@@ -149,7 +144,7 @@ export default function SongPlayer({
 								step={1}
 								onValueChange={(values) => {
 									const value = values[0];
-									player.seek(value);
+									getPlayerSingleton().seek(value);
 								}}
 								className="[&>span]:bg-gray-500 [&>span]:hover:bg-gray-600"
 							/>
@@ -159,7 +154,7 @@ export default function SongPlayer({
 					{/* Mode and Close Controls */}
 					<div className="flex justify-center items-center p-2">
 						<PlayModeIcon
-							onClick={() => player.switchMode()}
+							onClick={() => getPlayerSingleton().switchMode()}
 							className="fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 						<Icons.player_close_button
@@ -172,3 +167,7 @@ export default function SongPlayer({
 		</div>
 	);
 }
+
+SongPlayer.displayName = "SongPlayer";
+
+export default SongPlayer;

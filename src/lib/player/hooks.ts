@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 
-import player from "./player";
+import { getPlayerSingleton } from "./player";
 
 export const usePlayerState = () => {
-	const [state, setState] = useState(player().getState());
+	const [state, setState] = useState(getPlayerSingleton().getState());
 
 	// Subscribe to player's state change and propagate to hook state
 	useEffect(() => {
-		const unsubscribe = player().subscribe(setState);
+		const unsubscribe = getPlayerSingleton().subscribe(setState);
 
 		return unsubscribe;
 	}, []);
@@ -16,10 +16,10 @@ export const usePlayerState = () => {
 };
 
 export const useCurrentTime = () => {
-	const [currentTime, setCurrentTime] = useState(player().getCurrentTime());
+	const [currentTime, setCurrentTime] = useState(getPlayerSingleton().getCurrentTime());
 
 	useEffect(() => {
-		const unsubscribe = player().onChangeCurrentTime(setCurrentTime);
+		const unsubscribe = getPlayerSingleton().onChangeCurrentTime(setCurrentTime);
 
 		return unsubscribe;
 	}, []);

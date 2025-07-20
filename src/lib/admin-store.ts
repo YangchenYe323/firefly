@@ -1,3 +1,14 @@
+/**
+ * This file is the jotai store for the admin page.
+ * 
+ * It is used to manage the state of the admin page, including the songs, vtuber profiles, themes, external links, etc.
+ * 
+ * It is also used to manage the mutations for the admin page, including the creation, update, and deletion of the songs, vtuber profiles, themes, external links, etc.
+ * 
+ * It is also used to manage the queries for the admin page, including the fetching of the songs, vtuber profiles, themes, external links, etc.
+ * 
+ */
+
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import type {
@@ -22,12 +33,9 @@ import {
 	updateThemeForProfile,
 } from "@/app/actions/crud";
 import {
-	type QueryClient,
 	useMutation,
 	useQueryClient,
 } from "@tanstack/react-query";
-
-export const queryClientAtom = atom<QueryClient | null>(null);
 
 export const songsAtom = atomWithQuery((get) => ({
 	queryKey: ["songs"],

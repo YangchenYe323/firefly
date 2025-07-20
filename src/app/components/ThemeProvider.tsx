@@ -1,23 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { type FC, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Theme } from "@prisma/client";
+import { allThemesAtom, defaultThemeAtom } from "@/lib/store";
+import { useAtom } from "jotai";
 
 interface ThemeProviderProps {
-	themes: Theme[];
-	defaultTheme?: Theme;
 	children: (props: { renderAvatar: () => React.ReactNode }) => React.ReactNode;
 	avatarSize?: number;
 }
 
-export default function ThemeProvider({
-	themes,
-	defaultTheme,
+const ThemeProvider: FC<ThemeProviderProps> = ({
 	children,
 	avatarSize = 240,
-}: ThemeProviderProps) {
+}) => {
+	const [themes] = useAtom(allThemesAtom);
+	const [defaultTheme] = useAtom(defaultThemeAtom);
+
 	const [currentThemeIndex, setCurrentThemeIndex] = useState(
 		defaultTheme
 			? themes.findIndex((theme) => theme.id === defaultTheme.id)
@@ -248,3 +248,7 @@ export default function ThemeProvider({
 		</>
 	);
 }
+
+ThemeProvider.displayName = "ThemeProvider";
+
+export default ThemeProvider;

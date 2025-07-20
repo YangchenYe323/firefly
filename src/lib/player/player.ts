@@ -15,7 +15,7 @@ function createPlayer() {
 		playableTracks: [],
 		currentTrackIndex: null,
 		currentTrack: null,
-		apiUrl: undefined,
+		apiUrl: "",
 	};
 
 	const getPlayableTracks = (mode: PlayMode) => {
@@ -66,9 +66,9 @@ function createPlayer() {
 			const metadata: MediaMetadata = {
 				title: track.title,
 				artist: track.artist,
-				album: "蝶蝶Hikari 歌曲集",
 				artwork: artworkUrl,
 			};
+
 			audio.setMediaMetadata(metadata);
 
 			audio.play();
@@ -220,7 +220,10 @@ const getPlayerSingleton = (): Player => {
 	if (!playerGlobal) {
 		playerGlobal = createPlayer();
 	}
+
 	return playerGlobal;
 };
 
-export default getPlayerSingleton;
+export {
+	getPlayerSingleton,
+}

@@ -2,13 +2,13 @@
 
 import { Icons } from "@/components/Icons";
 import Link from "next/link";
-import type { VtuberProfileWithThemesAndLinks } from "../actions/crud";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import type { VtuberProfileWithReferences } from "../actions/v2/profile";
 
 interface Props {
-	profile: VtuberProfileWithThemesAndLinks;
+	profile: VtuberProfileWithReferences;
 }
 
 export default function CollapsibleHeader({ profile }: Props) {
