@@ -9,6 +9,16 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+/// Fisher-Yates Shuffle
+export function shuffleArray<T>(arr: T[]) {
+	const res = [...arr];
+	for (let currentIdx = arr.length - 1; currentIdx > 0; currentIdx--) {
+		const randomIdx = Math.floor(Math.random() * (currentIdx - 1));
+		[res[currentIdx], res[randomIdx]] = [res[randomIdx], res[currentIdx]];
+	}
+	return res;
+}
+
 /**
  * Copies song information to clipboard with robust error handling
  *
@@ -65,6 +75,7 @@ export function onCopyToClipboard(song: Song) {
 		}
 	}
 }
+
 
 function padTime(value: number) {
 	const str = value.toString();
