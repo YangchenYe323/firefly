@@ -378,8 +378,8 @@ export async function deleteSongOccurrence(vtuberSongId: number, liveRecordingAr
 
     const deletedOccurrence = await prisma.songOccurrenceInLive.delete({
         where: {
-            songId_liveRecordingArchiveId: {
-                songId: vtuberSongId,
+            vtuberSongId_liveRecordingArchiveId: {
+                vtuberSongId: vtuberSongId,
                 liveRecordingArchiveId,
             },
         },
