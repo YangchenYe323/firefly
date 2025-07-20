@@ -94,19 +94,6 @@ export default function SongTable({
 
 									<TableCell className="font-medium">
 										<div className="flex items-center gap-2">
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() => toggleRowExpansion(song.id!)}
-												className="h-6 w-6 p-0 hover:bg-muted"
-											>
-												<motion.div
-													animate={{ rotate: isExpanded ? 90 : 0 }}
-													transition={{ duration: 0.2 }}
-												>
-													<ChevronRight className="w-3 h-3" />
-												</motion.div>
-											</Button>
 											<div className="min-w-0 flex-1">
 												<div className="truncate" title={song.title}>
 													{song.title}
@@ -208,21 +195,6 @@ export default function SongTable({
 										</div>
 									</TableCell>
 								</TableRow>
-
-								{/* Expanded Row for Occurrences */}
-								{/* <AnimatePresence>
-									{isExpanded && (
-										<TableRow key={`${song.id}-expanded`}>
-											<TableCell colSpan={8} className="p-0">
-												<SongOccurrencesPanel
-													song={song}
-													isExpanded={isExpanded}
-													onToggleExpanded={() => toggleRowExpansion(song.id!)}
-												/>
-											</TableCell>
-										</TableRow>
-									)}
-								</AnimatePresence> */}
 							</>
 						);
 					})}

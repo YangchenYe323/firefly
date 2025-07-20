@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save, X, Plus } from "lucide-react";
 import type { VtuberSong, Song, SuperChat, PremiumStatus } from "@prisma/client";
 import type { VtuberSongForEditOrCreate } from "./AdminLayout";
-// import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
+import { SongOccurrencesPanel } from "./SongOccurrencesPanel";
 import { listSongs } from "@/app/actions/v2/song";
 import { superChatsAtom } from "@/lib/admin-store";
 import { useAtom } from "jotai";
@@ -285,11 +285,11 @@ export default function EditVtuberSongPanel({ vtuberSong, onSave, onCancel, onNa
 				{!formData.create && formData.vtuberSong.id > 0 && selectedSong && (
 					<div className="space-y-2">
 						<Label>直播记录</Label>
-						{/* <SongOccurrencesPanel 
-							song={selectedSong}
+						<SongOccurrencesPanel 
+							vtuberSong={formData.vtuberSong}
 							isExpanded={isOccurrencesExpanded}
 							onToggleExpanded={() => setIsOccurrencesExpanded(!isOccurrencesExpanded)}
-						/> */}
+						/>
 					</div>
 				)}
 			</div>
