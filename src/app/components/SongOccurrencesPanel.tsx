@@ -3,11 +3,6 @@
 import { useState, useEffect, useRef, type FC } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Loader2, ExternalLink, ImageOff } from "lucide-react";
-import {
-	getSongOccurrences,
-	type SongOccurrence,
-} from "@/app/actions/song-occurrences";
-import type { Song } from "@prisma/client";
 import Image from "next/image";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { VtuberSongWithReferences } from "../actions/v2/profile";
