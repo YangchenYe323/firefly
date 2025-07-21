@@ -1,5 +1,7 @@
-import { LiveRecordingArchive, Prisma } from "@prisma/client";
-import { ActionReturnTypeBase } from "../types";
+"use server";
+
+import type { LiveRecordingArchive, Prisma } from "@prisma/client";
+import type { ActionReturnTypeBase } from "../types";
 import prisma from "@/db";
 
 interface ListArchivesReturnType extends ActionReturnTypeBase {

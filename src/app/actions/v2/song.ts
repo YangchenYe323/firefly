@@ -5,7 +5,7 @@ import type { ActionReturnTypeBase } from "../types";
 import type { LiveRecordingArchive, Prisma, Song, SongOccurrenceInLive, VtuberSong, SuperChat } from "@prisma/client";
 import prisma from "@/db";
 import { getVideoInfo } from "@/lib/bilibili";
-import { VtuberSongWithReferences } from "./profile";
+import type { VtuberSongWithReferences } from "./profile";
 
 interface ListSongsReturnType extends ActionReturnTypeBase {
     songs?: Song[];
@@ -425,7 +425,7 @@ export async function listSongOccurrencesForArchive(
     return { success: true, occurrences };
 }
 
-export function parsePubdateAfterFilter(
+function parsePubdateAfterFilter(
 	afterDate?: number | string | undefined,
 ): { pubdate: { gte: number } } | undefined {
 	if (!afterDate) {
