@@ -1,12 +1,37 @@
 import { type ClassValue, clsx } from "clsx";
 
-import type { Song } from "@prisma/client";
+import type { Song, VtuberSong } from "@prisma/client";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
+}
+
+export function orderSongsWithNewVideoFirst(allSongs: VtuberSong[]) {
+	const songsWithNewVideo = allSongs.filter(isVideoNewlyCreated);
+	songsWithNewVideo.sort((s1, s2) => {
+		const s1Time = s1.pubdate!;
+		const s2Time = s2.pubdate!;
+		return s1Time > s2Time ? -1 : s1Time === s2Time ? 0 : 1;
+	});
+	const oldSongs = allSongs.filter((song) => !isVideoNewlyCreated(song));
+	return [...songsWithNewVideo, ...oldSongs];
+}
+
+export function isVideoNewlyCreated(song: VtuberSong) {
+	const video_created = song.pubdate;
+	if (!video_created) {
+		return false;
+	}
+
+	const lastTwoMonth = new Date();
+	lastTwoMonth.setDate(0);
+	lastTwoMonth.setDate(0);
+	lastTwoMonth.setDate(1);
+
+	return new Date(video_created * 1000) >= lastTwoMonth;
 }
 
 /// Fisher-Yates Shuffle
