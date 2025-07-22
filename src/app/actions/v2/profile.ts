@@ -69,12 +69,6 @@ export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 
 				orderBy: [
 					{
-						pubdate: {
-							sort: "desc",
-							nulls: "last",
-						}
-					},
-					{
 						createdOn: "desc",
 					},
 				]

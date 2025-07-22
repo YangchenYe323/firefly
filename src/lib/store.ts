@@ -11,6 +11,7 @@ import { atom } from "jotai";
 import type { VtuberSongWithReferences, VtuberProfileWithReferences } from "@/app/actions/v2/profile";
 import type { Theme, VtuberExternalLink } from "@prisma/client";
 import type { Track } from "./player/types";
+import { orderSongsWithNewVideoFirst } from "./utils";
 
 export interface SongFilter {
     value: string;
@@ -123,7 +124,7 @@ export const filteredVtuberSongsAtom = atom<VtuberSongWithReferences[]>(
             return true;
         });
 
-        return filteredVtuberSongs;
+        return orderSongsWithNewVideoFirst(filteredVtuberSongs);
     }
 );
 
