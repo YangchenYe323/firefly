@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import type { ActionReturnTypeBase } from "../types";
 import type { LiveRecordingArchive, Prisma, Song, SongOccurrenceInLive, VtuberSong, SuperChat } from "@prisma/client";
 import prisma from "@/db";
+import { getVideoInfo } from "@/lib/bilibili";
 
 interface ListSongsReturnType extends ActionReturnTypeBase {
     songs?: Song[];
@@ -172,6 +173,15 @@ export async function createVtuberSong(vtuberSong: VtuberSong): Promise<CreateVt
         updatedOn: undefined,
     }
 
+    if (vtuberSong.bvid) {
+        const videoInfo = await getVideoInfo({ bvid: vtuberSong.bvid });
+        if (videoInfo.code === 0) {
+            vtuberSongToCreate.pubdate = videoInfo.data!.pubdate;
+        } else if (videoInfo.code === -404) {
+            return { success: false, message: "投稿视频不存在" };
+        }
+    }
+
     const newVtuberSong = await prisma.vtuberSong.create({
         data: vtuberSongToCreate,
     });
@@ -215,6 +225,15 @@ export async function updateVtuberSong(vtuberSong: VtuberSong): Promise<UpdateVt
         // The below fields are not editable, let the database handle them
         createdOn: undefined,
         updatedOn: undefined,
+    }
+
+    if (vtuberSong.bvid) {
+        const videoInfo = await getVideoInfo({ bvid: vtuberSong.bvid });
+        if (videoInfo.code === 0) {
+            vtuberSongToUpdate.pubdate = videoInfo.data!.pubdate;
+        } else if (videoInfo.code === -404) {
+            return { success: false, message: "投稿视频不存在" };
+        }
     }
 
     const updateData: Prisma.VtuberSongUpdateInput = {
@@ -389,23 +408,23 @@ export async function deleteSongOccurrence(vtuberSongId: number, liveRecordingAr
 }
 
 function parseAfterDate(
-	afterDate?: number | string | undefined,
+    afterDate?: number | string | undefined,
 ): { pubdate: { gte: number } } | undefined {
-	if (!afterDate) {
-		return undefined;
-	}
+    if (!afterDate) {
+        return undefined;
+    }
 
-	if (typeof afterDate === "string") {
-		// Interpret as ISO string
-		const date = new Date(afterDate);
-		if (Number.isNaN(date.getTime())) {
-			return undefined;
-		}
+    if (typeof afterDate === "string") {
+        // Interpret as ISO string
+        const date = new Date(afterDate);
+        if (Number.isNaN(date.getTime())) {
+            return undefined;
+        }
 
-		return { pubdate: { gte: date.getTime() / 1000 } };
-	}
+        return { pubdate: { gte: date.getTime() / 1000 } };
+    }
 
-	return { pubdate: { gte: afterDate } };
+    return { pubdate: { gte: afterDate } };
 }
 
 interface ListSuperChatsReturnType extends ActionReturnTypeBase {
