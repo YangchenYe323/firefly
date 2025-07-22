@@ -124,7 +124,7 @@ export const filteredVtuberSongsAtom = atom<VtuberSongWithReferences[]>(
             return true;
         });
 
-        return orderSongsWithNewVideoFirst(filteredVtuberSongs);
+        return orderSongsWithNewVideoFirst(filteredVtuberSongs) as VtuberSongWithReferences[];
     }
 );
 
