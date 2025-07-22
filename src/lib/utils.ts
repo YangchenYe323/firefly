@@ -34,6 +34,27 @@ export function isVideoNewlyCreated(song: VtuberSong) {
 	return new Date(video_created * 1000) >= lastTwoMonth;
 }
 
+export function formatChineseDate(date: Date): string {
+	const year = date.getFullYear();
+	const month = date.getMonth() + 1;
+	const day = date.getDate();
+	const dayOfWeek = date.getDay();
+	const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
+	return `${year}年${month}月${day}日 周${dayNames[dayOfWeek]}`;
+}
+
+export function formatTime(seconds: number, padHour = false): string {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	if (hours > 0 || padHour) {
+		return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+	}
+
+	return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+}
+
 /// Fisher-Yates Shuffle
 export function shuffleArray<T>(arr: T[]) {
 	const res = [...arr];

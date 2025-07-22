@@ -387,7 +387,7 @@ export async function listVtuberSongOccurrences(
 }
 
 export interface SongOccurrenceInLiveWithSongReference extends SongOccurrenceInLive {
-    vtuberSong?: VtuberSongWithReferences;
+    vtuberSong: VtuberSongWithReferences;
 }
 
 interface ListSongOccurrencesForArchiveReturnType extends ActionReturnTypeBase {
