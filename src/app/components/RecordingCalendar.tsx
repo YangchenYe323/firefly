@@ -14,7 +14,7 @@ import type { LiveRecordingArchive } from "@prisma/client";
 import { formatChineseDate, formatTime } from "@/lib/utils";
 import { Presence } from "@/components/Pressence";
 import RecordingTimeline from "./RecordingTimeline";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Icons } from "@/components/Icons";
 import { useOnClickOutside } from "usehooks-ts";
 
@@ -31,6 +31,7 @@ interface DayCellProps {
     day: CalendarDay;
     activeDay: CalendarDay | null;
     setActiveDay: (day: CalendarDay) => void;
+    setNoActiveDay: () => void;
 }
 
 interface ActiveDayCellProps {
@@ -50,34 +51,40 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
     const ref = useRef<HTMLDivElement>(null);
     useOnClickOutside(ref, setNoActiveDay);
 
-    // Divide the day into recording.length + 2 parts: start -> <recording> -> end
-    // Each part contains a start and end time within the day, the recordings of the period.
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    const recordingEntries = useMemo(() => {
+        if (recordings.length === 0) {
+            return null;
+        }
 
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+        // Divide the day into recording.length + 2 parts: start -> <recording> -> end
+        // Each part contains a start and end time within the day, the recordings of the period.
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
 
-    const parts = [
-        {
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const parts = [];
+        parts.push({
             start: startOfDay,
-            end: recordings.length > 0 ? recordings[0].date : endOfDay,
+            end: recordings[0].date,
             recording: null,
-        },
-        ...recordings.map((recording) => ({
-            start: recording.date,
-            end: new Date(recording.date.getTime() + recording.duration * 1000),
-            recording,
-        })),
-    ]
-
-    if (recordings.length > 0) {
+        });
+        for (const recording of recordings) {
+            parts.push({
+                start: recording.date,
+                end: new Date(recording.date.getTime() + recording.duration * 1000),
+                recording,
+            });
+        }
         parts.push({
             start: recordings[recordings.length - 1].date,
             end: endOfDay,
             recording: null,
         });
-    }
+
+        return parts;
+    }, [recordings])
 
     const dayClass = () => {
         switch (dayOfWeek) {
@@ -164,54 +171,62 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
     }
 
     return (
-        <div className="absolute inset-0 z-10 bg-white">
-            <div className={`${dayClass()} m-2 rounded-lg border border-gray-200/50 z-10`} ref={ref}>
+        <motion.div className="absolute inset-0 z-10">
+            <motion.div className={`${dayClass()} m-2 rounded-lg border border-gray-200/50 z-10 backdrop-blur-md`} ref={ref}>
                 <div className={`text-xs ${textClass()} mb-2 font-medium leading-tight`}>
                     {formatChineseDate(date)}
                 </div>
-
-                {parts.map((part, index) => {
-                    return <div key={index} className="grid grid-cols-[auto_auto_1fr] gap-4 items-start">
-                        <div className="flex flex-col justify-start pt-1">
-                            <time
-                                className="text-sm tracking-tight font-medium text-right text-muted-foreground"
-                            >
-                                {formatTime(part.start.getTime() / 1000, true)}
-                            </time>
+                {
+                    !recordingEntries ? (
+                        <div className="text-sm text-muted-foreground">
+                            <Icons.bilibili_live />
+                            <span>今天没有直播</span>
                         </div>
-
-                        <div className="flex flex-col items-center">
-                            <div className="relative z-10">
-                                <div className="relative flex items-center justify-center rounded-full ring-8 ring-background shadow-sm">
-                                    <Icons.bilibili_live />
+                    ) : (
+                        recordingEntries.map((part, index) => {
+                            return <div key={index} className="grid grid-cols-[auto_auto_1fr] gap-4 items-start">
+                                <div className="flex flex-col justify-start pt-1">
+                                    <time
+                                        className="text-sm tracking-tight font-medium text-right text-muted-foreground"
+                                    >
+                                        {formatTime(part.start.getTime() / 1000, true)}
+                                    </time>
                                 </div>
-                            </div>
-                            <div className="h-16 w-0.5 bg-border mt-2" />
-                        </div>
 
-                        {part.recording && (
-                            <div className="flex items-center gap-4">
-                                <Image
-                                    src={part.recording.cover}
-                                    alt={part.recording.title}
-                                    width={64}
-                                    height={48}
-                                    className="w-16 h-12 object-cover rounded-lg"
-                                />
-                                <div className="flex flex-col gap-1">
-                                    <h3 className="font-semibold leading-none tracking-tight text-secondary-foreground">{part.recording.title}</h3>
+                                <div className="flex flex-col items-center">
+                                    <div className="relative z-10">
+                                        <div className="relative flex items-center justify-center rounded-full ring-8 ring-background shadow-sm">
+                                            <Icons.bilibili_live />
+                                        </div>
+                                    </div>
+                                    <div className="h-16 w-0.5 bg-border mt-2" />
                                 </div>
+
+                                {part.recording && (
+                                    <div className="flex items-center gap-4">
+                                        <Image
+                                            src={part.recording.cover}
+                                            alt={part.recording.title}
+                                            width={64}
+                                            height={48}
+                                            className="w-16 h-12 object-cover rounded-lg"
+                                        />
+                                        <div className="flex flex-col gap-1">
+                                            <h3 className="font-semibold leading-none tracking-tight text-secondary-foreground">{part.recording.title}</h3>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                })}
-            </div>
-        </div>
+                        })
+                    )
+                }
+            </motion.div>
+        </motion.div>
     )
 }
 
 // Individual day cell component with dialog
-const DayCell: FC<DayCellProps> = ({ day, activeDay, setActiveDay }) => {
+const DayCell: FC<DayCellProps> = ({ day, activeDay, setActiveDay, setNoActiveDay }) => {
     const { date, recordings } = day;
     const hasRecordings = recordings.length > 0;
     const dayOfWeek = date.getDay();
@@ -304,142 +319,58 @@ const DayCell: FC<DayCellProps> = ({ day, activeDay, setActiveDay }) => {
         }
     }
 
+    const isActive = activeDay?.date?.toISOString() === date.toISOString();
+
     return (
-        <div className="relative w-full">
-            <div
-                className={`
-					relative min-h-[100px] p-3 border border-gray-200/50 rounded-lg cursor-pointer
+        <motion.div className="w-full min-h-[100px]">
+            <AnimatePresence>
+                {isActive ? (
+                    <ActiveDayCell day={activeDay} setNoActiveDay={setNoActiveDay} />
+                ) : (
+                    <motion.div
+                        className={`
+					p-3 min-h-[100px] border border-gray-200/50 rounded-lg cursor-pointer
                     ${dayClass()}
                     hover:scale-105
 				`}
-                style={{
-                    transition: 'transform 0.2s',
-                    transitionTimingFunction: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                }}
-                onClick={handleCellClick}
-            >
-                <div className={`text-xs ${textClass()} mb-2 font-medium leading-tight`}>
-                    {formatChineseDate(date)}
-                </div>
-                {hasRecordings && (
-                    <div className="space-y-1">
-                        {recordings.slice(0, 2).map((recording) => {
-                            // Strip the 【直播回放】 prefix
-                            // Strip the xxxx年x月x日xx点场 suffix
-                            const titleStripped = recording.title.replace('【直播回放】', '').replace(/(\d{4}年\d{1,2}月\d{1,2}日\d{1,2}点场)/, '').trim();
+                        style={{
+                            transition: 'transform 0.2s',
+                            transitionTimingFunction: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                        }}
+                        onClick={handleCellClick}
+                    >
+                        <div className={`text-xs ${textClass()} mb-2 font-medium leading-tight`}>
+                            {formatChineseDate(date)}
+                        </div>
+                        {hasRecordings && (
+                            <div className="space-y-1">
+                                {recordings.slice(0, 2).map((recording) => {
+                                    // Strip the 【直播回放】 prefix
+                                    // Strip the xxxx年x月x日xx点场 suffix
+                                    const titleStripped = recording.title.replace('【直播回放】', '').replace(/(\d{4}年\d{1,2}月\d{1,2}日\d{1,2}点场)/, '').trim();
 
-                            return (
-                                <div
-                                    key={recording.id}
-                                    className={`text-xs ${recordingBgClass()} ${recordingTextClass()} px-2 rounded font-semibold line-clamp-1`}
-                                    title={recording.title}
-                                >
-                                    {titleStripped}
-                                </div>
-                            )
-                        })}
+                                    return (
+                                        <div
+                                            key={recording.id}
+                                            className={`text-xs ${recordingBgClass()} ${recordingTextClass()} px-2 rounded font-semibold line-clamp-1`}
+                                            title={recording.title}
+                                        >
+                                            {titleStripped}
+                                        </div>
+                                    )
+                                })}
 
-                        {recordings.length > 2 && (
-                            <div className="text-xs text-blue-600 font-medium">
-                                +{recordings.length - 2} more
+                                {recordings.length > 2 && (
+                                    <div className="text-xs text-blue-600 font-medium">
+                                        +{recordings.length - 2} more
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
+                    </motion.div>
                 )}
-            </div>
-        </div>
-    );
-};
-
-// Panel to show song timeline for a specific recording
-const RecordingTimelinePanel: FC<RecordingTimelinePanelProps> = ({ recording }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [imageError, setImageError] = useState(false);
-    const apiUrl = useAtomValue(apiUrlAtom);
-
-    const {
-        data: occurrencesData,
-        isLoading,
-        error,
-    } = useQuery({
-        queryKey: ["occurrences", recording.id],
-        queryFn: async () => {
-            const result = await listSongOccurrencesForArchive(recording.id);
-            return result;
-        },
-        staleTime: 60 * 60 * 1000, // 1 hour
-    });
-
-    const occurrences = occurrencesData?.occurrences || [];
-
-    const handleRecordingClick = () => {
-        setIsExpanded(!isExpanded);
-    };
-
-    const liveCoverIcon = () => {
-        if (imageError) {
-            return <div className="w-16 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <ImageOff className="w-6 h-6 text-gray-400" />
-            </div>
-        }
-
-        return <Image
-            src={recording.cover}
-            alt={recording.title}
-            width={64}
-            height={48}
-            className="w-16 h-12 object-cover rounded-lg"
-            loading="lazy"
-            onError={() => setImageError(true)}
-        />
-    };
-
-    return (
-        <div className="hover:shadow-md transition-shadow duration-200">
-            <div className="p-0">
-                <div
-                    className="w-full p-4 text-left cursor-pointer"
-                    onClick={handleRecordingClick}
-                >
-                    <div className="flex items-start gap-4">
-                        {/* Cover image */}
-                        {liveCoverIcon()}
-
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-2">
-                                {recording.title}
-                            </h3>
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                                <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {formatTime(recording.duration)}
-                                </span>
-                                <span>BV{recording.bvid}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2 relative z-20">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    window.open(`https://www.bilibili.com/video/${recording.bvid}`, '_blank');
-                                }}
-                                title="观看直播回放"
-                            >
-                                <ExternalLink className="w-3 h-3" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Expansion content */}
-                <AnimatePresence>
-                    {isExpanded && <RecordingTimeline recording={recording} />}
-                </AnimatePresence>
-            </div>
-        </div>
+            </AnimatePresence>
+        </motion.div>
     );
 };
 
@@ -455,11 +386,7 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
     } = useInfiniteQuery({
         queryKey: ["archives", vtuberProfileId],
         queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
-            console.log("Fetching archives for profile:", vtuberProfileId, "pageParam:", pageParam);
             const result = await listArchives(vtuberProfileId, pageParam, 50);
-            console.log("Archives result:", result);
-            console.log("Archives count:", result.archives?.length || 0);
-            console.log("Next token:", result.nextToken);
             return result;
         },
         initialPageParam: undefined,
@@ -488,7 +415,6 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && !isFetchingNextPage) {
-                    console.log("Loading more archives...");
                     fetchNextPage();
                 }
             },
@@ -557,10 +483,7 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
     const reversedWeeks = allWeeks.reverse();
 
     return (
-        <div className="relative bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-6">
-            {activeDay && (
-                <div className="absolute inset-0 z-5 backdrop-blur-xs bg-background/80" />
-            )}
+        <div className="relative bg-white/80 rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-6">
             <div className="space-y-6">
                 {/* Calendar Grid */}
                 <div className="space-y-2">
@@ -569,17 +492,13 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
                         {reversedWeeks.map((week, weekIndex) => (
                             <div key={weekIndex} className="relative grid grid-cols-7 gap-2 mb-2 last:mb-0">
                                 {week.map((dayData, dayIndex) => (
-                                    <AnimatePresence>
-                                        {activeDay && activeDay.date.toISOString() === dayData.date.toISOString() ?
-                                            <ActiveDayCell day={activeDay} setNoActiveDay={setNoActiveDay} />
-                                            :
-                                            <DayCell
-                                                key={dayIndex}
-                                                day={dayData}
-                                                activeDay={activeDay}
-                                                setActiveDay={setActiveDay}
-                                        />}
-                                    </AnimatePresence>
+                                    <DayCell
+                                        key={dayIndex}
+                                        day={dayData}
+                                        activeDay={activeDay}
+                                        setActiveDay={setActiveDay}
+                                        setNoActiveDay={setNoActiveDay}
+                                    />
                                 ))}
                             </div>
                         ))}
@@ -591,7 +510,9 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
                             <DayCell
                                 key={dayIndex}
                                 day={dayData}
-                                setActiveDay={() => { }}
+                                activeDay={activeDay}
+                                setActiveDay={setActiveDay}
+                                setNoActiveDay={setNoActiveDay}
                             />
                         ))}
                     </div>
