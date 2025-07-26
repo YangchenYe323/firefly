@@ -66,7 +66,9 @@ export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 					song: true,
 					scStatus: true,
 				},
-
+				where: {
+					hidden: false,
+				},
 				orderBy: [
 					{
 						createdOn: "desc",
