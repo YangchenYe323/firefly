@@ -119,6 +119,15 @@ const config = {
         "slide-down": "slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         "slide-right": "slide-right 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
       },
+      backgroundImage: {
+        'monday-gradient': 'linear-gradient(135deg, #3b82f6, #2563eb)',
+        'tuesday-gradient': 'linear-gradient(135deg, #f97316, #ea580c)',
+        'wednesday-gradient': 'linear-gradient(135deg, #10b981, #059669)',
+        'thursday-gradient': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'friday-gradient': 'linear-gradient(135deg, #ec4899, #db2777)',
+        'saturday-gradient': 'linear-gradient(135deg, #f59e0b, #d97706)',
+        'sunday-gradient': 'linear-gradient(135deg, #6366f1, #4f46e5)',
+      }
     },
   },
   future: {

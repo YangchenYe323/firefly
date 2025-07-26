@@ -1,4 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
+import { format } from "date-fns";
+import { zhCN } from "date-fns/locale";
 
 import type { Song, VtuberSong } from "@prisma/client";
 import copy from "copy-to-clipboard";
@@ -32,6 +34,22 @@ export function isVideoNewlyCreated(song: VtuberSong) {
 	lastTwoMonth.setDate(1);
 
 	return new Date(video_created * 1000) >= lastTwoMonth;
+}
+
+export function formatChineseDate(date: Date): string {
+	return format(date, "yyyy/M/d (E)", { locale: zhCN });
+}
+
+export function formatTime(seconds: number, padHour = false): string {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	if (hours > 0 || padHour) {
+		return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+	}
+
+	return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 /// Fisher-Yates Shuffle
@@ -73,44 +91,72 @@ export function onCopyToClipboard(song: Song) {
 	});
 
 	if (success) {
-		// Primary method succeeded - show success message
-		toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
-	} else {
-		// Primary method failed - try fallback approach
-		// Check if navigator.clipboard is available and we're in a secure context
-		// Secure context means HTTPS or localhost (not LAN IP)
-		if (navigator.clipboard && window.isSecureContext) {
-			// Fallback method: Use modern clipboard API
-			// This is more reliable in secure contexts but requires HTTPS
-			navigator.clipboard
-				.writeText(text)
-				.then(() => {
-					toast.success(`歌曲 ${song.title} 成功复制到剪贴板`);
-				})
-				.catch(() => {
-					// Clipboard API failed - provide manual copy instructions
-					// This ensures users can still copy the text even if automated methods fail
-					toast.error(`复制失败，请手动复制: ${text}`);
-				});
-		} else {
-			// No clipboard API available or not in secure context
-			// Provide manual copy instructions as final fallback
-			// This handles cases like LAN IP access where clipboard permissions are restricted
-			toast.error(`复制失败，请手动复制: ${text}`);
-		}
+		toast.success("已复制到剪贴板");
+		return;
 	}
-}
 
+	// Fallback method: Use navigator.clipboard API
+	if (navigator.clipboard && window.isSecureContext) {
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				toast.success("已复制到剪贴板");
+			})
+			.catch(() => {
+				// If clipboard API fails, show manual copy instructions
+				toast.info(
+					`请手动复制以下文本：\n${text}`,
+					{
+						autoClose: false,
+						closeOnClick: false,
+					}
+				);
+			});
+		return;
+	}
+
+	// Final fallback: Show manual copy instructions
+	toast.info(
+		`请手动复制以下文本：\n${text}`,
+		{
+			autoClose: false,
+			closeOnClick: false,
+		}
+	);
+}
 
 function padTime(value: number) {
-	const str = value.toString();
-
-	return str.length === 1 ? `0${str}` : str;
+	return value.toString().padStart(2, "0");
 }
 
-export function formatMMSS(timeInSecond: number) {
-	const minutes = Math.floor(timeInSecond / 60);
-	const seconds = Math.floor(timeInSecond % 60);
+export function formatMMSS(timeInSecond: number, padHour = false): string{
+	const hours = Math.floor(timeInSecond / 3600);
+	const minutes = Math.floor((timeInSecond % 3600) / 60);
+	const seconds = timeInSecond % 60;
+
+	if (hours > 0 || padHour) {
+		return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
+	}
 
 	return `${padTime(minutes)}:${padTime(seconds)}`;
+}
+
+/**
+ * Get calendar theme CSS variables based on day of week
+ * @param dayOfWeek - Day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+ * @returns Object with CSS variable names for the given day
+ */
+export function getCalendarThemeVars(dayOfWeek: number) {
+	const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+	const dayName = dayNames[dayOfWeek] || 'sun';
+	
+	return {
+		bg: `hsl(var(--calendar-${dayName}-bg))`,
+		activeBg: `hsl(var(--calendar-${dayName}-active-bg))`,
+		recordingBg: `hsl(var(--calendar-${dayName}-recording-bg))`,
+		occurrenceBg: `hsl(var(--calendar-${dayName}-occurrence-bg))`,
+		border: `hsl(var(--calendar-${dayName}-border))`,
+		text: `hsl(var(--calendar-${dayName}-text))`,
+		activeText: `hsl(var(--calendar-${dayName}-active-text))`,
+	};
 }

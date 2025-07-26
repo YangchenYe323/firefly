@@ -4,6 +4,7 @@ import Heading from "./components/Heading";
 import ThemeProvider from "./components/ThemeProvider";
 import SongPanel from "./components/SongPanel";
 import CollapsibleHeader from "./components/CollapsibleHeader";
+import ViewTabs from "./components/ViewTabs";
 import { useHydrateAtoms } from "jotai/utils";
 
 import dynamic from "next/dynamic";
@@ -11,6 +12,8 @@ import { type FC, useMemo, useState } from "react";
 import type { VtuberProfileWithReferences } from "./actions/v2/profile";
 import { allVtuberSongsAtom, apiUrlAtom, profileAtom } from "@/lib/store";
 import { useAtom, useAtomValue } from "jotai";
+import RecordingCalendar from "./components/RecordingCalendar";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface PropType {
 	profileFromServer: VtuberProfileWithReferences;
@@ -30,6 +33,7 @@ const Root: FC<PropType> = ({ profileFromServer }) => {
 	const apiUrl = useAtomValue(apiUrlAtom);
 
 	const [playerVisible, setPlayerVisible] = useState(false);
+	const [activeView, setActiveView] = useState<"songs" | "calendar">("songs");
 
 	const closePlayer = () => {
 		setPlayerVisible(false);
@@ -47,7 +51,32 @@ const Root: FC<PropType> = ({ profileFromServer }) => {
 					{/* Add top padding to account for the floating arrow */}
 					<div className="pt-10">
 						<Heading songCount={allVtuberSongs.length} name={profile!.name} renderAvatar={renderAvatar} />
-						<SongPanel onShowPlayer={showPlayer} />
+						<ViewTabs activeView={activeView} onViewChange={setActiveView} />
+						<AnimatePresence mode="popLayout" initial={false}>
+							{activeView === "songs" ? (
+								<motion.div
+									key="songs"
+									initial={{ opacity: 0, x: -50 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: -50 }}
+									transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+									className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8"
+								>
+									<SongPanel onShowPlayer={showPlayer} />
+								</motion.div>
+							) : (
+								<motion.div
+									key="calendar"
+									initial={{ opacity: 0, x: 50 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: 50 }}
+									transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+									className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+								>
+									<RecordingCalendar vtuberProfileId={profile!.id} />
+								</motion.div>
+							)}
+						</AnimatePresence>
 						<div className="mt-2 mb-2 p-4 text-center text-sm text-thin text-black">
 							Copyright © 2023-2024 梦中杀蝶人协会 & 他们的朋友
 						</div>

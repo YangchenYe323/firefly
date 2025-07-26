@@ -110,8 +110,6 @@ export function LyricsSearch({
 					setResults([]);
 				} else {
 					const data = await response.json();
-					console.log("API response:", data); // Debug log for troubleshooting
-
 					// Extract songs array from the response object
 					// API returns { songs: [...] } structure
 					const songs = data.songs || [];

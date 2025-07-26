@@ -85,9 +85,7 @@ const SongPanel: FC<PropType> = ({ onShowPlayer }) => {
 	};
 
 	return (
-		<div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-			{/* Main Panel Container */}
-			<div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
+		<div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
 				{/* Header with Search and Random Button */}
 				<div className="p-4 border-b border-gray-100/80">
 					<div className="flex items-center gap-3 mb-4">
@@ -133,7 +131,6 @@ const SongPanel: FC<PropType> = ({ onShowPlayer }) => {
 					)}
 				</div>
 			</div>
-		</div>
 	);
 }
 

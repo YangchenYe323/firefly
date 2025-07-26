@@ -7,4 +7,134 @@
 
   --toastify-font-family: "Helvetica", "Tahoma", "Arial", "STXihei", "华文细黑",
     "Microsoft YaHei", "微软雅黑", "sans-serif";
+
+  /* Calendar Theme Variables - Default Theme */
+  /* Sunday (0) */
+  --calendar-sun-bg: 120 100% 97%; /* lime-50 */
+  --calendar-sun-active-bg: 120 100% 97%; /* lime-50 */
+  --calendar-sun-recording-bg: 120 100% 95%; /* lime-100 */
+  --calendar-sun-occurrence-bg: 120 100% 97%; /* lime-50/50 */
+  --calendar-sun-border: 120 100% 90%; /* lime-200 */
+  --calendar-sun-text: 120 100% 30%; /* lime-700 */
+  --calendar-sun-active-text: 120 100% 30%; /* lime-700 */
+
+  /* Monday (1) */
+  --calendar-mon-bg: 210 100% 97%; /* blue-50 */
+  --calendar-mon-active-bg: 210 100% 97%; /* blue-50 */
+  --calendar-mon-recording-bg: 210 100% 95%; /* blue-100 */
+  --calendar-mon-occurrence-bg: 210 100% 97%; /* blue-50/50 */
+  --calendar-mon-border: 210 100% 90%; /* blue-200 */
+  --calendar-mon-text: 210 100% 30%; /* blue-700 */
+  --calendar-mon-active-text: 210 100% 30%; /* blue-700 */
+
+  /* Tuesday (2) */
+  --calendar-tue-bg: 25 100% 97%; /* orange-50 */
+  --calendar-tue-active-bg: 25 100% 97%; /* orange-50 */
+  --calendar-tue-recording-bg: 25 100% 95%; /* orange-100 */
+  --calendar-tue-occurrence-bg: 25 100% 97%; /* orange-50/50 */
+  --calendar-tue-border: 25 100% 90%; /* orange-200 */
+  --calendar-tue-text: 25 100% 30%; /* orange-700 */
+  --calendar-tue-active-text: 25 100% 30%; /* orange-700 */
+
+  /* Wednesday (3) */
+  --calendar-wed-bg: 270 100% 97%; /* purple-50 */
+  --calendar-wed-active-bg: 270 100% 97%; /* purple-50 */
+  --calendar-wed-recording-bg: 270 100% 95%; /* purple-100 */
+  --calendar-wed-occurrence-bg: 270 100% 97%; /* purple-50/50 */
+  --calendar-wed-border: 270 100% 90%; /* purple-200 */
+  --calendar-wed-text: 270 100% 30%; /* purple-700 */
+  --calendar-wed-active-text: 270 100% 30%; /* purple-700 */
+
+  /* Thursday (4) */
+  --calendar-thu-bg: 330 100% 97%; /* pink-50 */
+  --calendar-thu-active-bg: 330 100% 97%; /* pink-50 */
+  --calendar-thu-recording-bg: 330 100% 95%; /* pink-100 */
+  --calendar-thu-occurrence-bg: 330 100% 97%; /* pink-50/50 */
+  --calendar-thu-border: 330 100% 90%; /* pink-200 */
+  --calendar-thu-text: 330 100% 30%; /* pink-700 */
+  --calendar-thu-active-text: 330 100% 30%; /* pink-700 */
+
+  /* Friday (5) */
+  --calendar-fri-bg: 45 100% 97%; /* yellow-50 */
+  --calendar-fri-active-bg: 45 100% 97%; /* yellow-50 */
+  --calendar-fri-recording-bg: 45 100% 95%; /* yellow-100 */
+  --calendar-fri-occurrence-bg: 45 100% 97%; /* yellow-50/50 */
+  --calendar-fri-border: 45 100% 90%; /* yellow-200 */
+  --calendar-fri-text: 45 100% 30%; /* yellow-700 */
+  --calendar-fri-active-text: 45 100% 30%; /* yellow-700 */
+
+  /* Saturday (6) */
+  --calendar-sat-bg: 240 100% 97%; /* indigo-50 */
+  --calendar-sat-active-bg: 240 100% 97%; /* indigo-50 */
+  --calendar-sat-recording-bg: 240 100% 95%; /* indigo-100 */
+  --calendar-sat-occurrence-bg: 240 100% 97%; /* indigo-50/50 */
+  --calendar-sat-border: 240 100% 90%; /* indigo-200 */
+  --calendar-sat-text: 240 100% 30%; /* indigo-700 */
+  --calendar-sat-active-text: 240 100% 30%; /* indigo-700 */
+}
+
+.dark {
+  /* Calendar Theme Variables - Dark Theme */
+  /* Sunday (0) */
+  --calendar-sun-bg: 120 20% 10%; /* dark lime */
+  --calendar-sun-active-bg: 120 20% 15%; /* dark lime active */
+  --calendar-sun-recording-bg: 120 20% 20%; /* dark lime recording */
+  --calendar-sun-occurrence-bg: 120 20% 12%; /* dark lime occurrence */
+  --calendar-sun-border: 120 20% 25%; /* dark lime border */
+  --calendar-sun-text: 120 60% 70%; /* light lime text */
+  --calendar-sun-active-text: 120 60% 80%; /* light lime active text */
+
+  /* Monday (1) */
+  --calendar-mon-bg: 210 20% 10%; /* dark blue */
+  --calendar-mon-active-bg: 210 20% 15%; /* dark blue active */
+  --calendar-mon-recording-bg: 210 20% 20%; /* dark blue recording */
+  --calendar-mon-occurrence-bg: 210 20% 12%; /* dark blue occurrence */
+  --calendar-mon-border: 210 20% 25%; /* dark blue border */
+  --calendar-mon-text: 210 60% 70%; /* light blue text */
+  --calendar-mon-active-text: 210 60% 80%; /* light blue active text */
+
+  /* Tuesday (2) */
+  --calendar-tue-bg: 25 20% 10%; /* dark orange */
+  --calendar-tue-active-bg: 25 20% 15%; /* dark orange active */
+  --calendar-tue-recording-bg: 25 20% 20%; /* dark orange recording */
+  --calendar-tue-occurrence-bg: 25 20% 12%; /* dark orange occurrence */
+  --calendar-tue-border: 25 20% 25%; /* dark orange border */
+  --calendar-tue-text: 25 60% 70%; /* light orange text */
+  --calendar-tue-active-text: 25 60% 80%; /* light orange active text */
+
+  /* Wednesday (3) */
+  --calendar-wed-bg: 270 20% 10%; /* dark purple */
+  --calendar-wed-active-bg: 270 20% 15%; /* dark purple active */
+  --calendar-wed-recording-bg: 270 20% 20%; /* dark purple recording */
+  --calendar-wed-occurrence-bg: 270 20% 12%; /* dark purple occurrence */
+  --calendar-wed-border: 270 20% 25%; /* dark purple border */
+  --calendar-wed-text: 270 60% 70%; /* light purple text */
+  --calendar-wed-active-text: 270 60% 80%; /* light purple active text */
+
+  /* Thursday (4) */
+  --calendar-thu-bg: 330 20% 10%; /* dark pink */
+  --calendar-thu-active-bg: 330 20% 15%; /* dark pink active */
+  --calendar-thu-recording-bg: 330 20% 20%; /* dark pink recording */
+  --calendar-thu-occurrence-bg: 330 20% 12%; /* dark pink occurrence */
+  --calendar-thu-border: 330 20% 25%; /* dark pink border */
+  --calendar-thu-text: 330 60% 70%; /* light pink text */
+  --calendar-thu-active-text: 330 60% 80%; /* light pink active text */
+
+  /* Friday (5) */
+  --calendar-fri-bg: 45 20% 10%; /* dark yellow */
+  --calendar-fri-active-bg: 45 20% 15%; /* dark yellow active */
+  --calendar-fri-recording-bg: 45 20% 20%; /* dark yellow recording */
+  --calendar-fri-occurrence-bg: 45 20% 12%; /* dark yellow occurrence */
+  --calendar-fri-border: 45 20% 25%; /* dark yellow border */
+  --calendar-fri-text: 45 60% 70%; /* light yellow text */
+  --calendar-fri-active-text: 45 60% 80%; /* light yellow active text */
+
+  /* Saturday (6) */
+  --calendar-sat-bg: 240 20% 10%; /* dark indigo */
+  --calendar-sat-active-bg: 240 20% 15%; /* dark indigo active */
+  --calendar-sat-recording-bg: 240 20% 20%; /* dark indigo recording */
+  --calendar-sat-occurrence-bg: 240 20% 12%; /* dark indigo occurrence */
+  --calendar-sat-border: 240 20% 25%; /* dark indigo border */
+  --calendar-sat-text: 240 60% 70%; /* light indigo text */
+  --calendar-sat-active-text: 240 60% 80%; /* light indigo active text */
 }
