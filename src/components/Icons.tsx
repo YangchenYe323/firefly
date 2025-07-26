@@ -1,4 +1,5 @@
-export type IconProps = React.SVGAttributes<SVGElement>;
+export type IconProps = React.SVGAttributes<SVGElement> | React.HTMLAttributes<SVGElement>;
+
 
 export const Icons = {
 	search: (props: IconProps) => (
