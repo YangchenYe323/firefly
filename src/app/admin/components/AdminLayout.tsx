@@ -145,6 +145,7 @@ export default function AdminLayout() {
 				scStatusId: null,
 				remark: null,
 				premiumStatus: null,
+				hidden: false,
 				createdOn: new Date(),
 				updatedOn: new Date(),
 			},

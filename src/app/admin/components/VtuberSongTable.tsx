@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Search } from "lucide-react";
+import { Edit, Trash2, Search, Eye, EyeOff } from "lucide-react";
 import type { VtuberSong, Song, SuperChat } from "@prisma/client";
-import { vtuberSongsAtom, superChatsAtom, songsAtom } from "@/lib/admin-store";
+import { vtuberSongsAtom, superChatsAtom, songsAtom, useUpdateVtuberSongMutation } from "@/lib/admin-store";
+import { toast } from "sonner";
 
 interface VtuberSongTableProps {
 	onEditVtuberSong: (vtuberSong: VtuberSong) => void;
@@ -20,6 +21,7 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 	const [superChatsAtomState] = useAtom(superChatsAtom);
 	const [songsAtomState] = useAtom(songsAtom);
 	const [searchQuery, setSearchQuery] = useState("");
+	const { mutateAsync: updateVtuberSong } = useUpdateVtuberSongMutation();
 
 	const { data: vtuberSongs, isLoading, error } = vtuberSongsAtomState;
 	const { data: superChats } = superChatsAtomState;
@@ -41,6 +43,18 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 			(superChat?.name.toLowerCase().includes(searchLower))
 		);
 	});
+
+	const handleToggleHidden = async (vtuberSong: VtuberSong) => {
+		try {
+			await updateVtuberSong({
+				...vtuberSong,
+				hidden: !vtuberSong.hidden,
+			});
+			toast.success(`已${vtuberSong.hidden ? '显示' : '隐藏'}歌曲`);
+		} catch (error) {
+			toast.error(`操作失败: ${error}`);
+		}
+	};
 
 	if (error) {
 		return (
@@ -91,6 +105,7 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 							<TableHead>付费状态</TableHead>
 							<TableHead>SC点歌</TableHead>
 							<TableHead>备注</TableHead>
+							<TableHead>状态</TableHead>
 							<TableHead>操作</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -100,7 +115,10 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 							const superChat = superChats?.find(sc => sc.id === vtuberSong.scStatusId);
 							
 							return (
-							<TableRow key={vtuberSong.id}>
+							<TableRow 
+								key={vtuberSong.id}
+								className={vtuberSong.hidden ? "opacity-60 blur-[0.5px]" : ""}
+							>
 								<TableCell className="font-medium">
 									{song ? song.title : `歌曲ID: ${vtuberSong.songId}`}
 								</TableCell>
@@ -153,6 +171,20 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 									) : (
 										<span className="text-muted-foreground">-</span>
 									)}
+								</TableCell>
+								<TableCell>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => handleToggleHidden(vtuberSong)}
+										title={vtuberSong.hidden ? "显示歌曲" : "隐藏歌曲"}
+									>
+										{vtuberSong.hidden ? (
+											<EyeOff className="w-4 h-4 text-muted-foreground" />
+										) : (
+											<Eye className="w-4 h-4" />
+										)}
+									</Button>
 								</TableCell>
 								<TableCell>
 									<div className="flex gap-2">

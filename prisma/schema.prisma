@@ -163,6 +163,8 @@ model VtuberSong {
   remark        String?
   /// 上船当天限定
   premiumStatus PremiumStatus?
+  /// Hide so not shown in the song list
+  hidden        Boolean        @default(false)
 
   /// The date the song was added to the vtuber's song list
   createdOn DateTime @default(now())
