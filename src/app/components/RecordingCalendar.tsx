@@ -72,9 +72,9 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
         <motion.div
             className="absolute z-20"
             style={{
-                left: '-0.5rem',
-                right: '-0.5rem',
-                top: '0',
+                left: '-1.5rem',
+                right: '-1.5rem',
+                top: '0.25rem',
                 bottom: '0',
             }}
             initial={{ opacity: 0 }}
@@ -235,11 +235,13 @@ const DayCell: FC<DayCellProps> = ({ day, activeDay, setActiveDay, setNoActiveDa
             <AnimatePresence>
                 {isActive ? (
                     <ActiveDayCell
+                        key="active-day-cell"
                         day={activeDay}
                         setNoActiveDay={setNoActiveDay}
                     />
                 ) : (
                     <motion.div
+                        key="day-cell"
                         className="p-3 min-h-[100px] border border-gray-200/50 rounded-lg cursor-pointer hover:scale-105"
                         style={{
                             backgroundColor: themeVars.bg,

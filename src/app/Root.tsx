@@ -52,7 +52,7 @@ const Root: FC<PropType> = ({ profileFromServer }) => {
 					<div className="pt-10">
 						<Heading songCount={allVtuberSongs.length} name={profile!.name} renderAvatar={renderAvatar} />
 						<ViewTabs activeView={activeView} onViewChange={setActiveView} />
-						<AnimatePresence mode="popLayout">
+						<AnimatePresence mode="popLayout" initial={false}>
 							{activeView === "songs" ? (
 								<motion.div
 									key="songs"
