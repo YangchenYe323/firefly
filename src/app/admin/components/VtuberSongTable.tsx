@@ -23,7 +23,7 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 	const [searchQuery, setSearchQuery] = useState("");
 	const { mutateAsync: updateVtuberSong } = useUpdateVtuberSongMutation();
 
-	const { data: vtuberSongs, isLoading, error } = vtuberSongsAtomState;
+	const { data: vtuberSongs, isLoading, error, refetch: refetchVtuberSongs } = vtuberSongsAtomState;
 	const { data: superChats } = superChatsAtomState;
 	const { data: songs } = songsAtomState;
 
@@ -51,6 +51,7 @@ export default function VtuberSongTable({ onEditVtuberSong, onDeleteVtuberSong }
 				hidden: !vtuberSong.hidden,
 			});
 			toast.success(`已${vtuberSong.hidden ? '显示' : '隐藏'}歌曲`);
+			refetchVtuberSongs();
 		} catch (error) {
 			toast.error(`操作失败: ${error}`);
 		}
