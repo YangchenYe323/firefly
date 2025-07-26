@@ -15,58 +15,330 @@ import { formatChineseDate, formatTime } from "@/lib/utils";
 import { Presence } from "@/components/Pressence";
 import RecordingTimeline from "./RecordingTimeline";
 import { AnimatePresence } from "framer-motion";
+import { Icons } from "@/components/Icons";
+import { useOnClickOutside } from "usehooks-ts";
+
+interface CalendarDay {
+    date: Date;
+    recordings: LiveRecordingArchive[];
+}
 
 interface RecordingCalendarProps {
     vtuberProfileId: number;
 }
 
 interface DayCellProps {
-    date: Date;
-    recordings: LiveRecordingArchive[];
+    day: CalendarDay;
+    activeDay: CalendarDay | null;
+    setActiveDay: (day: CalendarDay) => void;
+}
+
+interface ActiveDayCellProps {
+    day: CalendarDay;
+    setNoActiveDay: () => void;
 }
 
 interface RecordingTimelinePanelProps {
     recording: LiveRecordingArchive;
 }
 
-// Individual day cell component with dialog
-const DayCell: FC<DayCellProps> = ({ date, recordings }) => {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const hasRecordings = recordings.length > 0;
+// Overlay for active day cell
+const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
+    const { date, recordings } = day;
+    const dayOfWeek = date.getDay();
 
-    const handleCellClick = () => {
-        if (hasRecordings) {
-            setIsDialogOpen(true);
+    const ref = useRef<HTMLDivElement>(null);
+    useOnClickOutside(ref, setNoActiveDay);
+
+    // Divide the day into recording.length + 2 parts: start -> <recording> -> end
+    // Each part contains a start and end time within the day, the recordings of the period.
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const parts = [
+        {
+            start: startOfDay,
+            end: recordings.length > 0 ? recordings[0].date : endOfDay,
+            recording: null,
+        },
+        ...recordings.map((recording) => ({
+            start: recording.date,
+            end: new Date(recording.date.getTime() + recording.duration * 1000),
+            recording,
+        })),
+    ]
+
+    if (recordings.length > 0) {
+        parts.push({
+            start: recordings[recordings.length - 1].date,
+            end: endOfDay,
+            recording: null,
+        });
+    }
+
+    const dayClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'bg-lime-400/10';
+            case 1:
+                return 'bg-blue-400/10';
+            case 2:
+                return 'bg-orange-400/10';
+            case 3:
+                return 'bg-purple-400/10';
+            case 4:
+                return 'bg-pink-400/10';
+            case 5:
+                return 'bg-yellow-400/10';
+            case 6:
+                return 'bg-indigo-400/10';
+            default:
+                return 'bg-gray-400/10';
         }
-    };
+    }
+
+    const recordingBgClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'bg-lime-400/20';
+            case 1:
+                return 'bg-blue-400/20';
+            case 2:
+                return 'bg-orange-400/20';
+            case 3:
+                return 'bg-purple-400/20';
+            case 4:
+                return 'bg-pink-400/20';
+            case 5:
+                return 'bg-yellow-400/20';
+            case 6:
+                return 'bg-indigo-400/20';
+            default:
+                return 'bg-blue-400/20';
+        }
+    }
+
+    const recordingTextClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'text-lime-900';
+            case 1:
+                return 'text-blue-900';
+            case 2:
+                return 'text-orange-900';
+            case 3:
+                return 'text-purple-900';
+            case 4:
+                return 'text-pink-900';
+            case 5:
+                return 'text-yellow-900';
+            case 6:
+                return 'text-indigo-900';
+            default:
+                return 'text-blue-900';
+        }
+    }
+
+    const textClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'text-lime-600';
+            case 1:
+                return 'text-blue-600';
+            case 2:
+                return 'text-orange-600';
+            case 3:
+                return 'text-purple-600';
+            case 4:
+                return 'text-pink-600';
+            case 5:
+                return 'text-yellow-600';
+            case 6:
+                return 'text-indigo-600';
+            default:
+                return 'text-gray-600';
+        }
+    }
 
     return (
-        <div className="w-full">
+        <div className="absolute inset-0 z-10 bg-white">
+            <div className={`${dayClass()} m-2 rounded-lg border border-gray-200/50 z-10`} ref={ref}>
+                <div className={`text-xs ${textClass()} mb-2 font-medium leading-tight`}>
+                    {formatChineseDate(date)}
+                </div>
+
+                {parts.map((part, index) => {
+                    return <div key={index} className="grid grid-cols-[auto_auto_1fr] gap-4 items-start">
+                        <div className="flex flex-col justify-start pt-1">
+                            <time
+                                className="text-sm tracking-tight font-medium text-right text-muted-foreground"
+                            >
+                                {formatTime(part.start.getTime() / 1000, true)}
+                            </time>
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                            <div className="relative z-10">
+                                <div className="relative flex items-center justify-center rounded-full ring-8 ring-background shadow-sm">
+                                    <Icons.bilibili_live />
+                                </div>
+                            </div>
+                            <div className="h-16 w-0.5 bg-border mt-2" />
+                        </div>
+
+                        {part.recording && (
+                            <div className="flex items-center gap-4">
+                                <Image
+                                    src={part.recording.cover}
+                                    alt={part.recording.title}
+                                    width={64}
+                                    height={48}
+                                    className="w-16 h-12 object-cover rounded-lg"
+                                />
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="font-semibold leading-none tracking-tight text-secondary-foreground">{part.recording.title}</h3>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                })}
+            </div>
+        </div>
+    )
+}
+
+// Individual day cell component with dialog
+const DayCell: FC<DayCellProps> = ({ day, activeDay, setActiveDay }) => {
+    const { date, recordings } = day;
+    const hasRecordings = recordings.length > 0;
+    const dayOfWeek = date.getDay();
+
+    const handleCellClick = () => {
+        setActiveDay(day);
+    };
+
+    const dayClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'bg-lime-400/10';
+            case 1:
+                return 'bg-blue-400/10';
+            case 2:
+                return 'bg-orange-400/10';
+            case 3:
+                return 'bg-purple-400/10';
+            case 4:
+                return 'bg-pink-400/10';
+            case 5:
+                return 'bg-yellow-400/10';
+            case 6:
+                return 'bg-indigo-400/10';
+            default:
+                return 'bg-gray-400/10';
+        }
+    }
+
+    const recordingBgClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'bg-lime-400/20';
+            case 1:
+                return 'bg-blue-400/20';
+            case 2:
+                return 'bg-orange-400/20';
+            case 3:
+                return 'bg-purple-400/20';
+            case 4:
+                return 'bg-pink-400/20';
+            case 5:
+                return 'bg-yellow-400/20';
+            case 6:
+                return 'bg-indigo-400/20';
+            default:
+                return 'bg-blue-400/20';
+        }
+    }
+
+    const recordingTextClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'text-lime-900';
+            case 1:
+                return 'text-blue-900';
+            case 2:
+                return 'text-orange-900';
+            case 3:
+                return 'text-purple-900';
+            case 4:
+                return 'text-pink-900';
+            case 5:
+                return 'text-yellow-900';
+            case 6:
+                return 'text-indigo-900';
+            default:
+                return 'text-blue-900';
+        }
+    }
+
+    const textClass = () => {
+        switch (dayOfWeek) {
+            case 0:
+                return 'text-lime-600';
+            case 1:
+                return 'text-blue-600';
+            case 2:
+                return 'text-orange-600';
+            case 3:
+                return 'text-purple-600';
+            case 4:
+                return 'text-pink-600';
+            case 5:
+                return 'text-yellow-600';
+            case 6:
+                return 'text-indigo-600';
+            default:
+                return 'text-gray-600';
+        }
+    }
+
+    return (
+        <div className="relative w-full">
             <div
                 className={`
-					min-h-[120px] p-3 border border-gray-200/50 rounded-lg cursor-pointer
-					transition-all duration-200 ease-out
-					${hasRecordings
-                        ? 'bg-blue-50/80 hover:bg-blue-100/80 hover:shadow-md'
-                        : 'bg-gray-50/30 hover:bg-gray-100/50'
-                    }
+					relative min-h-[100px] p-3 border border-gray-200/50 rounded-lg cursor-pointer
+                    ${dayClass()}
+                    hover:scale-105
 				`}
+                style={{
+                    transition: 'transform 0.2s',
+                    transitionTimingFunction: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                }}
                 onClick={handleCellClick}
             >
-                <div className="text-xs text-gray-700 mb-2 font-medium leading-tight">
+                <div className={`text-xs ${textClass()} mb-2 font-medium leading-tight`}>
                     {formatChineseDate(date)}
                 </div>
                 {hasRecordings && (
                     <div className="space-y-1">
-                        {recordings.slice(0, 2).map((recording) => (
-                            <div
-                                key={recording.id}
-                                className="text-xs bg-blue-100/80 text-blue-900 px-2 py-1 rounded font-medium line-clamp-2"
-                                title={recording.title}
-                            >
-                                {recording.title}
-                            </div>
-                        ))}
+                        {recordings.slice(0, 2).map((recording) => {
+                            // Strip the 【直播回放】 prefix
+                            // Strip the xxxx年x月x日xx点场 suffix
+                            const titleStripped = recording.title.replace('【直播回放】', '').replace(/(\d{4}年\d{1,2}月\d{1,2}日\d{1,2}点场)/, '').trim();
+
+                            return (
+                                <div
+                                    key={recording.id}
+                                    className={`text-xs ${recordingBgClass()} ${recordingTextClass()} px-2 rounded font-semibold line-clamp-1`}
+                                    title={recording.title}
+                                >
+                                    {titleStripped}
+                                </div>
+                            )
+                        })}
+
                         {recordings.length > 2 && (
                             <div className="text-xs text-blue-600 font-medium">
                                 +{recordings.length - 2} more
@@ -75,22 +347,6 @@ const DayCell: FC<DayCellProps> = ({ date, recordings }) => {
                     </div>
                 )}
             </div>
-
-            {/* Dialog for recordings */}
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg font-semibold">
-                            {formatChineseDate(date)} - 直播回放
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        {recordings.map((recording) => (
-                            <RecordingTimelinePanel key={recording.id} recording={recording} />
-                        ))}
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 };
@@ -211,6 +467,12 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
         staleTime: 60 * 60 * 1000, // 1 hour
     });
 
+    const [activeDay, setActiveDay] = useState<CalendarDay | null>(null);
+
+    const setNoActiveDay = () => {
+        setActiveDay(null);
+    };
+
     // Ref for infinite scroll
     const loadMoreRef = useRef<HTMLDivElement>(null);
     const observerRef = useRef<IntersectionObserver | null>(null);
@@ -259,83 +521,65 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
         recordingsByDate.get(dateKey)!.push(recording);
     }
 
-    // Generate calendar grid
-    const generateCalendarGrid = () => {
-        // Find the earliest and latest dates from the recordings
-        const allDates = Array.from(recordingsByDate.keys()).map(key => new Date(key));
-        const earliestDate = allDates.length > 0 ? new Date(Math.min(...allDates.map(d => d.getTime()))) : new Date();
-        const latestDate = allDates.length > 0 ? new Date(Math.max(...allDates.map(d => d.getTime()))) : new Date();
+    const calendarDays: CalendarDay[] = Array.from(recordingsByDate.entries()).map(([dateKey, recordings]) => ({
+        date: new Date(dateKey),
+        recordings,
+    })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        // Generate all weeks from earliest to latest date
-        const allWeeks = [];
-        const currentDate = new Date(earliestDate);
+    const earliestDate = calendarDays.length > 0 ? calendarDays[0].date : new Date();
+    const latestDate = calendarDays.length > 0 ? calendarDays[calendarDays.length - 1].date : new Date();
 
-        // First, generate all weeks in chronological order
-        while (currentDate <= latestDate) {
-            const weekStart = new Date(currentDate);
-            // Adjust to start of week (Sunday)
-            const dayOfWeek = weekStart.getDay();
-            weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    // Generate all weeks from earliest to latest date
+    const allWeeks = [];
+    const currentDate = new Date(earliestDate);
 
-            const week = [];
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(weekStart);
-                date.setDate(weekStart.getDate() + i);
-                const dateKey = date.toISOString().split('T')[0];
-                const recordings = recordingsByDate.get(dateKey) || [];
+    while (currentDate <= latestDate) {
+        const weekStart = new Date(currentDate);
+        // Adjust to start of week (Sunday)
+        const dayOfWeek = weekStart.getDay();
+        weekStart.setDate(weekStart.getDate() - dayOfWeek);
 
-                week.push({ date, recordings });
-            }
-
-            allWeeks.push(week);
-
-            // Move to next week
-            currentDate.setDate(currentDate.getDate() + 7);
+        const week = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + i);
+            const dateKey = date.toISOString().split('T')[0];
+            const recordings = recordingsByDate.get(dateKey) || [];
+            week.push({ date, recordings });
         }
+        allWeeks.push(week);
 
-        // Reverse the weeks to show most recent first
-        const reversedWeeks = allWeeks.reverse();
+        // Move to next week
+        currentDate.setDate(currentDate.getDate() + 7);
+    }
 
-        console.log("Generated calendar with", reversedWeeks.length, "weeks, covering dates from", earliestDate.toISOString(), "to", latestDate.toISOString(), "in reverse chronological order");
-        return reversedWeeks;
-    };
-
-    const calendarWeeks = generateCalendarGrid();
-
-    console.log("Calendar state:", {
-        totalRecordings: allRecordings.length,
-        calendarWeeks: calendarWeeks.length
-    });
+    // Reverse the weeks to show most recent first
+    const reversedWeeks = allWeeks.reverse();
 
     return (
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-6">
+        <div className="relative bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-6">
+            {activeDay && (
+                <div className="absolute inset-0 z-5 backdrop-blur-xs bg-background/80" />
+            )}
             <div className="space-y-6">
                 {/* Calendar Grid */}
                 <div className="space-y-2">
-                    {/* Week day headers - hidden on mobile */}
-                    <div className="hidden md:grid grid-cols-7 gap-2 mb-4">
-                        {['日', '一', '二', '三', '四', '五', '六'].map((day) => (
-                            <div key={day} className="text-center text-sm font-medium text-gray-600 py-2">
-                                {day}
-                            </div>
-                        ))}
-                    </div>
-
                     {/* Desktop Calendar - 7 columns */}
                     <div className="hidden md:block">
-                        {calendarWeeks.map((week, weekIndex) => (
-                            <div key={weekIndex} className="grid grid-cols-7 gap-2">
+                        {reversedWeeks.map((week, weekIndex) => (
+                            <div key={weekIndex} className="relative grid grid-cols-7 gap-2 mb-2 last:mb-0">
                                 {week.map((dayData, dayIndex) => (
-                                    <div key={dayIndex}>
-                                        {dayData ? (
+                                    <AnimatePresence>
+                                        {activeDay && activeDay.date.toISOString() === dayData.date.toISOString() ?
+                                            <ActiveDayCell day={activeDay} setNoActiveDay={setNoActiveDay} />
+                                            :
                                             <DayCell
-                                                date={dayData.date}
-                                                recordings={dayData.recordings}
-                                            />
-                                        ) : (
-                                            <div className="min-h-[120px] p-3 border border-gray-200/50 rounded-lg bg-gray-50/20"></div>
-                                        )}
-                                    </div>
+                                                key={dayIndex}
+                                                day={dayData}
+                                                activeDay={activeDay}
+                                                setActiveDay={setActiveDay}
+                                        />}
+                                    </AnimatePresence>
                                 ))}
                             </div>
                         ))}
@@ -343,15 +587,12 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
 
                     {/* Mobile Calendar - 1 column */}
                     <div className="md:hidden space-y-2">
-                        {calendarWeeks.flat().map((dayData, dayIndex) => (
-                            <div key={dayIndex}>
-                                {dayData ? (
-                                    <DayCell
-                                        date={dayData.date}
-                                        recordings={dayData.recordings}
-                                    />
-                                ) : null}
-                            </div>
+                        {reversedWeeks.flat().map((dayData, dayIndex) => (
+                            <DayCell
+                                key={dayIndex}
+                                day={dayData}
+                                setActiveDay={() => { }}
+                            />
                         ))}
                     </div>
                 </div>
