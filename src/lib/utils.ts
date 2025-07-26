@@ -43,6 +43,14 @@ export function formatChineseDate(date: Date): string {
 	return `${year}年${month}月${day}日 周${dayNames[dayOfWeek]}`;
 }
 
+export function formatChineseTime(date: Date): string {
+	const offset = date.getTimezoneOffset();
+	console.log(offset);
+	const hours = date.getHours();
+	const minutes = date.getMinutes();
+	return `${padTime(hours)}:${padTime(minutes)}`;
+}
+
 export function formatTime(seconds: number, padHour = false): string {
 	const hours = Math.floor(seconds / 3600);
 	const minutes = Math.floor((seconds % 3600) / 60);
@@ -129,9 +137,17 @@ function padTime(value: number) {
 	return str.length === 1 ? `0${str}` : str;
 }
 
-export function formatMMSS(timeInSecond: number) {
-	const minutes = Math.floor(timeInSecond / 60);
+export function formatMMSS(timeInSecond: number, padHour = false): string{
+	const hours = Math.floor(timeInSecond / 3600);
+	const minutes = Math.floor((timeInSecond % 3600) / 60);
 	const seconds = Math.floor(timeInSecond % 60);
 
-	return `${padTime(minutes)}:${padTime(seconds)}`;
+	if (hours == 0) {
+		if (padHour) {
+			return `00:${padTime(minutes)}:${padTime(seconds)}`;
+		}
+		return `${minutes}:${padTime(seconds)}`;
+	}
+
+	return `${padTime(hours)}:${padTime(minutes)}:${padTime(seconds)}`;
 }

@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, type FC } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar, Clock, Loader2, Play, ExternalLink, Music, X, ImageOff } from "lucide-react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { listArchives } from "../actions/v2/archive";
@@ -11,7 +9,7 @@ import Image from "next/image";
 import { useAtomValue } from "jotai";
 import { apiUrlAtom } from "@/lib/store";
 import type { LiveRecordingArchive } from "@prisma/client";
-import { formatChineseDate, formatTime } from "@/lib/utils";
+import { formatChineseDate, formatChineseTime, formatMMSS, formatTime } from "@/lib/utils";
 import { Presence } from "@/components/Pressence";
 import RecordingTimeline from "./RecordingTimeline";
 import { AnimatePresence, motion } from "framer-motion";
@@ -89,137 +87,179 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
     const dayClass = () => {
         switch (dayOfWeek) {
             case 0:
-                return 'bg-lime-400/10';
+                return 'bg-lime-50 border-lime-200';
             case 1:
-                return 'bg-blue-400/10';
+                return 'bg-blue-50 border-blue-200';
             case 2:
-                return 'bg-orange-400/10';
+                return 'bg-orange-50 border-orange-200';
             case 3:
-                return 'bg-purple-400/10';
+                return 'bg-purple-50 border-purple-200';
             case 4:
-                return 'bg-pink-400/10';
+                return 'bg-pink-50 border-pink-200';
             case 5:
-                return 'bg-yellow-400/10';
+                return 'bg-yellow-50 border-yellow-200';
             case 6:
-                return 'bg-indigo-400/10';
+                return 'bg-indigo-50 border-indigo-200';
             default:
-                return 'bg-gray-400/10';
+                return 'bg-gray-50 border-gray-200';
         }
     }
 
     const recordingBgClass = () => {
         switch (dayOfWeek) {
             case 0:
-                return 'bg-lime-400/20';
+                return 'bg-lime-100';
             case 1:
-                return 'bg-blue-400/20';
+                return 'bg-blue-100';
             case 2:
-                return 'bg-orange-400/20';
+                return 'bg-orange-100';
             case 3:
-                return 'bg-purple-400/20';
+                return 'bg-purple-100';
             case 4:
-                return 'bg-pink-400/20';
+                return 'bg-pink-100';
             case 5:
-                return 'bg-yellow-400/20';
+                return 'bg-yellow-100';
             case 6:
-                return 'bg-indigo-400/20';
+                return 'bg-indigo-100';
             default:
-                return 'bg-blue-400/20';
+                return 'bg-blue-100';
         }
     }
 
     const recordingTextClass = () => {
         switch (dayOfWeek) {
             case 0:
-                return 'text-lime-900';
+                return 'text-lime-800';
             case 1:
-                return 'text-blue-900';
+                return 'text-blue-800';
             case 2:
-                return 'text-orange-900';
+                return 'text-orange-800';
             case 3:
-                return 'text-purple-900';
+                return 'text-purple-800';
             case 4:
-                return 'text-pink-900';
+                return 'text-pink-800';
             case 5:
-                return 'text-yellow-900';
+                return 'text-yellow-800';
             case 6:
-                return 'text-indigo-900';
+                return 'text-indigo-800';
             default:
-                return 'text-blue-900';
+                return 'text-blue-800';
         }
     }
 
     const textClass = () => {
         switch (dayOfWeek) {
             case 0:
-                return 'text-lime-600';
+                return 'text-lime-700';
             case 1:
-                return 'text-blue-600';
+                return 'text-blue-700';
             case 2:
-                return 'text-orange-600';
+                return 'text-orange-700';
             case 3:
-                return 'text-purple-600';
+                return 'text-purple-700';
             case 4:
-                return 'text-pink-600';
+                return 'text-pink-700';
             case 5:
-                return 'text-yellow-600';
+                return 'text-yellow-700';
             case 6:
-                return 'text-indigo-600';
+                return 'text-indigo-700';
             default:
-                return 'text-gray-600';
+                return 'text-gray-700';
         }
     }
 
     return (
-        <motion.div className="absolute inset-0 z-10">
-            <motion.div className={`${dayClass()} m-2 rounded-lg border border-gray-200/50 z-10 backdrop-blur-md`} ref={ref}>
-                <div className={`text-xs ${textClass()} mb-2 font-medium leading-tight`}>
-                    {formatChineseDate(date)}
-                </div>
-                {
-                    !recordingEntries ? (
-                        <div className="text-sm text-muted-foreground">
-                            <Icons.bilibili_live />
-                            <span>今天没有直播</span>
-                        </div>
-                    ) : (
-                        recordingEntries.map((part, index) => {
-                            return <div key={index} className="grid grid-cols-[auto_auto_1fr] gap-4 items-start">
-                                <div className="flex flex-col justify-start pt-1">
-                                    <time
-                                        className="text-sm tracking-tight font-medium text-right text-muted-foreground"
-                                    >
-                                        {formatTime(part.start.getTime() / 1000, true)}
-                                    </time>
-                                </div>
-
-                                <div className="flex flex-col items-center">
-                                    <div className="relative z-10">
-                                        <div className="relative flex items-center justify-center rounded-full ring-8 ring-background shadow-sm">
-                                            <Icons.bilibili_live />
-                                        </div>
-                                    </div>
-                                    <div className="h-16 w-0.5 bg-border mt-2" />
-                                </div>
-
-                                {part.recording && (
-                                    <div className="flex items-center gap-4">
-                                        <Image
-                                            src={part.recording.cover}
-                                            alt={part.recording.title}
-                                            width={64}
-                                            height={48}
-                                            className="w-16 h-12 object-cover rounded-lg"
-                                        />
-                                        <div className="flex flex-col gap-1">
-                                            <h3 className="font-semibold leading-none tracking-tight text-secondary-foreground">{part.recording.title}</h3>
-                                        </div>
-                                    </div>
-                                )}
+        <motion.div 
+            className="absolute inset-0 z-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+            <motion.div 
+                className={`${dayClass()} m-2 rounded-xl border-2 shadow-xl backdrop-blur-sm`} 
+                ref={ref}
+                layout
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ 
+                    duration: 0.3, 
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30
+                }}
+            >
+                <div className="p-4">
+                    <div className={`text-sm ${textClass()} mb-4 font-semibold leading-tight`}>
+                        {formatChineseDate(date)}
+                    </div>
+                    {
+                        !recordingEntries ? (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Icons.bilibili_live className="w-4 h-4" />
+                                <span className="text-sm">今天没有直播</span>
                             </div>
-                        })
-                    )
-                }
+                        ) : (
+                            <div className="space-y-4">
+                                {recordingEntries.map((part, index) => {
+                                    return (
+                                        <motion.div 
+                                            key={index} 
+                                            className="grid grid-cols-[auto_auto_1fr] gap-4 items-center"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ 
+                                                delay: index * 0.1,
+                                                duration: 0.3,
+                                                ease: [0.25, 0.46, 0.45, 0.94]
+                                            }}
+                                        >
+                                            <div className="flex flex-col justify-start pt-1">
+                                                <time
+                                                    className="text-sm tracking-tight font-medium text-right text-muted-foreground"
+                                                >
+                                                    {formatChineseTime(part.start)}
+                                                </time>
+                                            </div>
+
+                                            <div className="flex flex-col items-center">
+                                                <div className="relative z-10">
+                                                    <Icons.bilibili_live className="w-4 h-4" />
+                                                </div>
+                                                <div className="h-16 w-0.5 bg-border mt-2" />
+                                            </div>
+
+                                            {part.recording && (
+                                                <motion.div 
+                                                    className="flex items-center gap-4 p-3 rounded-lg bg-white/50 border border-white/20"
+                                                    whileHover={{ scale: 1.02 }}
+                                                    transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                                >
+                                                    <Image
+                                                        src={part.recording.cover}
+                                                        alt={part.recording.title}
+                                                        width={64}
+                                                        height={48}
+                                                        className="w-16 h-12 object-cover rounded-lg shadow-sm"
+                                                    />
+                                                    <div className="flex flex-col gap-1 flex-1">
+                                                        <h3 className="font-semibold leading-none tracking-tight text-secondary-foreground text-sm">
+                                                            {part.recording.title}
+                                                        </h3>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            时长: {Math.round(part.recording.duration / 60)}分钟
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </motion.div>
+                                    )
+                                })}
+                            </div>
+                        )
+                    }
+                </div>
             </motion.div>
         </motion.div>
     )
@@ -449,7 +489,7 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
 
     const calendarDays: CalendarDay[] = Array.from(recordingsByDate.entries()).map(([dateKey, recordings]) => ({
         date: new Date(dateKey),
-        recordings,
+        recordings: recordings.sort((a, b) => a.date.getTime() - b.date.getTime()),
     })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
     const earliestDate = calendarDays.length > 0 ? calendarDays[0].date : new Date();
