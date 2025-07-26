@@ -10,36 +10,51 @@ interface ViewTabsProps {
 
 const ViewTabs: FC<ViewTabsProps> = ({ activeView, onViewChange }) => {
 	return (
-		<div className="flex justify-center mb-6">
-			<div className="inline-flex bg-white/80 backdrop-blur-sm rounded-full p-1 shadow-lg border border-gray-200/50">
-				<button
-					type="button"
-					onClick={() => onViewChange("songs")}
-					className={`
-						flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
-						${activeView === "songs"
-							? "bg-blue-500 text-white shadow-sm"
-							: "text-gray-600 hover:text-gray-800 hover:bg-gray-100/50"
-						}
-					`}
+		<div className="flex justify-center mb-4">
+			<div className="relative inline-flex rounded-lg">
+				{/* Background tabs (inactive) */}
+				<div className="flex">
+					<button
+						type="button"
+						onClick={() => onViewChange("songs")}
+						className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 text-purple-300 hover:text-purple-200 hover:bg-white/10"
+					>
+						<Music className="w-3 h-3" />
+						歌单
+					</button>
+					<button
+						type="button"
+						onClick={() => onViewChange("calendar")}
+						className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 text-purple-300 hover:text-purple-200 hover:bg-white/10"
+					>
+						<Calendar className="w-3 h-3" />
+						日程
+					</button>
+				</div>
+
+				{/* Active overlay that slides */}
+				<div
+					className="absolute inset-0 bg-white/30 rounded-md shadow-sm transition-all duration-300 ease-out-quad"
+					style={{
+						width: "50%",
+						left: activeView === "songs" ? "0%" : "50%",
+					}}
 				>
-					<Music className="w-4 h-4" />
-					歌曲列表
-				</button>
-				<button
-					type="button"
-					onClick={() => onViewChange("calendar")}
-					className={`
-						flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
-						${activeView === "calendar"
-							? "bg-blue-500 text-white shadow-sm"
-							: "text-gray-600 hover:text-gray-800 hover:bg-gray-100/50"
-						}
-					`}
-				>
-					<Calendar className="w-4 h-4" />
-					直播日历
-				</button>
+					{/* Active tab content */}
+					<div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700">
+						{activeView === "songs" ? (
+							<>
+								<Music className="w-3 h-3" />
+								歌单
+							</>
+						) : (
+							<>
+								<Calendar className="w-3 h-3" />
+								日程
+							</>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);
