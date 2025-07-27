@@ -91,7 +91,7 @@ export function onCopyToClipboard(song: Song) {
 	});
 
 	if (success) {
-		toast.success("已复制到剪贴板");
+		toast.success(`歌曲 ${song.title} 已复制到剪贴板`);
 		return;
 	}
 
@@ -100,7 +100,7 @@ export function onCopyToClipboard(song: Song) {
 		navigator.clipboard
 			.writeText(text)
 			.then(() => {
-				toast.success("已复制到剪贴板");
+				toast.success(`歌曲 ${song.title} 已复制到剪贴板`);
 			})
 			.catch(() => {
 				// If clipboard API fails, show manual copy instructions
