@@ -373,9 +373,20 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
 
     // The earliest date where we have a live recorded
     const earliestDate = calendarDays.length > 0 ? calendarDays[0].date : new Date();
+    
     // The latest date where we have a live recorded
-    const latestDate = calendarDays.length > 0 ? calendarDays[calendarDays.length - 1].date : new Date();
-
+    let latestDate = calendarDays.length > 0 ? calendarDays[calendarDays.length - 1].date : new Date();
+    
+    // Always ensure we show at least the current week
+    const today = new Date();
+    const currentWeekStart = startOfWeek(today);
+    const currentWeekEnd = addDays(currentWeekStart, 6);
+    
+    // If the current week extends beyond our latest recorded date, use the current week end
+    if (currentWeekEnd > latestDate) {
+        latestDate = currentWeekEnd;
+    }
+    
     // Interpolate all weeks from earliest to latest date
     const allWeeks = [];
 
