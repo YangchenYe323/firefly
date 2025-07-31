@@ -17,6 +17,7 @@ import type {
 	VtuberProfile,
 	Theme,
 	VtuberExternalLink,
+	Domain,
 } from "@prisma/client";
 import {
 	listSongs,
@@ -34,6 +35,7 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { createExternalLinkForProfile, createThemeForProfile, createVtuberProfile, deleteExternalLinkForProfile, deleteThemeForProfile, listVtuberProfilesForAdmin, updateExternalLinkForProfile, updateThemeForProfile, updateVtuberProfile, deleteVtuberProfile } from "@/app/actions/v2/profile";
+import { createDomain, updateDomain, deleteDomain } from "@/app/actions/v2/domain";
 
 export const songsAtom = atomWithQuery((get) => ({
 	queryKey: ["songs"],
@@ -416,6 +418,60 @@ export const useDeleteVtuberProfileMutation = () => {
 		{
 			mutationFn: async (id: number) => {
 				const result = await deleteVtuberProfile(id);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+export const useCreateDomainMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation(
+		{
+			mutationFn: async (domain: Domain) => {
+				const result = await createDomain(domain);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+export const useUpdateDomainMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation(
+		{
+			mutationFn: async (domain: Domain) => {
+				const result = await updateDomain(domain);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+export const useDeleteDomainMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation(
+		{
+			mutationFn: async (id: number) => {
+				const result = await deleteDomain(id);
 				if (!result.success) {
 					throw new Error(result.message);
 				}

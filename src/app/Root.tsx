@@ -77,43 +77,34 @@ const Root: FC<PropType> = ({ profileFromServer }) => {
 								</motion.div>
 							)}
 						</AnimatePresence>
-						<div className="mt-2 mb-2 p-4 text-center text-sm text-thin text-black">
-							Copyright © 2023-2024 梦中杀蝶人协会 & 他们的朋友
+						<div className="mt-2 mb-2 p-4 font-alex text-center text-lg text-thin text-black">
+							Copyright © <span className="text-sm">2023-2025</span> firefly project
 						</div>
 						<div className="w-full text-center text-sm text-light text-black">
-							<span className="inline-block overflow-hidden border-0 mx-0 p-0">
-								<img
-									src="/icons/备案.png"
-									alt="备案图标"
-									width={30}
-									height={30}
-									className="rounded-full"
-								/>
-							</span>
-							<footer>
+							{profile?.entryDomain?.publicSecurityFilingNumber && <footer>
 								<a
-									href="https://beian.mps.gov.cn/#/query/webSearch?code=61019702000415"
+									href={`https://beian.mps.gov.cn/#/query/webSearch?code=${extractCodeFromPublicSecurityFilingNumber(profile.entryDomain.publicSecurityFilingNumber)}`}
 									rel="noreferrer"
 									target="_blank"
 								>
-									陕公网安备61019702000415号
+									{profile.entryDomain.publicSecurityFilingNumber}
 								</a>
-							</footer>
-							<footer>
+							</footer>}
+							{profile?.entryDomain?.icpLicenseNumber && <footer>
 								<a
 									href="https://beian.miit.gov.cn/#/Integrated/index"
 									rel="noreferrer"
 									target="_blank"
 								>
-									陕ICP备2023014792号-1
+									{profile.entryDomain.icpLicenseNumber}
 								</a>
-							</footer>
+							</footer>}
+							<SongPlayer
+								visible={playerVisible}
+								closePlayer={closePlayer}
+								apiUrl={apiUrl}
+							/>
 						</div>
-						<SongPlayer
-							visible={playerVisible}
-							closePlayer={closePlayer}
-							apiUrl={apiUrl}
-						/>
 					</div>
 				</div>
 			)}
@@ -121,6 +112,14 @@ const Root: FC<PropType> = ({ profileFromServer }) => {
 	);
 }
 
-Root.displayName = "Root";
+			Root.displayName = "Root";
 
-export default Root;
+			function extractCodeFromPublicSecurityFilingNumber(publicSecurityFilingNumber: string): string {
+	const match = publicSecurityFilingNumber.match(/(\d+)/);
+			if (!match) {
+		return "";
+	}
+			return match[1];
+}
+
+			export default Root;
