@@ -373,8 +373,71 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
 
     // The earliest date where we have a live recorded
     const earliestDate = calendarDays.length > 0 ? calendarDays[0].date : new Date();
+    
     // The latest date where we have a live recorded
-    const latestDate = calendarDays.length > 0 ? calendarDays[calendarDays.length - 1].date : new Date();
+    let latestDate = calendarDays.length > 0 ? calendarDays[calendarDays.length - 1].date : new Date();
+    
+    // Always ensure we show at least the current week
+    const today = new Date();
+    const currentWeekStart = startOfWeek(today);
+    const currentWeekEnd = addDays(currentWeekStart, 6);
+    
+    // If the current week extends beyond our latest recorded date, use the current week end
+    if (currentWeekEnd > latestDate) {
+        latestDate = currentWeekEnd;
+    }
+    
+    // If we have no recordings yet, start from the current week
+    if (calendarDays.length === 0) {
+        // Show just the current week
+        const week = [];
+        for (let i = 0; i < 7; i++) {
+            const date = addDays(currentWeekStart, i);
+            week.push({ date, recordings: [] });
+        }
+        
+        return (
+            <div className="relative bg-white/80 rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-6">
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                        <div className="hidden md:block">
+                            <div className="relative grid grid-cols-7 gap-2 mb-2 last:mb-0">
+                                {week.map((dayData, dayIndex) => (
+                                    <DayCell
+                                        key={dayIndex}
+                                        day={dayData}
+                                        activeDay={activeDay}
+                                        setActiveDay={setActiveDay}
+                                        setNoActiveDay={setNoActiveDay}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="md:hidden space-y-2">
+                            {week.map((dayData, dayIndex) => (
+                                <DayCell
+                                    key={dayIndex}
+                                    day={dayData}
+                                    activeDay={activeDay}
+                                    setActiveDay={setActiveDay}
+                                    setNoActiveDay={setNoActiveDay}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    
+                    {isFetching && (
+                        <div className="flex items-center justify-center py-4">
+                            <div className="flex items-center gap-2 text-gray-500">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>加载中...</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     // Interpolate all weeks from earliest to latest date
     const allWeeks = [];
