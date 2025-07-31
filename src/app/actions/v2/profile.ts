@@ -1,8 +1,8 @@
 "use server";
 
-import type { Song, SuperChat, Theme, VtuberExternalLink, VtuberProfile, VtuberSong } from "@prisma/client";
+import type { Domain, Prisma, Song, SuperChat, Theme, VtuberExternalLink, VtuberProfile, VtuberSong } from "@prisma/client";
 import prisma from "@/db";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { ActionReturnTypeBase } from "../types";
 import { auth } from "@/lib/auth";
 import { cache } from "react";
@@ -17,6 +17,9 @@ export interface VtuberProfileWithReferences extends VtuberProfile {
 	themes: Theme[];
 	externalLinks: VtuberExternalLink[];
 	vtuberSongs: VtuberSongWithReferences[];
+	// The domain from which the profile is accessed. Could be null if the profile is accessed from the default
+	// domain and URL path.
+	entryDomain?: Domain
 }
 
 interface GetVtuberProfileReturnType extends ActionReturnTypeBase {
@@ -31,6 +34,7 @@ export const getVtuberProfileCached = cache(async () => {
 	return getVtuberProfile();
 });
 
+
 /**
  * Get everything about a vtuber's profile used for rendering the vtuber's first page.
  * 
@@ -43,7 +47,42 @@ export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 	// Disable cache so nextjs doesn't produce a fxxking static page : )
 	const _cookies = cookies();
 
-	const profile = await prisma.vtuberProfile.findFirst({
+	// Check if the request is from a domain we know about
+	const headersList = headers();
+	const host = headersList.get('host');
+
+	let domainId: number | null = null;
+	let entryDomain: Domain | null = null;
+	
+	if (host) {
+		// Find domain by suffix matching (e.g., if host is "a.xyz.com" and we have "xyz.com" registered)
+		const domain = await prisma.domain.findFirst({
+			where: {
+				name: {
+					endsWith: host.split('.').slice(-2).join('.') // Try to match with last two parts
+				}
+			}
+		});
+
+		if (!domain) {
+			// If no match with last two parts, try with the full host
+			const fullDomain = await prisma.domain.findFirst({
+				where: {
+					name: host
+				}
+			});
+			
+			if (fullDomain) {
+				domainId = fullDomain.id;
+				entryDomain = fullDomain;
+			}
+		} else {
+			domainId = domain.id;
+			entryDomain = domain;
+		}
+	}
+
+	const profileQuery: Prisma.VtuberProfileFindFirstArgs = {
 		include: {
 			// Fetch the default theme
 			defaultTheme: true,
@@ -75,10 +114,21 @@ export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 					},
 				]
 			},
-			// Live recording archives are only conditionally fetched in the main page as it can be huge, and
-			// it's not the main tab. Fetching will be initiated in the corresponding tab by the frontend
 		},
-	});
+	}
+
+	// If we found a domain, filter by that domain's profile
+	if (domainId) {
+		profileQuery.where = {
+			domains: {
+				some: {
+					id: domainId
+				}
+			}
+		};
+	}
+
+	const profile = await prisma.vtuberProfile.findFirst(profileQuery);
 
 	if (!profile) {
 		return {
@@ -87,9 +137,13 @@ export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 		};
 	}
 
+	// Cast the profile to the correct type and add the entryDomain
+	const returnProfile = profile as VtuberProfileWithReferences;
+	returnProfile.entryDomain = entryDomain || undefined;
+
 	return {
 		success: true,
-		profile,
+		profile: returnProfile,
 	};
 }
 
@@ -97,6 +151,7 @@ export interface VtuberProfileWithThemesAndLinks extends VtuberProfile {
 	defaultTheme: Theme | null;
 	themes: Theme[];
 	externalLinks: VtuberExternalLink[];
+	domains: Domain[];
 }
 
 interface GetVtuberProfileForAdminReturnType extends ActionReturnTypeBase {
@@ -122,6 +177,8 @@ export async function listVtuberProfilesForAdmin(): Promise<GetVtuberProfileForA
 			themes: true,
 			// Fetch all external links
 			externalLinks: true,
+			// Fetch the domains
+			domains: true,
 		},
 	});
 

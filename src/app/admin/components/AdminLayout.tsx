@@ -13,6 +13,7 @@ import {
 	Link,
 	RefreshCw,
 	List,
+	Globe,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,6 +34,7 @@ import EditVtuberSongPanel from "./EditVtuberSongPanel";
 import ProfilePanel from "./ProfilePanel";
 import ThemesPanel from "./ThemesPanel";
 import ExternalLinksPanel from "./ExternalLinksPanel";
+import DomainsPanel from "./DomainsPanel";
 import {
 	searchQueryAtom,
 	showOnlyWithoutLyricsAtom,
@@ -49,7 +51,7 @@ import {
 	selectedProfileAtom,
 } from "@/lib/admin-store";
 
-type TabType = "songs" | "vtuber-songs" | "profile" | "themes" | "links";
+type TabType = "songs" | "vtuber-songs" | "profile" | "themes" | "links" | "domains";
 
 export type SongForEditOrCreate = {
 	song: Song;
@@ -249,6 +251,7 @@ export default function AdminLayout() {
 		{ id: "profile" as TabType, label: "个人资料", icon: User },
 		{ id: "themes" as TabType, label: "主题管理", icon: Palette },
 		{ id: "links" as TabType, label: "外部链接", icon: Link },
+		{ id: "domains" as TabType, label: "域名管理", icon: Globe },
 	];
 
 	return (
@@ -546,6 +549,12 @@ export default function AdminLayout() {
 			{activeTab === "links" && (
 				<div className="space-y-6">
 					<ExternalLinksPanel />
+				</div>
+			)}
+
+			{activeTab === "domains" && (
+				<div className="space-y-6">
+					<DomainsPanel />
 				</div>
 			)}
 		</div>

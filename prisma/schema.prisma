@@ -40,9 +40,33 @@ model VtuberProfile {
   /// Live recording archives that belong to this vtuber
   liveRecordingArchives LiveRecordingArchive[]
 
+  /// The domains that the vtuber profile is associated with.
+  domains Domain[]
+
   /// When this profile was created
   createdOn DateTime @default(now())
   /// When this profile was last updated
+  updatedOn DateTime @updatedAt
+}
+
+/// A domain where the web page can be visited from. A domain is associated with a given vtuber profile.
+model Domain {
+  id Int @id @default(autoincrement())
+  /// The domain name suffix, e.g., "vtuberabc.com", all subdomains of this suffix,
+  /// if mapped to the service, will point to the same vtuber profile.
+  name String @unique
+  /// ICP 备案号, if you're a Chinese domain, e.g., "粤ICP备12345678号-1"
+  icpLicenseNumber String?
+  /// The public security filing number, if you're a Chinese domain, e.g., "粤公网安备 12345678901234567890 号"
+  publicSecurityFilingNumber String?
+
+  /// The domain that the vtuber profile is associated with
+  vtuberProfileId Int @unique
+  vtuberProfile VtuberProfile @relation(fields: [vtuberProfileId], references: [id], onDelete: Cascade)
+
+  /// When this domain was created
+  createdOn DateTime @default(now())
+  /// When this domain was last updated
   updatedOn DateTime @updatedAt
 }
 
@@ -197,11 +221,6 @@ model User {
   salt          String
   password_hash String
   username      String @id
-}
-
-model Footer {
-  content String
-  id      Int    @id @default(autoincrement())
 }
 
 /// Live recording archive. This table store metadata about every live recording
