@@ -34,7 +34,7 @@ export const createAudio = () => {
 			navigator.mediaSession.metadata = new MediaMetadata({
 				title: metadata.title,
 				artist: metadata.artist,
-				album: metadata.album || "蝶蝶Hikari 歌曲集",
+				album: metadata.album,
 				artwork: metadata.artwork
 					? [
 							{

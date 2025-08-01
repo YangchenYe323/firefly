@@ -1,21 +1,61 @@
 # firefly
 
-蝶蝶的歌单网站，希望dd和主包们玩得开心~
+一个B站虚拟主播的歌单网站，希望主包和dd们玩得开心~
 
-本仓库部署的是B站虚拟主播 *蝶蝶Hikari* 的个人歌单(您可以在 https://www.diehikari.top/ 访问)。
+This project is heavily based on the work of [@贝格耶喽](https://github.com/BigYellowhcy) and inspired by (reverse-engineered from) sites like [树礼Suki的歌单](https://shulisuki.top/), [桃几OvO的歌单 - 虚拟形象设定展示页](https://www.taojiovo.com/), and [明前奶绿 ✽ LAPLACE](https://laplace.live/). Thank you : )
 
-This project is heavily based on the work of [@贝格耶喽](https://github.com/BigYellowhcy) and inspired by sites like https://shulisuki.top/ and https://www.taojiovo.com/
+## Showcase
 
-# Features
+- [蝶蝶Hikari的歌单](https://www.diehikari.top/)
 
-- [x] 复制歌曲到剪贴板
-- [x] 根据标签选择歌曲
-- [x] 搜索歌曲
-- [x] 随机点歌
-- [x] 乱序歌曲
-- [x] 点❤️/😅
-- [x] 歌曲管理后台
-- [x] 投稿播放器
+## Architecture
+
+```mermaid
+graph TB
+    %% Database layer (top)
+    DB[("PostgreSQL (Neon)")]
+
+    %% Object storage
+    OBJ[("Object store")]
+    
+    %% Application services (middle row)
+    WEB["firefly (NextJS)"]
+    OFFLINE["firefly-vcut (Offline Processing)"]
+    API["firefly-api (Cloudflare worker)"]
+    
+    %% External APIs subgraph to force vertical alignment
+    SPOTIFY[Spotify API]
+    QQ[QQ Music API]
+    BILI[Bilibili API]
+    ETC[etc]
+    
+    %% Connections from database to services
+    DB -.-> WEB
+    OBJ -.-> WEB
+    OFFLINE -.-> DB 
+    DB -.-> OFFLINE
+    DB -.-> API
+    
+    %% API proxy connections to external services
+    API --> SPOTIFY
+    API --> QQ
+    API --> BILI
+    API --> ETC
+    
+    %% Clickable links
+    click WEB "https://github.com/YangchenYe323/firefly" "Firefly Web App"
+    click API "https://github.com/YangchenYe323/firefly-api" "Firefly API"
+    click OFFLINE "https://github.com/YangchenYe323/firefly-vcut" "Firefly VCut"
+    
+    %% Styling
+    classDef database fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#e2e8f0
+    classDef service fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#e2e8f0
+    classDef external fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#e2e8f0
+    
+    class DB,OBJ database
+    class WEB,API,OFFLINE service
+    class SPOTIFY,QQ,BILI,ETC external
+```
 
 ## Getting Started
 
@@ -58,9 +98,9 @@ NEXT_PUBLIC_JWT_SECRET_KEY=<Choose your secret>
 NEXT_PUBLIC_API_URL=http://localhost:8787
 ```
 
-#### Album Artwork Fetching (Cloudflare Worker API)
+#### firefly API
 
-This project uses a serverless API to fetch album artwork for each song. The API endpoint is configured via the `NEXT_PUBLIC_API_URL` environment variable. The frontend will use this endpoint to display album covers for each song in the list.
+This project uses an API service for interfacing with external services like fetching artwork for song. The API endpoint is configured via the `NEXT_PUBLIC_API_URL` environment variable. The frontend will use this endpoint to display album covers for each song in the list.
 
 **To run the API locally for development:**
 
@@ -72,12 +112,19 @@ Example `.env`:
 NEXT_PUBLIC_API_URL=http://localhost:8787
 ```
 
-#### Configure database
+If the API service is not available. The site could still function.
 
-This project uses [Prisma-ORM](https://www.prisma.io/), and after the database is up, the configuration is as easy as running
+### Other environment variables
+
+- `NEXT_PUBLIC_JWT_SECRET_KEY`: pick a secret key. It will be used to authenticate admin log in with JWT token
+- `BILI_CRED_SESSDATA`, `BILI_CRED_BILIJCT` (optional): Bilibili login credentials. It is used for fetching video information for vtuber song. Use [biliup](https://github.com/biliup/biliup-rs) to login and get the credential.
+
+#### Perform database migration
+
+This project uses [Prisma-ORM](https://www.prisma.io/), and after the database is up, run the below command to initialize table and run migrations.
 
 ```Bash
-pnpm prisma db push
+pnpm prisma migrate dev
 ```
 
 #### Run prisma code generator
@@ -91,5 +138,13 @@ pnpm prisma generate
 pnpm dev
 ```
 
-Now you're good to go!
+#### Bootstrap an admin user
+
+Admin user can access and manage all the vtuber profiles, songs, etc, and would be the starting point to populate the web page. Create an admin user by setting up your `.env` to point to your database instance and run
+
+```Bash
+pnpm bootstrap-admin
+```
+
+Then you can navigate to `localhost:3000/admin` to start making your website.
 
