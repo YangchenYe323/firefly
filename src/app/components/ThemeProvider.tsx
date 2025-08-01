@@ -2,7 +2,7 @@
 
 import { type FC, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
 import { allThemesAtom, defaultThemeAtom } from "@/lib/store";
 import { useAtom } from "jotai";
 
@@ -19,8 +19,10 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
 	const [defaultTheme] = useAtom(defaultThemeAtom);
 
 	const [currentThemeIndex, setCurrentThemeIndex] = useState(
-		defaultTheme
-			? themes.findIndex((theme) => theme.id === defaultTheme.id)
+		themes.length > 0
+			? defaultTheme
+				? themes.findIndex((theme) => theme.id === defaultTheme.id)
+				: 0
 			: 0,
 	);
 	const [previousThemeIndex, setPreviousThemeIndex] = useState(0);
@@ -31,11 +33,11 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
 	const [previousTransform, setPreviousTransform] = useState("translateX(0)");
 	const [currentTransform, setCurrentTransform] = useState("translateX(0)");
 
-	const currentTheme = themes[currentThemeIndex];
-	const previousTheme = themes[previousThemeIndex];
+	const currentTheme = themes.length > 0 ? themes[currentThemeIndex] : null;
+	const previousTheme = themes.length > 0 ? themes[previousThemeIndex] : null;
 
 	const handlePreviousTheme = () => {
-		if (isTransitioning) return;
+		if (isTransitioning || themes.length === 0) return;
 		setIsTransitioning(true);
 		setPreviousThemeIndex(currentThemeIndex);
 		setShowPrevious(true);
@@ -61,7 +63,7 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
 	};
 
 	const handleNextTheme = () => {
-		if (isTransitioning) return;
+		if (isTransitioning || themes.length === 0) return;
 		setIsTransitioning(true);
 		setPreviousThemeIndex(currentThemeIndex);
 		setShowPrevious(true);
@@ -113,11 +115,17 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
 		>
 			{/* Avatar Container with sliding animation */}
 			<div
-				className="relative overflow-hidden rounded-full border border-black"
+				className="relative overflow-hidden rounded-full border border-black bg-slate-100"
 				style={{ width: avatarSize, height: avatarSize }}
 			>
+				{/* Fallback when no themes available */}
+				{themes.length === 0 && (
+					<div className="absolute inset-0 flex items-center justify-center">
+						<Settings className="w-12 h-12 text-slate-400" />
+					</div>
+				)}
 				{/* Previous Theme (slides out) */}
-				{showPrevious && (
+				{showPrevious && previousTheme?.avatarImagePath && previousTheme.avatarImagePath.trim() !== "" && (
 					<div
 						key={`previous-${previousThemeIndex}`}
 						className="absolute inset-0 transition-transform duration-300"
@@ -138,67 +146,73 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
 				)}
 
 				{/* Current Theme (slides in) */}
-				<div
-					key={`current-${currentThemeIndex}`}
-					className="absolute inset-0 transition-transform duration-300"
-					style={{
-						transform: currentTransform,
-						transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)", // ease-in-out-quad
-					}}
-				>
-					<Image
-						src={currentTheme.avatarImagePath}
-						alt={`Theme ${currentThemeIndex + 1}`}
-						width={avatarSize}
-						height={avatarSize}
-						className="rounded-full"
-						priority={true}
-					/>
-				</div>
+				{currentTheme?.avatarImagePath && currentTheme.avatarImagePath.trim() !== "" && (
+					<div
+						key={`current-${currentThemeIndex}`}
+						className="absolute inset-0 transition-transform duration-300"
+						style={{
+							transform: currentTransform,
+							transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)", // ease-in-out-quad
+						}}
+					>
+						<Image
+							src={currentTheme.avatarImagePath}
+							alt={`Theme ${currentThemeIndex + 1}`}
+							width={avatarSize}
+							height={avatarSize}
+							className="rounded-full"
+							priority={true}
+						/>
+					</div>
+				)}
 			</div>
 
-			{/* Hover Controls */}
-			<button
-				onClick={handlePreviousTheme}
-				className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-all duration-200 ${
-					isHovering && hoverSide === "left" && !isTransitioning
-						? "opacity-100 transform translate-x-0"
-						: "opacity-0 transform -translate-x-4 pointer-events-none"
-				}`}
-				style={{
-					transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)",
-				}} // ease-in-out-quad
-				aria-label="Previous theme"
-				type="button"
-			>
-				<ChevronLeft className="w-6 h-6" />
-			</button>
+			{/* Hover Controls - Only show when themes are available */}
+			{themes.length > 1 && (
+				<>
+					<button
+						onClick={handlePreviousTheme}
+						className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-all duration-200 ${
+							isHovering && hoverSide === "left" && !isTransitioning
+								? "opacity-100 transform translate-x-0"
+								: "opacity-0 transform -translate-x-4 pointer-events-none"
+						}`}
+						style={{
+							transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)",
+						}} // ease-in-out-quad
+						aria-label="Previous theme"
+						type="button"
+					>
+						<ChevronLeft className="w-6 h-6" />
+					</button>
 
-			<button
-				onClick={handleNextTheme}
-				className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-all duration-200 ${
-					isHovering && hoverSide === "right" && !isTransitioning
-						? "opacity-100 transform translate-x-0"
-						: "opacity-0 transform translate-x-4 pointer-events-none"
-				}`}
-				style={{
-					transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)",
-				}} // ease-in-out-quad
-				aria-label="Next theme"
-				type="button"
-			>
-				<ChevronRight className="w-6 h-6" />
-			</button>
+					<button
+						onClick={handleNextTheme}
+						className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm transition-all duration-200 ${
+							isHovering && hoverSide === "right" && !isTransitioning
+								? "opacity-100 transform translate-x-0"
+								: "opacity-0 transform translate-x-4 pointer-events-none"
+						}`}
+						style={{
+							transitionTimingFunction: "cubic-bezier(.455, .03, .515, .955)",
+						}} // ease-in-out-quad
+						aria-label="Next theme"
+						type="button"
+					>
+						<ChevronRight className="w-6 h-6" />
+					</button>
+				</>
+			)}
 		</div>
 	);
 
 	return (
 		<>
 			{/* Background Switcher with sliding animation */}
-			{currentTheme.backgroundImagePath && (
+			{currentTheme?.backgroundImagePath && currentTheme.backgroundImagePath.trim() !== "" && (
 				<div className="fixed top-0 left-0 h-full w-full overflow-hidden pointer-events-none -z-10">
 					{/* Previous Background (slides out) */}
-					{showPrevious && previousTheme.backgroundImagePath && (
+					{showPrevious && previousTheme?.backgroundImagePath && previousTheme.backgroundImagePath.trim() !== "" && (
 						<div
 							key={`bg-previous-${previousThemeIndex}`}
 							className="absolute inset-0 transition-transform duration-300"
