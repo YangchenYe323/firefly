@@ -180,6 +180,8 @@ export async function createVtuberSong(vtuberSong: VtuberSong): Promise<CreateVt
             vtuberSongToCreate.pubdate = videoInfo.data!.pubdate;
         } else if (videoInfo.code === -404) {
             return { success: false, message: "投稿视频不存在" };
+        } else {
+            console.error("获取视频信息失败", videoInfo);
         }
     }
 

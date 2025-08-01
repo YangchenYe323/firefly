@@ -45,17 +45,6 @@ const config = {
     extend: {
       colors: {
         black: "#1d0c26",
-        hikari_lavender: "#b2b8b0",
-        hikari_lavender_lighter: "#fffaff",
-        hikari_gray: "#b2b8b0",
-        hikari_gray_deeper: "#829291",
-        hikari_blue: "#92c0dd",
-        hikari_biege: "#e1cfbb",
-        hikari_white: "#cddcea",
-        hikari_white_darker: "#8f9aa3",
-        hikari_green: "#eedc94",
-        hikari_green_darker: "#6d9789",
-        hikari_purple: "#f3d1eb",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

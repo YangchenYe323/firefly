@@ -12,7 +12,7 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      // Allow localhost for development
+      // Allow API service on localhost for development
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -35,13 +35,6 @@ const nextConfig = {
       },
     ],
   },
-  // typescript: {
-  //   // !! WARN !!
-  //   // Dangerously allow production builds to successfully complete even if
-  //   // your project has type errors.
-  //   // !! WARN !!
-  //   ignoreBuildErrors: true,
-  // },
 };
 
 export default nextConfig;
