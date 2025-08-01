@@ -1,7 +1,7 @@
 "use server";
 
-import { Domain } from "@prisma/client";
-import { ActionReturnTypeBase } from "../types";
+import type { Domain } from "@prisma/client";
+import type { ActionReturnTypeBase } from "../types";
 import prisma from "@/db";
 import { auth } from "@/lib/auth";
 
