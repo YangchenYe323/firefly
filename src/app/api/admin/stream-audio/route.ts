@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getBiliWebKeys, getStreamUrl, FeatureValue, getVideoInfo } from "@/lib/bilibili";
-import { LiveRecordingArchive } from "@prisma/client";
 import r2 from "@/r2";
 import { toZonedTime } from "date-fns-tz";
 import { AbortMultipartUploadCommand, CompleteMultipartUploadCommand, CreateMultipartUploadCommand, HeadObjectCommand, UploadPartCommand } from "@aws-sdk/client-s3";
@@ -32,27 +31,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Audio already exists" }, { status: 400 });
     }
 
-    const { signal } = request;
-
     // Set up SSE response
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
         start(controller) {
-            // Check if already aborted
-            if (signal.aborted) {
-                controller.close();
-                return;
-            }
-
-            signal.addEventListener("abort", () => {
-                controller.close();
-            });
-
             const sendEvent = (event: string, data: any) => {
-                if (signal.aborted) {
-                    return;
-                }
-
                 const message = `data: ${JSON.stringify({ event, data })}\n\n`;
                 controller.enqueue(encoder.encode(message));
             };
