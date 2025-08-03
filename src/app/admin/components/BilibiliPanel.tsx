@@ -21,7 +21,7 @@ export default function BilibiliPanel() {
 		try {
 			const result = await getBilibiliWbiKeys();
 			if (result.success) {
-				setWbiKeys(result.data);
+				setWbiKeys(result.data ?? null);
 				toast.success("成功获取 Bilibili WBI 密钥");
 			} else {
 				toast.error(`获取失败: ${result.error}`);

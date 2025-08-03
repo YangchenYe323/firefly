@@ -267,9 +267,9 @@ const getMixinKey = (orig: string) => mixinKeyEncTab.map(n => orig[n]).join('').
 
 // 为请求参数进行 wbi 签名
 function encWbi(params: Record<string, any>, img_key: string, sub_key: string) {
-  const mixin_key = getMixinKey(img_key + sub_key),
-    curr_time = Math.round(Date.now() / 1000),
-    chr_filter = /[!'()*]/g
+  const mixin_key = getMixinKey(`${img_key}${sub_key}`);
+  const curr_time = Math.round(Date.now() / 1000);
+  const chr_filter = /[!'()*]/g;
 
   Object.assign(params, { wts: curr_time }) // 添加 wts 字段
   // 按照 key 重排参数
@@ -285,7 +285,7 @@ function encWbi(params: Record<string, any>, img_key: string, sub_key: string) {
 
   const wbi_sign = md5(query + mixin_key) // 计算 w_rid
 
-  return query + '&w_rid=' + wbi_sign
+  return `${query}&w_rid=${wbi_sign}`
 }
 
 // 获取最新的 img_key 和 sub_key
