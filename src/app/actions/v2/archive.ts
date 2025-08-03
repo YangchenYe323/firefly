@@ -4,7 +4,7 @@ import type { LiveRecordingArchive, Prisma } from "@prisma/client";
 import type { ActionReturnTypeBase } from "../types";
 import prisma from "@/db";
 
-interface ListArchivesReturnType extends ActionReturnTypeBase {
+export interface ListArchivesReturnType extends ActionReturnTypeBase {
     archives?: LiveRecordingArchive[];
     nextToken?: string;
 }

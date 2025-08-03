@@ -2,6 +2,8 @@
  * This module contains our implementation of accessing the bilibili endpoint from nodejs server.
  */
 
+import md5 from 'md5';
+
 const USER_AGENT =
 	"Mozilla/5.0 BiliDroid/6.73.1 (bbcallen@gmail.com) os/android model/Mi 10 Pro mobi_app/android build/6731100 channel/xiaomi innerVer/6731110 osVer/12 network/2";
 
@@ -209,6 +211,64 @@ export interface ArgueInfo {
 	argue_type: number;
 }
 
+// Video Stream URL Types
+export enum QualityCode {
+	P240 = 6,
+	P360 = 16,
+	P480 = 32,
+	P720 = 64,
+	P720HFR = 74,
+	P1080 = 80,
+	AiAugmented = 100,
+	P1080HBR = 112,
+	P1080HFR = 116,
+	P4K = 120,
+	Hdr = 125,
+	DolbyVision = 126,
+	P8K = 127,
+	Unknown = 0,
+}
+
+export enum FeatureValue {
+	FLV = 0, // Deprecated
+	MP4 = 1,
+	DASH = 1 << 4, // 16
+	HDR = 1 << 6, // 64
+	P4k = 1 << 7, // 128
+	DolbyAudio = 1 << 8, // 256
+	DolbyVision = 1 << 9, // 512
+	P8k = 1 << 10, // 1024
+	AV1 = 1 << 11, // 2048
+}
+
+export namespace FeatureValue {
+	export function allDash(): number {
+		return FeatureValue.DASH | FeatureValue.DolbyAudio | FeatureValue.DolbyVision | FeatureValue.P4k | FeatureValue.P8k | FeatureValue.AV1;
+	}
+}
+
+export interface VideostreamUrlData {
+	dash?: Dash;
+}
+
+export interface Dash {
+	audio: DashAudio[];
+}
+
+export interface DashAudio {
+	base_url: string;
+	bandwidth: number;
+	codecs: string;
+	mime_type: string;
+}
+
+export interface VideostreamUrlResponse {
+	code: number;
+	message: string;
+	ttl: number;
+	data?: VideostreamUrlData;
+}
+
 export async function getVideoInfo(
 	param: GetVideoInfoArg,
 ): Promise<GetVideoInfoResponse> {
@@ -231,6 +291,63 @@ export async function getVideoInfo(
 	return body;
 }
 
+export async function getStreamUrl(
+	bvid: string,
+	cid: number,
+	fnval: number,
+	wbiKeys: WbiKeys
+): Promise<VideostreamUrlData> {
+	const API_URL = "https://api.bilibili.com/x/player/wbi/playurl";
+	
+	const params: Record<string, any> = {
+		bvid: bvid,
+		cid: cid.toString(),
+		fnval: fnval.toString(),
+	};
+
+	const wbiEncodedParams = encWbi(params, wbiKeys.img_key, wbiKeys.sub_key);
+	const url = `${API_URL}?${wbiEncodedParams}`;
+
+	const response = await fetch(url, {
+		method: "GET",
+		headers: {
+			"User-Agent": USER_AGENT,
+			Cookie: `SESSDATA=${process.env.BILI_CRED_SESSDATA}`,
+		},
+	});
+
+	if (!response.ok) {
+		const body = await response.text();
+		throw new Error(`HTTP错误: ${response.status}, ${body}`);
+	}
+
+	const body: VideostreamUrlResponse = await response.json();
+
+	if (body.code !== 0) {
+		throw new Error(`获取流媒体地址失败: code=${body.code}, message=${body.message || ""}`);
+	}
+
+	if (!body.data) {
+		throw new Error("没有数据");
+	}
+
+	return body.data;
+}
+
+interface WbiKeys {
+	img_key: string;
+	sub_key: string;
+}
+
+export async function getBiliWebKeys(): Promise<WbiKeys> {
+	const sessdata = process.env.BILI_CRED_SESSDATA;
+	if (!sessdata) {
+		throw new Error("BILI_CRED_SESSDATA is not set");
+	}
+	const wbiKeys = await getWbiKeys(sessdata);
+	return wbiKeys;
+}
+
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 	T,
 	Exclude<keyof T, Keys>
@@ -238,3 +355,67 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 	{
 		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
 	}[Keys];
+
+const mixinKeyEncTab = [
+  46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
+  33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40,
+  61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11,
+  36, 20, 34, 44, 52
+]
+
+// 对 imgKey 和 subKey 进行字符顺序打乱编码
+const getMixinKey = (orig: string) => mixinKeyEncTab.map(n => orig[n]).join('').slice(0, 32)
+
+// 为请求参数进行 wbi 签名
+function encWbi(params: Record<string, any>, img_key: string, sub_key: string) {
+  const mixin_key = getMixinKey(`${img_key}${sub_key}`);
+  const curr_time = Math.round(Date.now() / 1000);
+  const chr_filter = /[!'()*]/g;
+
+  Object.assign(params, { wts: curr_time }) // 添加 wts 字段
+  // 按照 key 重排参数
+  const query = Object
+    .keys(params)
+    .sort()
+    .map(key => {
+      // 过滤 value 中的 "!'()*" 字符
+      const value = params[key].toString().replace(chr_filter, '')
+      return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    })
+    .join('&')
+
+  const wbi_sign = md5(query + mixin_key) // 计算 w_rid
+
+  return `${query}&w_rid=${wbi_sign}`
+}
+
+// 获取最新的 img_key 和 sub_key
+async function getWbiKeys(sessdata: string) {
+  const res = await fetch('https://api.bilibili.com/x/web-interface/nav', {
+    headers: {
+      // SESSDATA 字段
+      Cookie: `SESSDATA=${sessdata}`,
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+      Referer: 'https://www.bilibili.com/'//对于直接浏览器调用可能不适用
+    }
+  })
+
+  if (!res.ok) {
+    const body = await res.text();
+	console.log("getWbiKeys", body);
+    throw new Error(`获取wbi_img失败: ${res.status}, ${body}`);
+  }
+
+  const { data: { wbi_img: { img_url, sub_url } } } = await res.json()
+
+  return {
+    img_key: img_url.slice(
+      img_url.lastIndexOf('/') + 1,
+      img_url.lastIndexOf('.')
+    ),
+    sub_key: sub_url.slice(
+      sub_url.lastIndexOf('/') + 1,
+      sub_url.lastIndexOf('.')
+    )
+  }
+}

@@ -11,6 +11,8 @@
     "bootstrap-admin": "tsx scripts/bootstrap_admin.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.859.0",
+    "@aws-sdk/lib-storage": "^3.859.0",
     "@prisma/client": "^6.11.1",
     "@prisma/nextjs-monorepo-workaround-plugin": "^6.11.1",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -28,6 +30,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/bcrypt": "^5.0.2",
     "@types/lodash": "^4.17.20",
+    "@types/md5": "^2.3.5",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -41,6 +44,7 @@
     "jotai-tanstack-query": "^0.9.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.358.0",
+    "md5": "^2.3.0",
     "next": "14.2.1",
     "next-themes": "^0.3.0",
     "prisma": "^6.11.1",
