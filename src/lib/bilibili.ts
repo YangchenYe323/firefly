@@ -211,6 +211,64 @@ export interface ArgueInfo {
 	argue_type: number;
 }
 
+// Video Stream URL Types
+export enum QualityCode {
+	P240 = 6,
+	P360 = 16,
+	P480 = 32,
+	P720 = 64,
+	P720HFR = 74,
+	P1080 = 80,
+	AiAugmented = 100,
+	P1080HBR = 112,
+	P1080HFR = 116,
+	P4K = 120,
+	Hdr = 125,
+	DolbyVision = 126,
+	P8K = 127,
+	Unknown = 0,
+}
+
+export enum FeatureValue {
+	FLV = 0, // Deprecated
+	MP4 = 1,
+	DASH = 1 << 4, // 16
+	HDR = 1 << 6, // 64
+	P4k = 1 << 7, // 128
+	DolbyAudio = 1 << 8, // 256
+	DolbyVision = 1 << 9, // 512
+	P8k = 1 << 10, // 1024
+	AV1 = 1 << 11, // 2048
+}
+
+export namespace FeatureValue {
+	export function allDash(): number {
+		return FeatureValue.DASH | FeatureValue.DolbyAudio | FeatureValue.DolbyVision | FeatureValue.P4k | FeatureValue.P8k | FeatureValue.AV1;
+	}
+}
+
+export interface VideostreamUrlData {
+	dash?: Dash;
+}
+
+export interface Dash {
+	audio: DashAudio[];
+}
+
+export interface DashAudio {
+	base_url: string;
+	bandwidth: number;
+	codecs: string;
+	mime_type: string;
+}
+
+export interface VideostreamUrlResponse {
+	code: number;
+	message: string;
+	ttl: number;
+	data?: VideostreamUrlData;
+}
+
 export async function getVideoInfo(
 	param: GetVideoInfoArg,
 ): Promise<GetVideoInfoResponse> {
@@ -231,6 +289,49 @@ export async function getVideoInfo(
 	});
 	const body = await response.json();
 	return body;
+}
+
+export async function getStreamUrl(
+	bvid: string,
+	cid: number,
+	fnval: number,
+	wbiKeys: WbiKeys
+): Promise<VideostreamUrlData> {
+	const API_URL = "https://api.bilibili.com/x/player/wbi/playurl";
+	
+	const params: Record<string, any> = {
+		bvid: bvid,
+		cid: cid.toString(),
+		fnval: fnval.toString(),
+	};
+
+	const wbiEncodedParams = encWbi(params, wbiKeys.img_key, wbiKeys.sub_key);
+	const url = `${API_URL}?${wbiEncodedParams}`;
+
+	const response = await fetch(url, {
+		method: "GET",
+		headers: {
+			"User-Agent": USER_AGENT,
+			Cookie: `SESSDATA=${process.env.BILI_CRED_SESSDATA}`,
+		},
+	});
+
+	if (!response.ok) {
+		const body = await response.text();
+		throw new Error(`HTTP错误: ${response.status}, ${body}`);
+	}
+
+	const body: VideostreamUrlResponse = await response.json();
+
+	if (body.code !== 0) {
+		throw new Error(`获取流媒体地址失败: code=${body.code}, message=${body.message || ""}`);
+	}
+
+	if (!body.data) {
+		throw new Error("没有数据");
+	}
+
+	return body.data;
 }
 
 interface WbiKeys {
@@ -298,6 +399,13 @@ async function getWbiKeys(sessdata: string) {
       Referer: 'https://www.bilibili.com/'//对于直接浏览器调用可能不适用
     }
   })
+
+  if (!res.ok) {
+    const body = await res.text();
+	console.log("getWbiKeys", body);
+    throw new Error(`获取wbi_img失败: ${res.status}, ${body}`);
+  }
+
   const { data: { wbi_img: { img_url, sub_url } } } = await res.json()
 
   return {

@@ -243,6 +243,18 @@ model LiveRecordingArchive {
   /// Cover image url of the recording
   cover    String
 
+  /// The object keys that store the audio files of the live recording, ordered by page number
+  /// We use postgres as a "catalog" for the object store so offline processing services know where
+  /// to find the data.
+  /// If it's not set, we don't have the audio stored.
+  audioObjectKeys String[]
+  /// The object keys that store transcript of the live recording, all the pages are combined into one transcript.
+  /// If it's not set, we don't have the transcript stored.
+  transcriptObjectKey String?
+  /// The last time we scanned this live recording for song occurrences.
+  /// If it's not set, we haven't scanned for song occurrences yet.
+  lastSongOccurrenceScan DateTime? @db.Timestamptz
+
   /// The songs that were played in the live
   SongOccurrenceInLive SongOccurrenceInLive[]
 

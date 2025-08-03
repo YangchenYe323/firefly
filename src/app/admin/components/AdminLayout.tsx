@@ -14,7 +14,7 @@ import {
 	RefreshCw,
 	List,
 	Globe,
-	Key,
+	Play,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,7 +36,7 @@ import ProfilePanel from "./ProfilePanel";
 import ThemesPanel from "./ThemesPanel";
 import ExternalLinksPanel from "./ExternalLinksPanel";
 import DomainsPanel from "./DomainsPanel";
-import BilibiliPanel from "./BilibiliPanel";
+import LiveRecordingsPanel from "./LiveRecordingsPanel";
 import {
 	searchQueryAtom,
 	showOnlyWithoutLyricsAtom,
@@ -53,7 +53,7 @@ import {
 	selectedProfileAtom,
 } from "@/lib/admin-store";
 
-type TabType = "songs" | "vtuber-songs" | "profile" | "themes" | "links" | "domains" | "bilibili";
+type TabType = "songs" | "vtuber-songs" | "profile" | "themes" | "links" | "domains" | "live-recordings";
 
 export type SongForEditOrCreate = {
 	song: Song;
@@ -254,7 +254,7 @@ export default function AdminLayout() {
 		{ id: "themes" as TabType, label: "主题管理", icon: Palette },
 		{ id: "links" as TabType, label: "外部链接", icon: Link },
 		{ id: "domains" as TabType, label: "域名管理", icon: Globe },
-		{ id: "bilibili" as TabType, label: "Bilibili", icon: Key },
+		{ id: "live-recordings" as TabType, label: "直播录像", icon: Play },
 	];
 
 	return (
@@ -561,9 +561,15 @@ export default function AdminLayout() {
 				</div>
 			)}
 
-			{activeTab === "bilibili" && (
+			{activeTab === "live-recordings" && (
 				<div className="space-y-6">
-					<BilibiliPanel />
+					{selectedProfile ? (
+						<LiveRecordingsPanel selectedProfileId={selectedProfile.id} />
+					) : (
+						<div className="text-center py-8 text-gray-500">
+							<p>请先选择一个个人资料。</p>
+						</div>
+					)}
 				</div>
 			)}
 		</div>

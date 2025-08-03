@@ -10,7 +10,7 @@
  */
 
 import { atom } from "jotai";
-import { atomWithQuery } from "jotai-tanstack-query";
+import { atomWithInfiniteQuery, atomWithQuery } from "jotai-tanstack-query";
 import type {
 	Song,
 	VtuberSong,
@@ -18,6 +18,7 @@ import type {
 	Theme,
 	VtuberExternalLink,
 	Domain,
+	LiveRecordingArchive,
 } from "@prisma/client";
 import {
 	listSongs,
@@ -36,6 +37,8 @@ import {
 } from "@tanstack/react-query";
 import { createExternalLinkForProfile, createThemeForProfile, createVtuberProfile, deleteExternalLinkForProfile, deleteThemeForProfile, listVtuberProfilesForAdmin, updateExternalLinkForProfile, updateThemeForProfile, updateVtuberProfile, deleteVtuberProfile } from "@/app/actions/v2/profile";
 import { createDomain, updateDomain, deleteDomain } from "@/app/actions/v2/domain";
+import { listArchives, ListArchivesReturnType } from "@/app/actions/v2/archive";
+import { streamVideoToR2 } from "@/app/actions/v2/bilibili";
 
 export const songsAtom = atomWithQuery((get) => ({
 	queryKey: ["songs"],
@@ -483,3 +486,38 @@ export const useDeleteDomainMutation = () => {
 		queryClient,
 	);
 };
+
+export const vtuberLiveRecordingsAtom = atomWithInfiniteQuery((get) => {
+	const profile = get(selectedProfileAtom);
+	return {
+		queryKey: ["vtuber-live-recordings", profile?.id],
+		queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
+			if (!profile) {
+				throw new Error("No profile selected");
+			}
+
+			return await listArchives(profile.id, pageParam, 20, undefined);
+		},
+		initialPageParam: undefined,
+		getNextPageParam: (lastPage: ListArchivesReturnType, pages) => lastPage.nextToken,
+		staleTime: 60 * 60 * 1000, // 1 hour
+	}
+});
+
+export const useStreamVideoToR2Mutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation(
+		{
+			mutationFn: async (recording: LiveRecordingArchive) => {
+				const result = await streamVideoToR2(recording);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			},
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ["vtuber-live-recordings"] });
+			},
+		},
+		queryClient,
+	);
+}
