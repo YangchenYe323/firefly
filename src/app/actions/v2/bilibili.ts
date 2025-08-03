@@ -2,13 +2,13 @@
 
 import { auth } from "@/lib/auth";
 import { getBiliWebKeys, getStreamUrl, FeatureValue, getVideoInfo } from "@/lib/bilibili";
-import { LiveRecordingArchive } from "@prisma/client";
-import { ActionReturnTypeBase } from "../types";
+import type { LiveRecordingArchive } from "@prisma/client";
+import type { ActionReturnTypeBase } from "../types";
 import r2 from "@/r2";
 import { toZonedTime } from "date-fns-tz";
 import { AbortMultipartUploadCommand, CompleteMultipartUploadCommand, CreateMultipartUploadCommand, HeadObjectCommand, UploadPartCommand } from "@aws-sdk/client-s3";
 import prisma from "@/db";
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 
 interface StreamVideoToR2ReturnType extends ActionReturnTypeBase {
 	recording?: LiveRecordingArchive;
@@ -86,7 +86,7 @@ export async function streamVideoToR2(recording: LiveRecordingArchive): Promise<
 		if (!contentLength) {
 			return { success: false, message: "获取音频长度失败" };
 		}
-		const contentLengthNumber = parseInt(contentLength);
+		const contentLengthNumber = Number.parseInt(contentLength);
 
 		// Chunk the audio into 20MB chunks and upload concurrently
 		const chunkSize = 20 * 1024 * 1024;

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/db";
 
@@ -16,12 +16,12 @@ export async function PUT(
 		const { title, pubdate, date, duration, cover } = body;
 
 		const recording = await prisma.liveRecordingArchive.update({
-			where: { id: parseInt(params.id) },
+			where: { id: Number.parseInt(params.id) },
 			data: {
 				title,
-				pubdate: parseInt(pubdate),
+				pubdate: Number.parseInt(pubdate),
 				date: new Date(date),
-				duration: parseInt(duration),
+				duration: Number.parseInt(duration),
 				cover,
 			},
 		});
@@ -44,7 +44,7 @@ export async function DELETE(
 
 	try {
 		await prisma.liveRecordingArchive.delete({
-			where: { id: parseInt(params.id) },
+			where: { id: Number.parseInt(params.id) },
 		});
 
 		return NextResponse.json({ success: true });

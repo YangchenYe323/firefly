@@ -12,16 +12,18 @@ import {
 	Clock, 
 	FileAudio,
 } from "lucide-react";
-import { toast } from "sonner";
-import { LiveRecordingArchive } from "@prisma/client";
+import type { LiveRecordingArchive } from "@prisma/client";
 import { format } from "date-fns";
 import { useAtom } from "jotai";
-import { useStreamVideoToR2Mutation, vtuberLiveRecordingsAtom } from "@/lib/admin-store";
+import { vtuberLiveRecordingsAtom } from "@/lib/admin-store";
 import { formatMMSS } from "@/lib/utils";
+import dynamic from "next/dynamic";
 
 interface LiveRecordingsPanelProps {
 	selectedProfileId: number;
 }
+
+const StreamProgress = dynamic(() => import("./StreamProgress"), { ssr: false });
 
 export default function LiveRecordingsPanel({ selectedProfileId }: LiveRecordingsPanelProps) {
     const [{
@@ -39,18 +41,9 @@ export default function LiveRecordingsPanel({ selectedProfileId }: LiveRecording
     const flagRecordings = recordings?.pages.flatMap((page) => page.archives || []);
 
     const [downloadingRecording, setDownloadingRecording] = useState<LiveRecordingArchive | null>(null);
-    const { mutateAsync: streamVideoToR2, isPending: isStreamVideoToR2Pending } = useStreamVideoToR2Mutation();
 
 	const handleDownloadAudio = async (recording: LiveRecordingArchive) => {
-        try {
-            setDownloadingRecording(recording);
-            await streamVideoToR2(recording);
-            toast.success("音频下载完成");
-            refetch();
-        } catch (error) {
-            toast.error(`下载音频时发生错误: ${error}`);
-        }
-        setDownloadingRecording(null);
+        setDownloadingRecording(recording);
 	};
 
     const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -75,6 +68,19 @@ export default function LiveRecordingsPanel({ selectedProfileId }: LiveRecording
 
 	return (
 		<div className="space-y-6">
+			{downloadingRecording && (
+				<StreamProgress
+					recordingId={downloadingRecording.id}
+					bvid={downloadingRecording.bvid}
+					onClose={() => {
+						setDownloadingRecording(null);
+					}}
+					onComplete={() => {
+						setDownloadingRecording(null);
+						refetch();
+					}}
+				/>
+			)}
 			<Card ref={loadMoreRef}>
 				<CardHeader>
 					<div className="flex items-center justify-between">
@@ -149,7 +155,7 @@ export default function LiveRecordingsPanel({ selectedProfileId }: LiveRecording
 												size="sm"
 												variant="outline"
 											>
-                                                {downloadingRecording?.id === recording.id && isStreamVideoToR2Pending ? (
+                                                {downloadingRecording?.id === recording.id ? (
                                                     <RefreshCw className="w-4 h-4 animate-spin" />
                                                 ) : (
                                                     <Download className="w-4 h-4" />

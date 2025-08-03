@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/db";
 
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 	try {
 		const recordings = await prisma.liveRecordingArchive.findMany({
 			where: {
-				vtuberProfileId: parseInt(profileId),
+				vtuberProfileId: Number.parseInt(profileId),
 			},
 			orderBy: {
 				pubdate: "desc",
@@ -44,12 +44,12 @@ export async function POST(request: NextRequest) {
 
 		const recording = await prisma.liveRecordingArchive.create({
 			data: {
-				vtuberProfileId: parseInt(vtuberProfileId),
+				vtuberProfileId: Number.parseInt(vtuberProfileId),
 				bvid,
 				title,
-				pubdate: parseInt(pubdate),
+				pubdate: Number.parseInt(pubdate),
 				date: new Date(date),
-				duration: parseInt(duration),
+				duration: Number.parseInt(duration),
 				cover,
 			},
 		});

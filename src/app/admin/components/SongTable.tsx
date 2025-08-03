@@ -83,7 +83,6 @@ export default function SongTable({
 						const isExpanded = expandedRows.has(song.id!);
 
 						return (
-							<>
 								<TableRow
 									key={song.id}
 									className="hover:bg-muted/50 transition-colors"
@@ -195,7 +194,6 @@ export default function SongTable({
 										</div>
 									</TableCell>
 								</TableRow>
-							</>
 						);
 					})}
 				</TableBody>

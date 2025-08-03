@@ -37,8 +37,8 @@ import {
 } from "@tanstack/react-query";
 import { createExternalLinkForProfile, createThemeForProfile, createVtuberProfile, deleteExternalLinkForProfile, deleteThemeForProfile, listVtuberProfilesForAdmin, updateExternalLinkForProfile, updateThemeForProfile, updateVtuberProfile, deleteVtuberProfile } from "@/app/actions/v2/profile";
 import { createDomain, updateDomain, deleteDomain } from "@/app/actions/v2/domain";
-import { listArchives, ListArchivesReturnType } from "@/app/actions/v2/archive";
-import { streamVideoToR2 } from "@/app/actions/v2/bilibili";
+import { listArchives, type ListArchivesReturnType } from "@/app/actions/v2/archive";
+
 
 export const songsAtom = atomWithQuery((get) => ({
 	queryKey: ["songs"],
@@ -509,10 +509,10 @@ export const useStreamVideoToR2Mutation = () => {
 	return useMutation(
 		{
 			mutationFn: async (recording: LiveRecordingArchive) => {
-				const result = await streamVideoToR2(recording);
-				if (!result.success) {
-					throw new Error(result.message);
-				}
+				// This is now handled by the StreamProgress component
+				// The mutation is kept for compatibility but doesn't actually stream
+				// The actual streaming is done via SSE in the StreamProgress component
+				return Promise.resolve();
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: ["vtuber-live-recordings"] });
