@@ -34,6 +34,7 @@ interface StreamProgressProps {
     bvid: string;
     onClose: () => void;
     onComplete: () => void;
+    onCancel?: () => void;
 }
 
 // Helper function to format bytes
@@ -66,17 +67,20 @@ export default function StreamProgress({
     recordingId,
     bvid,
     onClose,
-    onComplete
+    onComplete,
+    onCancel
 }: StreamProgressProps) {
     const [streams, setStreams] = useState<Map<string, StreamProgress>>(new Map());
-    const [overallStatus, setOverallStatus] = useState<'pending' | 'downloading' | 'complete' | 'error'>('pending');
+    const [overallStatus, setOverallStatus] = useState<'pending' | 'downloading' | 'complete' | 'error' | 'cancelled'>('pending');
     const [error, setError] = useState<string | null>(null);
     const [startTime, setStartTime] = useState<number | null>(null);
     const [lastProgressTime, setLastProgressTime] = useState<number | null>(null);
     const [lastProgressBytes, setLastProgressBytes] = useState<number>(0);
+    const [abortController, setAbortController] = useState<AbortController | null>(null);
 
-    const startStream = useCallback(async (abortController: AbortController) => {
-        const stream = await streamAudio(abortController.signal, recordingId);
+    const startStream = useCallback(async (controller: AbortController) => {
+        setAbortController(controller);
+        const stream = await streamAudio(controller.signal, recordingId);
         if (!stream) {
             throw new Error('No response body');
         }
@@ -140,7 +144,8 @@ export default function StreamProgress({
                                     return newMap;
                                 });
                                 break;
-                            case 'chunk_progress':
+                            case 'chunk_progress': {
+                                console.log('Chunk progress event:', data);
                                 setStreams(prev => {
                                     const newMap = new Map(prev);
                                     const stream = newMap.get(data.streamId);
@@ -155,11 +160,23 @@ export default function StreamProgress({
                                                 status: 'uploading'
                                             });
                                         }
+                                        
+                                        newMap.set(data.streamId, {
+                                            ...stream,
+                                            chunks: newChunks,
+                                        });
                                     }
                                     return newMap;
                                 });
+                                
+                                // Update speed calculation
+                                const now = Date.now();
+                                setLastProgressTime(now);
+                                setLastProgressBytes(data.uploadedBytes);
                                 break;
+                            }
                             case 'chunk_complete':
+                                console.log('Chunk complete event:', data);
                                 setStreams(prev => {
                                     const newMap = new Map(prev);
                                     const stream = newMap.get(data.streamId);
@@ -174,6 +191,10 @@ export default function StreamProgress({
                                                 status: 'complete'
                                             });
                                         }
+                                        newMap.set(data.streamId, {
+                                            ...stream,
+                                            chunks: newChunks,
+                                        });
                                     }
                                     return newMap;
                                 });
@@ -228,6 +249,13 @@ export default function StreamProgress({
                                 toast.success('所有音频上传完成');
                                 onComplete();
                                 return;
+                            case 'cancelled':
+                                setOverallStatus('cancelled');
+                                toast.info('上传已取消');
+                                if (onCancel) {
+                                    onCancel();
+                                }
+                                return;
                             case 'error':
                                 setOverallStatus('error');
                                 setError(data.message);
@@ -240,15 +268,32 @@ export default function StreamProgress({
                 }
             }
         }
-    }, [recordingId, onComplete]);
+    }, [recordingId, onComplete, onCancel]);
+
+    const handleCancel = useCallback(() => {
+        if (abortController) {
+            abortController.abort();
+            setOverallStatus('cancelled');
+            toast.info('正在取消上传...');
+        }
+    }, [abortController]);
+
+    // Cleanup function to abort on unmount
+    useEffect(() => {
+        return () => {
+            if (abortController) {
+                abortController.abort();
+            }
+        };
+    }, [abortController]);
 
     useEffect(() => {
-        const abortController = new AbortController();
+        const controller = new AbortController();
 
-        startStream(abortController);
+        startStream(controller);
 
         return () => {
-            abortController.abort();
+            controller.abort();
         };
     }, [startStream]);
 
@@ -333,14 +378,25 @@ export default function StreamProgress({
                         <Download className="w-5 h-5" />
                         音频上传进度 - {bvid}
                     </CardTitle>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onClose}
-                        disabled={overallStatus === 'downloading'}
-                    >
-                        <X className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {overallStatus === 'downloading' && (
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={handleCancel}
+                            >
+                                取消上传
+                            </Button>
+                        )}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onClose}
+                            disabled={overallStatus === 'downloading'}
+                        >
+                            <X className="w-4 h-4" />
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-4 overflow-y-auto max-h-[60vh]">
                     {error && (
@@ -456,6 +512,18 @@ export default function StreamProgress({
                             </div>
                             <p className="text-green-700 mt-1">
                                 所有音频文件已成功上传到存储
+                            </p>
+                        </div>
+                    )}
+
+                    {overallStatus === 'cancelled' && (
+                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-yellow-800">
+                                <AlertCircle className="w-5 h-5" />
+                                <span className="font-medium">上传已取消</span>
+                            </div>
+                            <p className="text-yellow-700 mt-1">
+                                用户已取消上传操作
                             </p>
                         </div>
                     )}

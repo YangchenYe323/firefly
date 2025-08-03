@@ -79,6 +79,9 @@ export default function LiveRecordingsPanel({ selectedProfileId }: LiveRecording
 						setDownloadingRecording(null);
 						refetch();
 					}}
+					onCancel={() => {
+						setDownloadingRecording(null);
+					}}
 				/>
 			)}
 			<Card ref={loadMoreRef}>

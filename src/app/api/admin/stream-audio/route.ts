@@ -31,18 +31,48 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Audio already exists" }, { status: 400 });
     }
 
+    const { signal } = request;
+
     // Set up SSE response
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
         start(controller) {
+            // Check if already aborted
+            if (signal.aborted) {
+                controller.close();
+                return;
+            }
+
+            signal.addEventListener("abort", () => {
+                controller.close();
+            });
+
             const sendEvent = (event: string, data: any) => {
-                const message = `data: ${JSON.stringify({ event, data })}\n\n`;
-                controller.enqueue(encoder.encode(message));
+                if (signal.aborted) {
+                    return;
+                }
+
+                try {
+                    const message = `data: ${JSON.stringify({ event, data })}\n\n`;
+                    controller.enqueue(encoder.encode(message));
+                } catch (error) {
+                    // If controller is closed due to abort, ignore the error
+                    if (!signal.aborted) {
+                        console.error('Error sending event:', error);
+                    }
+                }
             };
 
             const processStream = async () => {
                 try {
                     sendEvent("start", { recordingId, bvid: recording.bvid });
+
+                    // Check for cancellation before starting
+                    if (signal.aborted) {
+                        sendEvent("cancelled", { message: "Upload cancelled by user" });
+                        controller.close();
+                        return;
+                    }
 
                     const info = await getVideoInfo({ bvid: recording.bvid });
                     if (info.code !== 0) {
@@ -71,6 +101,13 @@ export async function POST(request: NextRequest) {
                     const objectKeys = [];
 
                     for (const page of data.pages) {
+                        // Check for cancellation before processing each page
+                        if (signal.aborted) {
+                            sendEvent("cancelled", { message: "Upload cancelled by user" });
+                            controller.close();
+                            return;
+                        }
+
                         const objectKey = `audio/${data.owner.mid}/${year}/${month}/${day}/${recording.bvid}/${page.page}.mp4`;
                         const streamId = `${recording.bvid}/${page.page}`;
 
@@ -115,6 +152,7 @@ export async function POST(request: NextRequest) {
 
                         // First query the audio url once to get the content length
                         const audioResponse = await fetch(audioUrl, {
+                            signal,
                             headers: {
                                 Cookie: `SESSDATA=${process.env.BILI_CRED_SESSDATA}`,
                                 Referer: "https://www.bilibili.com/",
@@ -162,7 +200,29 @@ export async function POST(request: NextRequest) {
                             ChecksumAlgorithm: undefined,
                         }));
 
+                        // Check for cancellation after creating multipart upload
+                        if (signal.aborted) {
+                            sendEvent("cancelled", { message: "Upload cancelled by user" });
+                            // Clean up the multipart upload
+                            try {
+                                await r2.send(new AbortMultipartUploadCommand({
+                                    Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
+                                    Key: objectKey,
+                                    UploadId: multipartUpload.UploadId,
+                                }));
+                            } catch (cleanupError) {
+                                console.error("Failed to cleanup multipart upload:", cleanupError);
+                            }
+                            controller.close();
+                            return;
+                        }
+
                         try {
+                            // Check for cancellation before starting chunk uploads
+                            if (signal.aborted) {
+                                throw new Error("Upload cancelled by user");
+                            }
+
                             const updatePromises = [];
                             for (let i = 0; i < chunks.length; i++) {
                                 const chunk = chunks[i];
@@ -190,9 +250,27 @@ export async function POST(request: NextRequest) {
                                     const chunkSize = chunk[1] - chunk[0] + 1;
                                     let uploadedBytes = 0;
 
+                                    // Send initial progress event to show chunk is starting
+                                    console.log(`Starting chunk upload: ${streamId}_chunk_${i + 1}, size: ${chunkSize} bytes`);
+                                    sendEvent("chunk_progress", {
+                                        streamId,
+                                        chunkId: `${streamId}_chunk_${i + 1}`,
+                                        chunkIndex: i + 1,
+                                        totalChunks: chunks.length,
+                                        uploadedBytes: 0,
+                                        totalChunkSize: chunkSize,
+                                        chunkProgress: 0,
+                                    });
+
                                     const progressStream = new Readable({
                                         async read() {
                                             try {
+                                                // Check for cancellation
+                                                if (signal.aborted) {
+                                                    this.destroy(new Error("Upload cancelled"));
+                                                    return;
+                                                }
+
                                                 const { done, value } = await streamReader.read();
                                                 if (done) {
                                                     this.push(null); // End of stream
@@ -200,8 +278,8 @@ export async function POST(request: NextRequest) {
                                                     uploadedBytes += value.length;
                                                     const chunkProgress = (uploadedBytes / chunkSize) * 100;
 
-                                                    // Send progress update every 1MB or when complete
-                                                    if (uploadedBytes % (1024 * 1024) === 0 || uploadedBytes === chunkSize) {
+                                                    // Send progress update every 256KB or when complete
+                                                    if (uploadedBytes % (256 * 1024) === 0 || uploadedBytes === chunkSize) {
                                                         sendEvent("chunk_progress", {
                                                             streamId,
                                                             chunkId: `${streamId}_chunk_${i + 1}`,
@@ -230,6 +308,12 @@ export async function POST(request: NextRequest) {
                                         ContentLength: chunkSize,
                                     }));
 
+                                    // Check for cancellation after each chunk upload
+                                    if (signal.aborted) {
+                                        throw new Error("Upload cancelled");
+                                    }
+
+                                    console.log(`Chunk complete: ${streamId}_chunk_${i + 1}`);
                                     sendEvent("chunk_complete", {
                                         streamId,
                                         chunkId: `${streamId}_chunk_${i + 1}`,
@@ -267,6 +351,25 @@ export async function POST(request: NextRequest) {
                             });
                             objectKeys.push(objectKey);
                         } catch (error) {
+                            // Check if this is a cancellation error
+                            if (signal.aborted) {
+                                sendEvent("cancelled", { message: "Upload cancelled by user" });
+                                // Clean up the multipart upload
+                                if (multipartUpload.UploadId) {
+                                    try {
+                                        await r2.send(new AbortMultipartUploadCommand({
+                                            Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
+                                            Key: objectKey,
+                                            UploadId: multipartUpload.UploadId,
+                                        }));
+                                    } catch (cleanupError) {
+                                        console.error("Failed to cleanup multipart upload:", cleanupError);
+                                    }
+                                }
+                                controller.close();
+                                return;
+                            }
+
                             sendEvent("page_error", {
                                 streamId,
                                 message: `上传音频文件失败: ${error}`
@@ -277,7 +380,7 @@ export async function POST(request: NextRequest) {
                                     Key: objectKey,
                                     UploadId: multipartUpload.UploadId,
                                 }));
-                            							}
+                            }
                         }
                     }
 
