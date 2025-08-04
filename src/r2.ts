@@ -10,6 +10,9 @@ const r2ClientSingleton = () => {
         },
         requestStreamBufferSize: 32 * 1024,
         requestChecksumCalculation: "WHEN_REQUIRED",
+        requestHandler: {
+            requestTimeout: 30 * 60 * 1000, // 60 minutes
+        }
     })
 }
 

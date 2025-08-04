@@ -80,15 +80,27 @@ export default function StreamProgress({
 
     const startStream = useCallback(async (controller: AbortController) => {
         setAbortController(controller);
-        const stream = await streamAudio(controller.signal, recordingId);
-        if (!stream) {
-            throw new Error('No response body');
+
+        const response = await fetch('/api/admin/stream-audio', {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ recordingId }),
+        });
+
+        if (!response.ok) {
+            const body = await response.text();
+            setError(`HTTP error! status: ${response.status}, body: ${body}`);
+            return;
         }
-        const reader = stream.getReader();
+
+        const reader = response.body!.getReader();
 
         const decoder = new TextDecoder();
-        let buffer = '';
 
+        let buffer = '';
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
@@ -160,7 +172,7 @@ export default function StreamProgress({
                                                 status: 'uploading'
                                             });
                                         }
-                                        
+
                                         newMap.set(data.streamId, {
                                             ...stream,
                                             chunks: newChunks,
@@ -168,7 +180,7 @@ export default function StreamProgress({
                                     }
                                     return newMap;
                                 });
-                                
+
                                 // Update speed calculation
                                 const now = Date.now();
                                 setLastProgressTime(now);
@@ -274,7 +286,7 @@ export default function StreamProgress({
         if (abortController) {
             abortController.abort();
             setOverallStatus('cancelled');
-            toast.info('正在取消上传...');
+            toast.info('上传已取消...');
         }
     }, [abortController]);
 
