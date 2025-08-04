@@ -172,6 +172,14 @@ export async function POST(request: NextRequest) {
                             }))
                         });
 
+                        // Empirically, the bandwidth bilibili streaming can achive is abysmal, like
+                        // 300kb/s. We devide pages into 20MB chunks, and bilibili now roughly chunk up
+                        // videos into pages of 2 hours each. The aggregate bandwidth we typically get from
+                        // all the parallel streams is ~1MB/s. We set a timeout so that we can finsih one page
+                        // in one request. Normally each page takes 30-60 seconds and each video has 2-3 pages,
+                        // so we can upload a whole video in one request. If some good vtubers streams 20 hours in one shot,
+                        // we need to do it in multiple requests, because our free vercel plan only does 300 seconds of execution time.
+                        // So it is important we keep finished pages in r2 and only upload the unfinished ones.
                         const multipartUpload = await r2.send(new CreateMultipartUploadCommand({
                             Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
                             Key: objectKey,
@@ -179,7 +187,7 @@ export async function POST(request: NextRequest) {
                             ChecksumAlgorithm: undefined,
                         }), {
                             abortSignal: signal,
-                            requestTimeout: 60 * 60 * 1000, // 60 minutes
+                            requestTimeout: 5 * 60 * 1000, // 5 minutes
                         });
 
                         try {
@@ -268,7 +276,7 @@ export async function POST(request: NextRequest) {
                                         ContentLength: chunkSize,
                                     }), {
                                         abortSignal: signal,
-                                        requestTimeout: 30 * 60 * 1000, // 30 minutes
+                                        requestTimeout: 5 * 60 * 1000, // 5 minutes
                                     });
 
                                     sendEvent("chunk_complete", {
@@ -301,7 +309,7 @@ export async function POST(request: NextRequest) {
                                 }
                             }), {
                                 abortSignal: signal,
-                                requestTimeout: 30 * 60 * 1000, // 30 minutes
+                                requestTimeout: 1 * 60 * 1000, // 1 minute
                             });
 
                             sendEvent("page_complete", {
@@ -331,6 +339,8 @@ export async function POST(request: NextRequest) {
                                 });
                             }
 
+                            // It's important we DO NOT update the database here, otherwise we are left with
+                            // stale database entry that is not the complete set of audios.
                             throw error;
                         }
                     }
