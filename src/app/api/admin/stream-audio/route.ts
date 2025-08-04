@@ -7,6 +7,12 @@ import { AbortMultipartUploadCommand, CompleteMultipartUploadCommand, CreateMult
 import prisma from "@/db";
 import { Readable } from "node:stream";
 
+/**
+ * SSE endpoint for streaming audio to firefly-managed r2 bucket for a given recording.
+ * 
+ * @param request 
+ * @returns 
+ */
 export async function POST(request: NextRequest) {
     const authResult = await auth();
     if (!authResult) {
@@ -14,7 +20,6 @@ export async function POST(request: NextRequest) {
     }
 
     const { recordingId } = await request.json();
-
     if (!recordingId) {
         return NextResponse.json({ error: "Recording ID is required" }, { status: 400 });
     }
@@ -22,7 +27,6 @@ export async function POST(request: NextRequest) {
     const recording = await prisma.liveRecordingArchive.findUnique({
         where: { id: recordingId }
     });
-
     if (!recording) {
         return NextResponse.json({ error: "Recording not found" }, { status: 404 });
     }
@@ -48,31 +52,13 @@ export async function POST(request: NextRequest) {
             });
 
             const sendEvent = (event: string, data: any) => {
-                if (signal.aborted) {
-                    return;
-                }
-
-                try {
-                    const message = `data: ${JSON.stringify({ event, data })}\n\n`;
-                    controller.enqueue(encoder.encode(message));
-                } catch (error) {
-                    // If controller is closed due to abort, ignore the error
-                    if (!signal.aborted) {
-                        console.error('Error sending event:', error);
-                    }
-                }
+                const message = `data: ${JSON.stringify({ event, data })}\n\n`;
+                controller.enqueue(encoder.encode(message));
             };
 
             const processStream = async () => {
                 try {
                     sendEvent("start", { recordingId, bvid: recording.bvid });
-
-                    // Check for cancellation before starting
-                    if (signal.aborted) {
-                        sendEvent("cancelled", { message: "Upload cancelled by user" });
-                        controller.close();
-                        return;
-                    }
 
                     const info = await getVideoInfo({ bvid: recording.bvid });
                     if (info.code !== 0) {
@@ -101,13 +87,6 @@ export async function POST(request: NextRequest) {
                     const objectKeys = [];
 
                     for (const page of data.pages) {
-                        // Check for cancellation before processing each page
-                        if (signal.aborted) {
-                            sendEvent("cancelled", { message: "Upload cancelled by user" });
-                            controller.close();
-                            return;
-                        }
-
                         const objectKey = `audio/${data.owner.mid}/${year}/${month}/${day}/${recording.bvid}/${page.page}.mp4`;
                         const streamId = `${recording.bvid}/${page.page}`;
 
@@ -193,36 +172,25 @@ export async function POST(request: NextRequest) {
                             }))
                         });
 
+                        // Empirically, the bandwidth bilibili streaming can achive is abysmal, like
+                        // 300kb/s. We devide pages into 20MB chunks, and bilibili now roughly chunk up
+                        // videos into pages of 2 hours each. The aggregate bandwidth we typically get from
+                        // all the parallel streams is ~1MB/s. We set a timeout so that we can finsih one page
+                        // in one request. Normally each page takes 30-60 seconds and each video has 2-3 pages,
+                        // so we can upload a whole video in one request. If some good vtubers streams 20 hours in one shot,
+                        // we need to do it in multiple requests, because our free vercel plan only does 300 seconds of execution time.
+                        // So it is important we keep finished pages in r2 and only upload the unfinished ones.
                         const multipartUpload = await r2.send(new CreateMultipartUploadCommand({
                             Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
                             Key: objectKey,
                             ContentType: selectedAudio.mime_type,
                             ChecksumAlgorithm: undefined,
-                        }));
-
-                        // Check for cancellation after creating multipart upload
-                        if (signal.aborted) {
-                            sendEvent("cancelled", { message: "Upload cancelled by user" });
-                            // Clean up the multipart upload
-                            try {
-                                await r2.send(new AbortMultipartUploadCommand({
-                                    Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
-                                    Key: objectKey,
-                                    UploadId: multipartUpload.UploadId,
-                                }));
-                            } catch (cleanupError) {
-                                console.error("Failed to cleanup multipart upload:", cleanupError);
-                            }
-                            controller.close();
-                            return;
-                        }
+                        }), {
+                            abortSignal: signal,
+                            requestTimeout: 5 * 60 * 1000, // 5 minutes
+                        });
 
                         try {
-                            // Check for cancellation before starting chunk uploads
-                            if (signal.aborted) {
-                                throw new Error("Upload cancelled by user");
-                            }
-
                             const updatePromises = [];
                             for (let i = 0; i < chunks.length; i++) {
                                 const chunk = chunks[i];
@@ -306,14 +274,11 @@ export async function POST(request: NextRequest) {
                                         UploadId: multipartUpload.UploadId,
                                         Body: progressStream,
                                         ContentLength: chunkSize,
-                                    }));
+                                    }), {
+                                        abortSignal: signal,
+                                        requestTimeout: 5 * 60 * 1000, // 5 minutes
+                                    });
 
-                                    // Check for cancellation after each chunk upload
-                                    if (signal.aborted) {
-                                        throw new Error("Upload cancelled");
-                                    }
-
-                                    console.log(`Chunk complete: ${streamId}_chunk_${i + 1}`);
                                     sendEvent("chunk_complete", {
                                         streamId,
                                         chunkId: `${streamId}_chunk_${i + 1}`,
@@ -342,7 +307,10 @@ export async function POST(request: NextRequest) {
                                 MultipartUpload: {
                                     Parts: sortedParts,
                                 }
-                            }));
+                            }), {
+                                abortSignal: signal,
+                                requestTimeout: 1 * 60 * 1000, // 1 minute
+                            });
 
                             sendEvent("page_complete", {
                                 streamId,
@@ -351,36 +319,29 @@ export async function POST(request: NextRequest) {
                             });
                             objectKeys.push(objectKey);
                         } catch (error) {
-                            // Check if this is a cancellation error
-                            if (signal.aborted) {
-                                sendEvent("cancelled", { message: "Upload cancelled by user" });
-                                // Clean up the multipart upload
-                                if (multipartUpload.UploadId) {
-                                    try {
-                                        await r2.send(new AbortMultipartUploadCommand({
-                                            Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
-                                            Key: objectKey,
-                                            UploadId: multipartUpload.UploadId,
-                                        }));
-                                    } catch (cleanupError) {
-                                        console.error("Failed to cleanup multipart upload:", cleanupError);
-                                    }
+                            // Clean up the multipart upload
+                            if (multipartUpload.UploadId) {
+                                try {
+                                    await r2.send(new AbortMultipartUploadCommand({
+                                        Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
+                                        Key: objectKey,
+                                        UploadId: multipartUpload.UploadId,
+                                    }));
+                                } catch (cleanupError) {
+                                    console.error("Failed to cleanup multipart upload:", cleanupError);
                                 }
-                                controller.close();
-                                return;
                             }
 
-                            sendEvent("page_error", {
-                                streamId,
-                                message: `上传音频文件失败: ${error}`
-                            });
-                            if (multipartUpload.UploadId) {
-                                await r2.send(new AbortMultipartUploadCommand({
-                                    Bucket: process.env.FIREFLY_RECORDING_BUCKET!,
-                                    Key: objectKey,
-                                    UploadId: multipartUpload.UploadId,
-                                }));
+                            if (!signal.aborted) {
+                                sendEvent("page_error", {
+                                    streamId,
+                                    message: `上传音频文件失败: ${error}`
+                                });
                             }
+
+                            // It's important we DO NOT update the database here, otherwise we are left with
+                            // stale database entry that is not the complete set of audios.
+                            throw error;
                         }
                     }
 
@@ -397,9 +358,7 @@ export async function POST(request: NextRequest) {
                         objectKeys,
                         recording: updatedRecording
                     });
-                    controller.close();
-                } catch (error) {
-                    sendEvent("error", { message: `处理失败: ${error}` });
+                } finally {
                     controller.close();
                 }
             };
