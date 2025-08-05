@@ -2,6 +2,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "./_variables.css";
 import "./globals.css";
 
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Alex_Brush } from "next/font/google";
 import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
@@ -65,6 +67,8 @@ export default function RootLayout({
 				{/*Toastify and Toaster are both used as I don't feel like changing the admin page when I switch toast library for the main page*/}
 				<ToastContainer autoClose={1000} />
 				<Toaster />
+				<Analytics />
+				<SpeedInsights />
 			</body>
 		</html>
 	);
