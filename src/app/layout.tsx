@@ -3,6 +3,7 @@ import "./_variables.css";
 import "./globals.css";
 
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Alex_Brush } from "next/font/google";
 import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
@@ -67,6 +68,7 @@ export default function RootLayout({
 				<ToastContainer autoClose={1000} />
 				<Toaster />
 				<Analytics />
+				<SpeedInsights />
 			</body>
 		</html>
 	);
