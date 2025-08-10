@@ -91,7 +91,7 @@ export async function streamVideoToR2(recording: LiveRecordingArchive): Promise<
 		// Chunk the audio into 20MB chunks and upload concurrently
 		const chunkSize = 20 * 1024 * 1024;
 		const chunks = [];
-		for (let i = 0; i < contentLengthNumber; i += chunkSize) {
+		for (let i = 0; i < contentLengthNumber; i += chunkSize + 1) {
 			if (i + chunkSize > contentLengthNumber - 1) {
 				chunks.push([i, contentLengthNumber - 1]);
 			} else {
