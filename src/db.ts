@@ -1,7 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from '@prisma/adapter-neon';
+import { neonConfig, Pool} from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 
 const prismaClientSingleton = () => {
-	return new PrismaClient();
+	const connectionString = process.env.POSTGRES_PRISMA_URL!;
+	const pool = new Pool({ connectionString });
+	const adapter = new PrismaNeon(pool);
+	return new PrismaClient({ adapter });
 };
 
 declare global {
