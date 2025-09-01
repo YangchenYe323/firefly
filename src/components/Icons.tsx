@@ -86,7 +86,6 @@ export const Icons = {
 				fontFamily="none"
 				fontWeight="none"
 				fontSize="none"
-				textAnchor="none"
 				className="mix-blend-normal"
 			>
 				<g transform="scale(5.33333,5.33333)">
@@ -134,7 +133,6 @@ export const Icons = {
 					fontFamily="none"
 					fontWeight="none"
 					fontSize="none"
-					textAnchor="none"
 					className="mix-blend-normal"
 				>
 					<g transform="scale(5.33333,5.33333)">
@@ -169,7 +167,6 @@ export const Icons = {
 					fontFamily="none"
 					fontWeight="none"
 					fontSize="none"
-					textAnchor="none"
 					className="mix-blend-normal"
 				>
 					<g
