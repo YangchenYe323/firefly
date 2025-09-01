@@ -259,7 +259,10 @@ model LiveRecordingArchive {
   /// The songs that were played in the live
   SongOccurrenceInLive SongOccurrenceInLive[]
 
-  @@index([bvid, pubdate(sort: Desc)])
+  /// I noticed the recording archive query was the most expensive query I saw from monitoring, try if gettinga better
+  /// index helps.
+  /// We technically always query archives from the vtuberProfileId edge and scroll through pudate with keyset pagination.
+  @@index([vtuberProfileId, pubdate(sort: Desc)])
 }
 
 /// This is the relation table between Song and LiveRecordingArchive.
