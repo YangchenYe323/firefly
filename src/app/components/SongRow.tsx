@@ -172,6 +172,7 @@ const SongRow: FC<Props> = ({
 		e.stopPropagation();
 		if (isCurrentlyPlaying) {
 			const player = getPlayerSingleton();
+			if (!player) return;
 			player.pause();
 		}
 	};
