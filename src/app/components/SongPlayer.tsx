@@ -5,6 +5,7 @@ import { PlayMode, type Track } from "@/lib/player/types";
 
 import {
 	getPlayerSingleton,
+	initializePlayer,
 	useCurrentTime,
 	usePlayerState,
 } from "@/lib/player";
@@ -31,6 +32,14 @@ const SongPlayer: FC<PropType> = ({
 	const currentTime = useCurrentTime();
 	const [imgError, setImgError] = useState(false);
 
+	// Initialize player on client side
+	useEffect(() => {
+		const player = getPlayerSingleton();
+		if (!player) {
+			initializePlayer();
+		}
+	}, []);
+
 	// Reset image error state when track changes
 	// TODO: we should rewrite this to actually be a list of tracks, not "faking" a single track tab and modify its state
 	// to match what is actually being played.
@@ -46,18 +55,21 @@ const SongPlayer: FC<PropType> = ({
 			: null;
 
 	const handlePlay = () => {
+		const player = getPlayerSingleton();
+		if (!player) return;
+
 		if (playing) {
-			getPlayerSingleton().pause();
+			player.pause();
 			return;
 		}
 
 		if (currentTrack) {
-			getPlayerSingleton().play();
+			player.play();
 			return;
 		}
 
 		if (playableTracks.length > 0) {
-			getPlayerSingleton().playTrack(0);
+			player.playTrack(0);
 		}
 	};
 
@@ -109,7 +121,10 @@ const SongPlayer: FC<PropType> = ({
 					{/* Playback Controls */}
 					<div className="flex items-center gap-1">
 						<Icons.player_prev_button
-							onClick={() => getPlayerSingleton().prev()}
+							onClick={() => {
+								const player = getPlayerSingleton();
+								if (player) player.prev();
+							}}
 							className="ml-2 fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 						<PlayOrPauseIcon
@@ -117,7 +132,10 @@ const SongPlayer: FC<PropType> = ({
 							className="ml-1 fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 						<Icons.player_next_button
-							onClick={() => getPlayerSingleton().next()}
+							onClick={() => {
+								const player = getPlayerSingleton();
+								if (player) player.next();
+							}}
 							className="ml-1 fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 					</div>
@@ -144,7 +162,8 @@ const SongPlayer: FC<PropType> = ({
 								step={1}
 								onValueChange={(values) => {
 									const value = values[0];
-									getPlayerSingleton().seek(value);
+									const player = getPlayerSingleton();
+									if (player) player.seek(value);
 								}}
 								className="[&>span]:bg-gray-500 [&>span]:hover:bg-gray-600"
 							/>
@@ -154,7 +173,10 @@ const SongPlayer: FC<PropType> = ({
 					{/* Mode and Close Controls */}
 					<div className="flex justify-center items-center p-2">
 						<PlayModeIcon
-							onClick={() => getPlayerSingleton().switchMode()}
+							onClick={() => {
+								const player = getPlayerSingleton();
+								if (player) player.switchMode();
+							}}
 							className="fill-gray-700 hover:fill-gray-800 cursor-pointer"
 						/>
 						<Icons.player_close_button
