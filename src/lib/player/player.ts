@@ -216,14 +216,33 @@ export type Player = ReturnType<typeof createPlayer>;
 
 let playerGlobal: Player | undefined = undefined;
 
-const getPlayerSingleton = (): Player => {
+const getPlayerSingleton = (): Player | null => {
+	return playerGlobal || null;
+};
+
+const initializePlayer = (): Player => {
 	if (!playerGlobal) {
 		playerGlobal = createPlayer();
 	}
-
 	return playerGlobal;
 };
 
+// Create a dummy state for SSR compatibility
+const createDummyState = (): PlayerState => ({
+	duration: 0,
+	playing: false,
+	volume: 0,
+	mode: PlayMode.Order,
+	tracks: [],
+	playableTracks: [],
+	currentTrackIndex: null,
+	currentTrack: null,
+	apiUrl: "",
+});
+
 export {
 	getPlayerSingleton,
+	initializePlayer,
+	createDummyState,
+	createPlayer,
 }

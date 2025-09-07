@@ -55,6 +55,7 @@ const SongPanel: FC<PropType> = ({ onShowPlayer }) => {
 		}
 
 		const player = getPlayerSingleton();
+		if (!player) return;
 
 		player.setQueue(tracks, apiUrl);
 

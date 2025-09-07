@@ -152,6 +152,7 @@ const SongRow: FC<Props> = ({
 	const handlePlayClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		const player = getPlayerSingleton();
+		if (!player) return;
 
 		if (isCurrentlyPaused) {
 			player.play();
@@ -171,6 +172,7 @@ const SongRow: FC<Props> = ({
 		e.stopPropagation();
 		if (isCurrentlyPlaying) {
 			const player = getPlayerSingleton();
+			if (!player) return;
 			player.pause();
 		}
 	};
