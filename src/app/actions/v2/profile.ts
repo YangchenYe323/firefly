@@ -45,10 +45,10 @@ export const getVtuberProfileCached = cache(async () => {
  */
 export async function getVtuberProfile(): Promise<GetVtuberProfileReturnType> {
 	// Disable cache so nextjs doesn't produce a fxxking static page : )
-	const _cookies = cookies();
+	const _cookies = await cookies();
 
 	// Check if the request is from a domain we know about
-	const headersList = headers();
+	const headersList = await headers();
 	const host = headersList.get('host');
 
 	let domainId: number | null = null;

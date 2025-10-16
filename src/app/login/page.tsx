@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export default async function LoginPage() {
 	async function dummyAction() {
-		const _cookies = cookies();
+		const _cookies = await cookies();
 	}
 
 	await dummyAction();

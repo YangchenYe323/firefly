@@ -17,7 +17,7 @@ export interface PresenceProps {
 	// A children could either be any ReactElement, in which case we won't manage the presence state, or
 	// a function element that accepts a present in its prop, and we manage the presence state for it, handling
 	// lazy unmounting to wait for any exit animations to complete
-	children: ReactElement | ((props: { present: boolean }) => ReactElement);
+	children: ReactElement<any> | ((props: { present: boolean }) => ReactElement<any>);
 	present: boolean;
 }
 
@@ -27,7 +27,7 @@ export const Presence: FC<PresenceProps> = ({ children, present }) => {
 		typeof children === "function"
 			? children({ present: isPresent })
 			: Children.only(children)
-	) as ReactElement;
+	) as ReactElement<any>;
 
 	const r = useComposedRefs(ref, getElementRef(child));
 	const forceMount = typeof children === "function";
@@ -46,7 +46,7 @@ Presence.displayName = "Presence";
  */
 function usePresence(present: boolean) {
 	const [node, setNode] = useState<HTMLElement>();
-	const styleRef = useRef<CSSStyleDeclaration>();
+	const styleRef = useRef<CSSStyleDeclaration>(undefined);
 	const prevPresentRef = useRef(present);
 	const prevAnimationNameRef = useRef<string>("none");
 	const initialState = present ? "mounted" : "unmounted";
@@ -215,7 +215,7 @@ function useStateMachine<M>(
  * https://github.com/facebook/react/pull/28348
  * @param element
  */
-function getElementRef(element: ReactElement) {
+function getElementRef(element: ReactElement<any>) {
 	// React <=18 in DEV
 	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
 	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
