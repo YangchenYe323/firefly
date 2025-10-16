@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, type FC } from "react";
+import { useState, useEffect, useRef, useMemo, type FC, type RefObject } from "react";
 import { Loader2 } from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listArchives } from "../actions/v2/archive";
@@ -43,7 +43,7 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
     const [expandedRecording, setExpandedRecording] = useState<LiveRecordingArchive | null>(null);
 
     const ref = useRef<HTMLDivElement>(null);
-    useOnClickOutside(ref, () => {
+    useOnClickOutside(ref as RefObject<HTMLElement>, () => {
         setNoActiveDay();
     });
 
@@ -62,7 +62,7 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
                 recording,
             });
         }
-        
+
         return parts;
     }, [recordings])
 
@@ -200,7 +200,7 @@ const ActiveDayCell: FC<ActiveDayCellProps> = ({ day, setNoActiveDay }) => {
                                                             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                                                             className="my-2 overflow-hidden"
                                                         >
-                                                                <RecordingTimeline recording={part.recording} calendarDate={date} />
+                                                            <RecordingTimeline recording={part.recording} calendarDate={date} />
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
@@ -362,7 +362,7 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
         if (!recordingsByDate.has(zonedDateStartOfDay.getTime())) {
             recordingsByDate.set(zonedDateStartOfDay.getTime(), []);
         }
-        
+
         recordingsByDate.get(zonedDateStartOfDay.getTime())!.push(recording);
     }
 
@@ -373,20 +373,20 @@ const RecordingCalendar: FC<RecordingCalendarProps> = ({ vtuberProfileId }) => {
 
     // The earliest date where we have a live recorded
     const earliestDate = calendarDays.length > 0 ? calendarDays[0].date : new Date();
-    
+
     // The latest date where we have a live recorded
     let latestDate = calendarDays.length > 0 ? calendarDays[calendarDays.length - 1].date : new Date();
-    
+
     // Always ensure we show at least the current week
     const today = new Date();
     const currentWeekStart = startOfWeek(today);
     const currentWeekEnd = addDays(currentWeekStart, 6);
-    
+
     // If the current week extends beyond our latest recorded date, use the current week end
     if (currentWeekEnd > latestDate) {
         latestDate = currentWeekEnd;
     }
-    
+
     // Interpolate all weeks from earliest to latest date
     const allWeeks = [];
 

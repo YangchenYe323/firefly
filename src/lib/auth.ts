@@ -33,7 +33,7 @@ export async function signNewJwtToken(user: User) {
 }
 
 export async function auth(): Promise<User | null> {
-	const currentUser = cookies().get("currentUser")?.value;
+	const currentUser = (await cookies()).get("currentUser")?.value;
 	const jwtVerified = currentUser && (await verifyJwtToken(currentUser));
 
 	if (!jwtVerified) {

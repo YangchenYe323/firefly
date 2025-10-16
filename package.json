@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "pnpm prisma generate && next build",
     "start": "next start",
     "lint": "biome lint ./src",
@@ -47,13 +47,13 @@
     "jotai": "^2.13.1",
     "jotai-tanstack-query": "^0.9.2",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.358.0",
+    "lucide-react": "^0.545.0",
     "md5": "^2.3.0",
-    "next": "14.2.1",
-    "next-themes": "^0.3.0",
+    "next": "15.5.5",
+    "next-themes": "^0.4.0",
     "prisma": "^6.15.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-toastify": "^10.0.6",
     "react-use-measure": "^2.1.7",
     "sharp": "^0.33.5",
@@ -68,8 +68,8 @@
     "@biomejs/biome": "1.8.3",
     "@types/node": "^20.19.11",
     "@types/prompt-sync": "^4.2.3",
-    "@types/react": "^18.3.24",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.21",
     "bufferutil": "^4.0.9",
@@ -78,5 +78,11 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.2",
+      "@types/react-dom": "19.2.2"
+    }
   }
 }

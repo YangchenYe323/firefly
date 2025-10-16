@@ -63,7 +63,7 @@ export default async function userLogin(
 
 	const newUserToken = await signNewJwtToken(user);
 	const thirtyDays = 24 * 60 * 60;
-	cookies().set("currentUser", newUserToken, { maxAge: thirtyDays });
+	(await cookies()).set("currentUser", newUserToken, { maxAge: thirtyDays });
 
 	return {
 		success: true,
