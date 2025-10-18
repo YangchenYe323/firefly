@@ -83,4 +83,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  .text-autospace-normal {
+    text-autospace: normal;
+  }
 }
