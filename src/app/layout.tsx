@@ -62,7 +62,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="zh-CN" suppressHydrationWarning={true}>
-			<body className={`${alexBrush.variable} font-chinese`}>
+			<body className={`${alexBrush.variable} font-chinese text-autospace-normal`}>
 				<Providers>{children}</Providers>
 				{/*Toastify and Toaster are both used as I don't feel like changing the admin page when I switch toast library for the main page*/}
 				<ToastContainer autoClose={1000} />
