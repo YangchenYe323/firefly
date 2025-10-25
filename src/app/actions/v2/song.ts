@@ -6,6 +6,7 @@ import type { LiveRecordingArchive, Prisma, Song, SongOccurrenceInLive, VtuberSo
 import prisma from "@/db";
 import { getVideoInfo } from "@/lib/bilibili";
 import type { VtuberSongWithReferences } from "./profile";
+import { Function_, initializeClient } from "modal";
 
 interface ListSongsReturnType extends ActionReturnTypeBase {
     songs?: Song[];
@@ -194,6 +195,32 @@ export async function createVtuberSong(vtuberSong: VtuberSong): Promise<CreateVt
     }
 
     return { success: true, vtuberSong: newVtuberSong };
+}
+
+interface BackfillVtuberSongOccurrencesReturnType extends ActionReturnTypeBase { }
+
+/**
+ * Trigger the deployed function on modal to backfill the given vtuber song's occurrences in past live recordings.
+ * Return immediately, the function will be executed in the background.
+ * 
+ **/
+export async function triggerBackfillVtuberSongOccurrences(title: string, limit: number): Promise<BackfillVtuberSongOccurrencesReturnType> {
+    const authResult = await auth();
+    if (!authResult) {
+        return { success: false, message: "无法回填歌曲播放记录，请先登录" };
+    }
+
+    console.log(process.env.MODAL_TOKEN_ID!, process.env.MODAL_TOKEN_SECRET!);
+    initializeClient({
+        tokenId: process.env.MODAL_TOKEN_ID!,
+        tokenSecret: process.env.MODAL_TOKEN_SECRET!,
+    });
+
+    const fn = await Function_.lookup("firefly-vcut-cron", "backfill_occurrences")
+
+    await fn.spawn([title, limit]);
+
+    return { success: true };
 }
 
 interface UpdateVtuberSongReturnType extends ActionReturnTypeBase {
@@ -428,23 +455,23 @@ export async function listSongOccurrencesForArchive(
 }
 
 function parsePubdateAfterFilter(
-	afterDate?: number | string | undefined,
+    afterDate?: number | string | undefined,
 ): { pubdate: { gte: number } } | undefined {
-	if (!afterDate) {
-		return undefined;
-	}
+    if (!afterDate) {
+        return undefined;
+    }
 
-	if (typeof afterDate === "string") {
-		// Interpret as ISO string
-		const date = new Date(afterDate);
-		if (Number.isNaN(date.getTime())) {
-			return undefined;
-		}
+    if (typeof afterDate === "string") {
+        // Interpret as ISO string
+        const date = new Date(afterDate);
+        if (Number.isNaN(date.getTime())) {
+            return undefined;
+        }
 
-		return { pubdate: { gte: date.getTime() / 1000 } };
-	}
+        return { pubdate: { gte: date.getTime() / 1000 } };
+    }
 
-	return { pubdate: { gte: afterDate } };
+    return { pubdate: { gte: afterDate } };
 }
 
 interface DeleteSongOccurrenceReturnType extends ActionReturnTypeBase {

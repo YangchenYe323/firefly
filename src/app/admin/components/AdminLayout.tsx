@@ -51,6 +51,7 @@ import {
 	vtuberProfilesAtom,
 	selectedProfileIdAtom,
 	selectedProfileAtom,
+	useBackfillVtuberSongOccurrencesMutation,
 } from "@/lib/admin-store";
 
 type TabType = "songs" | "vtuber-songs" | "profile" | "themes" | "links" | "domains" | "live-recordings";
@@ -71,10 +72,10 @@ export default function AdminLayout() {
 	const [profilesAtomState] = useAtom(vtuberProfilesAtom);
 
 	const [
-		{ isLoading: isLoadingSongs, error: songsError, refetch: refetchSongs },
+		{ data: songs, isLoading: isLoadingSongs, error: songsError, refetch: refetchSongs },
 	] = useAtom(songsAtom);
 
-	const [{refetch: refetchVtuberProfile}] = useAtom(vtuberProfilesAtom);
+	const [{ refetch: refetchVtuberProfile }] = useAtom(vtuberProfilesAtom);
 
 	const filteredSongs = useAtomValue(filteredSongsAtom);
 
@@ -90,6 +91,7 @@ export default function AdminLayout() {
 	const { mutateAsync: createVtuberSong } = useCreateVtuberSongMutation();
 	const { mutateAsync: updateVtuberSong } = useUpdateVtuberSongMutation();
 	const { mutateAsync: deleteVtuberSong } = useDeleteVtuberSongMutation();
+	const { mutateAsync: backfillOccurrences, isPending: isBackfilling } = useBackfillVtuberSongOccurrencesMutation();
 
 	const [activeTab, setActiveTab] = useState<TabType>("songs");
 	const [selectedSong, setSelectedSong] = useState<SongForEditOrCreate | null>(
@@ -202,6 +204,23 @@ export default function AdminLayout() {
 				return;
 			}
 			toast.success("已创建主播歌曲");
+
+			// Call backfill after successful creation
+			try {
+				// Get the song title from the songs list
+				if (songs) {
+					const selectedSongForBackfill = songs.find(song => song.id === vtuberSong.vtuberSong.songId);
+
+					if (selectedSongForBackfill) {
+						toast.loading("提交后台任务回填歌曲播放记录...", { id: "backfill" });
+						await backfillOccurrences({ title: selectedSongForBackfill.title, limit: 30 });
+						toast.success("后台任务提交成功", { id: "backfill" });
+					}
+				}
+			} catch (error) {
+				toast.error("提交后台任务回填歌曲播放记录失败，不影响歌曲创建", { id: "backfill" });
+			}
+
 			refetchVtuberProfile();
 			handleCloseEditPanel();
 			return;
@@ -502,36 +521,36 @@ export default function AdminLayout() {
 								</Card>
 							</div>
 
-					{/* Desktop Edit Panel */}
-					{selectedVtuberSong && (
-						<div className="hidden lg:block lg:w-1/3">
-							<Card className="h-full">
-								<CardHeader className="pb-4">
-									<div className="flex items-center justify-between">
-										<CardTitle className="text-lg font-semibold">
-											{selectedVtuberSong.create ? "添加主播歌曲" : "编辑主播歌曲"}
-										</CardTitle>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={handleCloseEditPanel}
-										>
-											<X className="w-4 h-4" />
-										</Button>
-									</div>
-								</CardHeader>
+							{/* Desktop Edit Panel */}
+							{selectedVtuberSong && (
+								<div className="hidden lg:block lg:w-1/3">
+									<Card className="h-full">
+										<CardHeader className="pb-4">
+											<div className="flex items-center justify-between">
+												<CardTitle className="text-lg font-semibold">
+													{selectedVtuberSong.create ? "添加主播歌曲" : "编辑主播歌曲"}
+												</CardTitle>
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={handleCloseEditPanel}
+												>
+													<X className="w-4 h-4" />
+												</Button>
+											</div>
+										</CardHeader>
 
-								<CardContent className="flex-1">
-									<EditVtuberSongPanel
-										vtuberSong={selectedVtuberSong}
-										onSave={handleSaveVtuberSong}
-										onCancel={handleCloseEditPanel}
-										onNavigateToCreateSong={handleNavigateToCreateSong}
-									/>
-								</CardContent>
-							</Card>
-						</div>
-					)}
+										<CardContent className="flex-1">
+											<EditVtuberSongPanel
+												vtuberSong={selectedVtuberSong}
+												onSave={handleSaveVtuberSong}
+												onCancel={handleCloseEditPanel}
+												onNavigateToCreateSong={handleNavigateToCreateSong}
+											/>
+										</CardContent>
+									</Card>
+								</div>
+							)}
 						</div>
 					)}
 				</div>

@@ -30,6 +30,7 @@ import {
 	updateVtuberSong,
 	deleteVtuberSong,
 	listSuperChats,
+	triggerBackfillVtuberSongOccurrences,
 } from "@/app/actions/v2/song";
 import {
 	useMutation,
@@ -183,6 +184,23 @@ export const useDeleteVtuberSongMutation = () => {
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: ["vtuber-songs"] });
 				queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			},
+		},
+		queryClient,
+	);
+};
+
+export const useBackfillVtuberSongOccurrencesMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation(
+		{
+			mutationFn: async ({ title, limit }: { title: string; limit: number }) => {
+				const result = await triggerBackfillVtuberSongOccurrences(title, limit);
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+				return result;
 			},
 		},
 		queryClient,
