@@ -118,6 +118,7 @@ If the API service is not available. The site could still function.
 
 - `NEXT_PUBLIC_JWT_SECRET_KEY`: pick a secret key. It will be used to authenticate admin log in with JWT token
 - `BILI_CRED_SESSDATA`, `BILI_CRED_BILIJCT` (optional): Bilibili login credentials. It is used for fetching video information for vtuber song. Use [biliup](https://github.com/biliup/biliup-rs) to login and get the credential.
+- `MODAL_TOKEN_ID` & `MODAL_TOKEN_SECRET` (optional): [modal](https://modal.com/) credentials for the deployment of [firefly-vcut](https://github.com/YangchenYe323/firefly-vcut). This is used to trigger a backfill of song occurrences when a new song is added.
 
 #### Perform database migration
 
