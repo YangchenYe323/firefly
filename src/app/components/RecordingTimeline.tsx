@@ -12,6 +12,10 @@ import { useAtomValue } from "jotai";
 import useMeasure from "react-use-measure";
 import { motion, AnimatePresence } from "framer-motion";
 
+// We know bilibili cut page by roughly 2 hours, so we use it to normalize the start time
+// from within each page to within the start of the live. Not great, but works for now
+const PAGE_DURATION = 2 * 60 * 60; // 2 hours
+
 interface RecordingTimelineItemProps {
     idx: number; // index of the item
     numItems: number; // number of items in the timeline
@@ -89,14 +93,14 @@ const RecordingTimeline: FC<RecordingTimelineProps> = ({ recording, calendarDate
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                     >
-                        {occurrences.sort((a, b) => a.start - b.start).map((occurrence, idx) => {
+                        {occurrences.map((occurrence, idx) => {
                             const picture = `${apiUrl}/api/v1/artwork?title=${encodeURIComponent(occurrence.vtuberSong.song.title)}&artist=${encodeURIComponent(occurrence.vtuberSong.song.artist)}&size=large`;
                             const bilibiliUrl = `https://www.bilibili.com/video/${recording.bvid}?p=${occurrence.page}&t=${occurrence.start}`;
                             return <RecordingTimelineItem
                                 key={`${occurrence.vtuberSongId}-${occurrence.liveRecordingArchiveId}-${occurrence.start}`}
                                 idx={idx}
                                 numItems={occurrences.length}
-                                startTime={occurrence.start}
+                                startTime={occurrence.start + (occurrence.page - 1) * PAGE_DURATION}
                                 title={`唱了 ${occurrence.vtuberSong.song.title}`}
                                 picture={picture}
                                 icon={<Icons.sing />}
