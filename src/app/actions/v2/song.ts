@@ -427,6 +427,8 @@ interface ListSongOccurrencesForArchiveReturnType extends ActionReturnTypeBase {
  * List occurrences of a given vtuber's song in a given archive. This is not a paginated API because
  * someone can at most sing a couple dozens of songs in one live, right? : )
  * 
+ * The result is sorted by (page number, start time)
+ * 
  * @param archiveId - The id of the archive to list occurrences for
  * @returns The occurrences of the vtuber's song in the archive
  */
@@ -445,6 +447,14 @@ export async function listSongOccurrencesForArchive(
                 },
             },
         },
+        orderBy: [
+            {
+                page: "asc",
+            },
+            {
+                start: "asc",
+            },
+        ],
     });
 
     if (!occurrences) {
