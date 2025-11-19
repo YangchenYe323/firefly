@@ -50,7 +50,7 @@
     "lucide-react": "^0.545.0",
     "md5": "^2.3.0",
     "modal": "^0.5.0-dev.7",
-    "next": "15.5.5",
+    "next": "16.0.3",
     "next-themes": "^0.4.0",
     "prisma": "^6.18.0",
     "react": "19.2.0",
@@ -67,10 +67,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
+    "@next/codemod": "16.0.3",
     "@types/node": "^20.19.11",
     "@types/prompt-sync": "^4.2.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "19.2.6",
+    "@types/react-dom": "19.2.3",
     "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.21",
     "bufferutil": "^4.0.9",
@@ -82,8 +83,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "19.2.2",
-      "@types/react-dom": "19.2.2"
+      "@types/react": "19.2.6",
+      "@types/react-dom": "19.2.3"
     },
     "ignoredBuiltDependencies": [
       "bcrypt"

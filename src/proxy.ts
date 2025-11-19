@@ -7,7 +7,7 @@ function isAccessAdminPath(pathname: string) {
 	return ADMIN_PATH.some((p) => pathname.startsWith(p));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const currentUser = request.cookies.get("currentUser")?.value;
 
 	const jwtVerified = currentUser && (await verifyJwtToken(currentUser));
