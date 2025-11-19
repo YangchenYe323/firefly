@@ -16,7 +16,6 @@
     "@neondatabase/serverless": "^1.0.1",
     "@prisma/adapter-neon": "^6.18.0",
     "@prisma/client": "^6.18.0",
-    "@prisma/nextjs-monorepo-workaround-plugin": "^6.18.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-compose-refs": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.15",
