@@ -97,7 +97,7 @@ export default function EditSongPanel({ song, onSave, onCancel }: EditSongPanelP
 				...prev.song,
 				title: result.title,
 				artist: result.artist,
-				lyrics_fragment: result.lyrics_fragment,
+				lyricsFragment: result.lyrics_fragment,
 			},
 		}));
 	};
