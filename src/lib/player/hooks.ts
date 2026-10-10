@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getPlayerSingleton, createDummyState } from "./player";
+import { getPlayerSingleton, initializePlayer, createDummyState } from "./player";
 
 export const usePlayerState = () => {
 	const [state, setState] = useState(() => {
@@ -8,12 +8,15 @@ export const usePlayerState = () => {
 		return player ? player.getState() : createDummyState();
 	});
 
-	// Subscribe to player's state change and propagate to hook state
+	// Subscribe to player's state change and propagate to hook state.
+	// Initialize the player here (client-only) so subscription never misses
+	// because the singleton has not been created yet.
 	useEffect(() => {
-		const player = getPlayerSingleton();
-		if (!player) return;
+		const player = initializePlayer();
 
 		const unsubscribe = player.subscribe(setState);
+		// Sync any state changes that happened before subscribing
+		setState(player.getState());
 		return unsubscribe;
 	}, []);
 
@@ -27,10 +30,10 @@ export const useCurrentTime = () => {
 	});
 
 	useEffect(() => {
-		const player = getPlayerSingleton();
-		if (!player) return;
+		const player = initializePlayer();
 
 		const unsubscribe = player.onChangeCurrentTime(setCurrentTime);
+		setCurrentTime(player.getCurrentTime());
 		return unsubscribe;
 	}, []);
 
