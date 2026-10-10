@@ -2,7 +2,7 @@
 
 一个B站虚拟主播的歌单网站，希望主包和dd们玩得开心~
 
-This project is heavily based on the work of [@贝格耶喽](https://github.com/BigYellowhcy) and inspired by (reverse-engineered from) sites like [树礼Suki的歌单](https://shulisuki.top/), [桃几OvO的歌单 - 虚拟形象设定展示页](https://www.taojiovo.com/), and [明前奶绿 ✽ LAPLACE](https://laplace.live/). Thank you : )
+This project is heavily based on the work of [@贝格耶喽](https://github.com/BigYellowhcy) and inspired by (reverse-engineered from) sites like [树礼Suki的歌单](https://shulisuki.top/) and [明前奶绿 ✽ LAPLACE](https://laplace.live/). Thank you : )
 
 ## Showcase
 
